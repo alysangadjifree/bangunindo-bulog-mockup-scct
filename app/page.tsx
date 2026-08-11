@@ -39,6 +39,16 @@ type Region = {
   top: string;
 };
 
+type FilterDropdownId = "dashboard" | "map-level" | "chart-size";
+
+const filterDefaults = {
+  dashboardType: "Persediaan",
+  mapLevel: "Region",
+  chartSize: "Select Chart Size",
+  startDate: "2026-01-01",
+  endDate: "2026-08-11",
+};
+
 const regions: Region[] = [
   {
     name: "SUMATERA",
@@ -173,6 +183,67 @@ function RegionMarker({
   );
 }
 
+function FilterSelect({
+  id,
+  label,
+  value,
+  options,
+  open,
+  onToggle,
+  onChange,
+}: {
+  id: FilterDropdownId;
+  label: string;
+  value: string;
+  options: string[];
+  open: boolean;
+  onToggle: () => void;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className={`filter-field filter-field--select${open ? " is-open" : ""}`}>
+      <span className="filter-label" id={`${id}-label`}>{label}</span>
+      <button
+        type="button"
+        className="filter-select-button"
+        onClick={onToggle}
+        aria-labelledby={`${id}-label ${id}-value`}
+        aria-controls={`${id}-options`}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+      >
+        <span id={`${id}-value`}>{value}</span>
+        {open ? <ChevronUp size={25} /> : <ChevronDown size={25} />}
+      </button>
+      {open && (
+        <div className="filter-options" id={`${id}-options`} role="listbox" aria-labelledby={`${id}-label`}>
+          {options.map((option) => (
+            <button
+              type="button"
+              key={option}
+              role="option"
+              aria-selected={value === option}
+              className={value === option ? "selected" : ""}
+              onClick={() => onChange(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function formatDashboardDate(value: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
 export default function HomePage() {
   const [legendOpen, setLegendOpen] = useState(true);
   const [summaryOpen, setSummaryOpen] = useState(true);
@@ -181,6 +252,16 @@ export default function HomePage() {
   const [activeNav, setActiveNav] = useState("Beranda");
   const [activeTab, setActiveTab] = useState("Persediaan Beras");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
+  const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
+  const [mapLevel, setMapLevel] = useState(filterDefaults.mapLevel);
+  const [chartSize, setChartSize] = useState(filterDefaults.chartSize);
+  const [startDate, setStartDate] = useState(filterDefaults.startDate);
+  const [endDate, setEndDate] = useState(filterDefaults.endDate);
+  const [appliedDashboardType, setAppliedDashboardType] = useState(filterDefaults.dashboardType);
+  const [appliedChartSize, setAppliedChartSize] = useState(filterDefaults.chartSize);
+  const [appliedStartDate, setAppliedStartDate] = useState(filterDefaults.startDate);
+  const [appliedEndDate, setAppliedEndDate] = useState(filterDefaults.endDate);
   const [chatOpen, setChatOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -216,6 +297,32 @@ export default function HomePage() {
     } catch {
       showToast("Mode fullscreen tidak tersedia di perangkat ini");
     }
+  }
+
+  function toggleFilterPanel() {
+    setFilterOpen((value) => !value);
+    setOpenFilterDropdown(null);
+  }
+
+  function applyFilter() {
+    setAppliedDashboardType(dashboardType);
+    setAppliedChartSize(chartSize);
+    setAppliedStartDate(startDate);
+    setAppliedEndDate(endDate);
+    setLevel(mapLevel);
+    setFilterOpen(false);
+    setOpenFilterDropdown(null);
+    showToast(`Filter ${dashboardType} berhasil diterapkan`);
+  }
+
+  function resetFilter() {
+    setDashboardType(filterDefaults.dashboardType);
+    setMapLevel(filterDefaults.mapLevel);
+    setChartSize(filterDefaults.chartSize);
+    setStartDate(filterDefaults.startDate);
+    setEndDate(filterDefaults.endDate);
+    setOpenFilterDropdown(null);
+    showToast("Filter dikembalikan ke pengaturan awal");
   }
 
   return (
@@ -276,14 +383,14 @@ export default function HomePage() {
 
       <section className="workspace">
         <div className="title-bar">
-          <h1>Dashboard Persediaan</h1>
-          <span>(01 January 2026 – 11 August 2026)</span>
+          <h1>Dashboard {appliedDashboardType}</h1>
+          <span>({formatDashboardDate(appliedStartDate)} – {formatDashboardDate(appliedEndDate)})</span>
         </div>
 
         <button
           className={`filter-handle${filterOpen ? " active" : ""}`}
           aria-label="Buka filter"
-          onClick={() => setFilterOpen((value) => !value)}
+          onClick={toggleFilterPanel}
         >
           <Filter size={23} />
         </button>
@@ -337,7 +444,7 @@ export default function HomePage() {
               <Maximize size={21} />
             </button>
 
-            <div className={`marker-layer${refreshing ? " is-refreshing" : ""}`}>
+            <div className={`marker-layer${refreshing ? " is-refreshing" : ""} chart-${appliedChartSize.toLowerCase()}`}>
               {regions.map((region) => (
                 <RegionMarker
                   key={region.name}
@@ -413,28 +520,64 @@ export default function HomePage() {
         </nav>
       </section>
 
-      <aside className={`filter-drawer${filterOpen ? " open" : ""}`} aria-hidden={!filterOpen}>
+      <aside
+        className={`filter-drawer${filterOpen ? " open" : ""}`}
+        aria-hidden={!filterOpen}
+        aria-label="Filter dashboard"
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            if (openFilterDropdown) setOpenFilterDropdown(null);
+            else setFilterOpen(false);
+          }
+        }}
+      >
         <div className="filter-title">
-          <div><small>FILTER DATA</small><strong>Tampilan Peta</strong></div>
-          <button onClick={() => setFilterOpen(false)} aria-label="Tutup filter"><X size={20} /></button>
+          <strong>Filter</strong>
+          <button onClick={() => { setFilterOpen(false); setOpenFilterDropdown(null); }} aria-label="Tutup filter"><X size={30} /></button>
         </div>
-        <label>
-          Periode
-          <select defaultValue="2026"><option>2026</option><option>2025</option></select>
-        </label>
-        <label>
-          Komoditas
-          <select defaultValue="Beras"><option>Beras</option><option>Jagung</option><option>Gula</option></select>
-        </label>
-        <fieldset>
-          <legend>Keterpakaian Gudang</legend>
-          {["> 80%", "50% – 80%", "< 50%"].map((item) => (
-            <label key={item} className="check-row"><input type="checkbox" defaultChecked /><span><Check size={13} /></span>{item}</label>
-          ))}
-        </fieldset>
-        <button className="apply-filter" onClick={() => { setFilterOpen(false); showToast("Filter berhasil diterapkan"); }}>
-          Terapkan Filter
-        </button>
+        <div className="filter-body">
+          <FilterSelect
+            id="dashboard"
+            label="Dashboard Type"
+            value={dashboardType}
+            options={["Persediaan", "Pengadaan", "Penjualan", "Keuangan", "Eksekutif"]}
+            open={openFilterDropdown === "dashboard"}
+            onToggle={() => setOpenFilterDropdown((value) => value === "dashboard" ? null : "dashboard")}
+            onChange={(value) => { setDashboardType(value); setOpenFilterDropdown(null); }}
+          />
+          <FilterSelect
+            id="map-level"
+            label="Map Level"
+            value={mapLevel}
+            options={["Region", "Kanwil", "Kancab", "Gudang"]}
+            open={openFilterDropdown === "map-level"}
+            onToggle={() => setOpenFilterDropdown((value) => value === "map-level" ? null : "map-level")}
+            onChange={(value) => { setMapLevel(value); setOpenFilterDropdown(null); }}
+          />
+          <FilterSelect
+            id="chart-size"
+            label="Chart Size"
+            value={chartSize}
+            options={["Select Chart Size", "Small", "Medium", "Large"]}
+            open={openFilterDropdown === "chart-size"}
+            onToggle={() => setOpenFilterDropdown((value) => value === "chart-size" ? null : "chart-size")}
+            onChange={(value) => { setChartSize(value); setOpenFilterDropdown(null); }}
+          />
+          <div className="filter-date-row">
+            <label className="filter-field filter-field--date">
+              <span className="filter-label">Start Date</span>
+              <input type="date" value={startDate} max={endDate} onChange={(event) => setStartDate(event.target.value)} />
+            </label>
+            <label className="filter-field filter-field--date">
+              <span className="filter-label">End Date</span>
+              <input type="date" value={endDate} min={startDate} onChange={(event) => setEndDate(event.target.value)} />
+            </label>
+          </div>
+        </div>
+        <div className="filter-actions">
+          <button className="apply-filter" onClick={applyFilter}>Apply Filter</button>
+          <button className="reset-filter" onClick={resetFilter}>Reset Filter</button>
+        </div>
       </aside>
 
       <button className="chat-fab" aria-label="Buka pusat bantuan" onClick={() => setChatOpen((value) => !value)}>

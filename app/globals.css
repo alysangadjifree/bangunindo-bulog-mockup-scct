@@ -554,38 +554,140 @@ button {
 
 .filter-drawer {
   position: fixed;
-  z-index: 55;
-  top: 72px;
-  right: 0;
-  bottom: 0;
-  width: 325px;
+  z-index: 70;
+  top: 78px;
+  right: 10px;
+  width: min(1000px, calc(100vw - 200px));
+  max-height: calc(100vh - 94px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
-  background: white;
-  border-left: 1px solid var(--line);
+  padding: 0;
+  background: #f0f0f0;
+  border: 1px solid #c9d0d9;
+  border-radius: 15px;
   box-shadow: -14px 0 35px rgba(24, 43, 77, 0.12);
   transform: translateX(102%);
   transition: transform 220ms ease;
+  overflow: auto;
 }
 
 .filter-drawer.open { transform: translateX(0); }
 
-.filter-title { display: flex; align-items: center; justify-content: space-between; }
-.filter-title div { display: grid; gap: 4px; }
-.filter-title small { color: #8c99aa; font-size: 11px; letter-spacing: 1px; }
-.filter-title strong { font-size: 21px; font-weight: 500; }
-.filter-title button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; background: #f0f3f7; border-radius: 50%; cursor: pointer; }
+.filter-title {
+  flex: 0 0 132px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  background: #e4e4e4;
+  border-radius: 15px 15px 0 0;
+}
 
-.filter-drawer > label { display: grid; gap: 8px; color: #5a687d; font-size: 13px; }
-.filter-drawer select { width: 100%; height: 42px; padding: 0 11px; border: 1px solid var(--line); border-radius: 6px; color: #263b5b; background: white; }
-.filter-drawer fieldset { display: grid; gap: 11px; margin: 0; padding: 0; border: 0; }
-.filter-drawer legend { margin-bottom: 10px; color: #5a687d; font-size: 13px; }
-.check-row { display: flex; align-items: center; gap: 9px; color: #2f4057; font-size: 14px; }
-.check-row input { position: absolute; opacity: 0; }
-.check-row span { width: 18px; height: 18px; display: grid; place-items: center; color: white; background: var(--blue-900); border-radius: 4px; }
-.apply-filter { height: 44px; margin-top: auto; border: 0; border-radius: 6px; color: white; background: var(--blue-900); cursor: pointer; }
+.filter-title strong { color: #0e1014; font-size: 31px; font-weight: 400; }
+.filter-title button { width: 60px; height: 60px; display: grid; place-items: center; border: 1px solid #c7c7c7; color: #101217; background: transparent; border-radius: 50%; cursor: pointer; }
+.filter-title button:hover { background: rgba(255, 255, 255, .55); }
+
+.filter-body {
+  display: grid;
+  gap: 32px;
+  padding: 38px 36px 34px;
+  background: #f1f1f1;
+}
+
+.filter-field { position: relative; display: grid; gap: 12px; min-width: 0; }
+.filter-field.is-open { z-index: 8; }
+.filter-label { color: #111319; font-size: 25px; line-height: 1.15; }
+
+.filter-select-button {
+  width: 100%;
+  height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 24px;
+  border: 0;
+  color: #111319;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 25px;
+  text-align: left;
+}
+
+.filter-select-button svg { flex: 0 0 auto; stroke-width: 3; }
+
+.filter-options {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 14px);
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: 0;
+  padding: 18px 0;
+  background: white;
+  border: 1px solid #a9a9a9;
+  border-radius: 7px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .25);
+}
+
+.filter-options button {
+  width: 100%;
+  min-height: 52px;
+  padding: 9px 32px;
+  border: 0;
+  color: #14171c;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  text-align: left;
+}
+
+.filter-options button:hover { background: #f3f5f8; }
+.filter-options button.selected { color: #25479a; font-weight: 500; }
+
+.filter-date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.filter-field--date input {
+  width: 100%;
+  height: 74px;
+  min-width: 0;
+  padding: 0 24px;
+  border: 0;
+  outline: 0;
+  color: #111319;
+  background: white;
+  border-radius: 8px;
+  font-size: 25px;
+}
+
+.filter-field--date input:focus { box-shadow: inset 0 0 0 2px #294999; }
+
+.filter-actions {
+  display: grid;
+  gap: 14px;
+  padding: 36px;
+  background: #e4e4e4;
+  border-radius: 0 0 15px 15px;
+}
+
+.apply-filter,
+.reset-filter {
+  width: 100%;
+  height: 74px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 25px;
+}
+
+.apply-filter { border: 0; color: white; background: #294999; }
+.apply-filter:hover { background: #203d84; }
+.reset-filter { border: 1px solid #c2c2c2; color: #101217; background: transparent; }
+.reset-filter:hover { background: rgba(255, 255, 255, .45); }
+
+.marker-layer.chart-small .region-marker { width: clamp(100px, 7vw, 136px); }
+.marker-layer.chart-medium .region-marker { width: clamp(126px, 10vw, 178px); }
+.marker-layer.chart-large .region-marker { width: clamp(144px, 12vw, 206px); }
 
 .chat-fab {
   position: fixed;
@@ -655,6 +757,14 @@ button {
   .action-row { flex-basis: 62px; }
   .dashboard-tabs { flex-basis: 48px; }
   .summary-list > div { min-height: 39px; padding: 6px 10px; }
+  .filter-title { flex-basis: 82px; }
+  .filter-title strong { font-size: 25px; }
+  .filter-title button { width: 46px; height: 46px; }
+  .filter-body { gap: 18px; padding-top: 22px; padding-bottom: 22px; }
+  .filter-label { font-size: 19px; }
+  .filter-select-button, .filter-field--date input { height: 54px; font-size: 19px; }
+  .filter-actions { padding-top: 22px; padding-bottom: 22px; }
+  .apply-filter, .reset-filter { height: 52px; font-size: 19px; }
 }
 
 @media (max-width: 1180px) {
@@ -687,6 +797,15 @@ button {
   .dashboard-tabs button { flex: 0 0 auto; padding: 0 15px; }
   .dashboard-tabs svg { display: block; }
   .filter-handle { top: 91px; }
+  .filter-drawer { top: 72px; right: 8px; width: calc(100vw - 16px); max-height: calc(100vh - 80px); }
+  .filter-title { flex-basis: 90px; padding: 0 24px; }
+  .filter-title strong { font-size: 26px; }
+  .filter-title button { width: 48px; height: 48px; }
+  .filter-body { gap: 22px; padding: 26px 24px; }
+  .filter-label { font-size: 20px; }
+  .filter-select-button, .filter-field--date input { height: 58px; padding: 0 18px; font-size: 20px; }
+  .filter-actions { padding: 24px; }
+  .apply-filter, .reset-filter { height: 58px; font-size: 20px; }
 }
 
 @media (max-width: 580px) {
@@ -705,7 +824,8 @@ button {
   .summary-panel, .summary-panel.collapsed { width: 205px; }
   .summary-panel:not(.collapsed) { max-height: 240px; }
   .map-update { display: none; }
-  .filter-drawer { width: min(92vw, 325px); }
+  .filter-date-row { grid-template-columns: 1fr; gap: 20px; }
+  .filter-options button { min-height: 46px; padding: 7px 22px; font-size: 18px; }
   .chat-fab { right: 14px; bottom: 14px; }
   .chat-card { right: 14px; bottom: 80px; width: calc(100vw - 28px); }
 }
