@@ -14,9 +14,11 @@ import {
   Filter,
   Home,
   Layers3,
+  ListFilter,
   Maximize,
   MessageCircle,
   Minus,
+  MoreVertical,
   PackageSearch,
   Plus,
   RotateCw,
@@ -139,6 +141,41 @@ const tabs = [
   { label: "Persediaan Non Beras", icon: Layers3 },
 ];
 
+const kanwilData = [
+  { name: "ACEH", capacity: 1, stock: 12, capacityLabel: "0.00", stockLabel: "160RB", category: "<50%" },
+  { name: "BALI", capacity: 9, stock: 6, capacityLabel: "135RB", stockLabel: "91.2RB", category: "50%-80%" },
+  { name: "BENGKULU", capacity: 2.1, stock: 1.3, capacityLabel: "21.7RB", stockLabel: "12.7RB", category: "50%-80%" },
+  { name: "DI YOGYAKARTA", capacity: 2.3, stock: 1.1, capacityLabel: "17.8RB", stockLabel: "6.93RB", category: ">80%" },
+  { name: "DKI JAKARTA BANTEN", capacity: 27, stock: 14, capacityLabel: "388RB", stockLabel: "194RB", category: "<50%" },
+  { name: "JABAR", capacity: 66, stock: 56, capacityLabel: "970RB", stockLabel: "828RB", category: ">80%" },
+  { name: "JAMBI", capacity: 2.4, stock: 1.2, capacityLabel: "23.7RB", stockLabel: "11.9RB", category: "50%-80%" },
+  { name: "JATENG", capacity: 32, stock: 30, capacityLabel: "443RB", stockLabel: "438RB", category: ">80%" },
+  { name: "JATIM", capacity: 93, stock: 86, capacityLabel: "1.39JT", stockLabel: "1.29JT", category: ">80%" },
+  { name: "KALBAR", capacity: 3, stock: 1.4, capacityLabel: "35.5RB", stockLabel: "13.0RB", category: "<50%" },
+  { name: "KALSEL", capacity: 2.6, stock: 1.6, capacityLabel: "32.0RB", stockLabel: "20.0RB", category: "50%-80%" },
+  { name: "KALTENG", capacity: 2.3, stock: 1.3, capacityLabel: "27.0RB", stockLabel: "17.0RB", category: "50%-80%" },
+  { name: "KALTARA", capacity: 2.2, stock: 1.1, capacityLabel: "26.3RB", stockLabel: "16.6RB", category: "<50%" },
+  { name: "LAMPUNG", capacity: 20, stock: 17, capacityLabel: "289RB", stockLabel: "247RB", category: ">80%" },
+  { name: "MALUKU MALUT", capacity: 2.1, stock: 1, capacityLabel: "21.5RB", stockLabel: "5.7RB", category: "<50%" },
+  { name: "N.T.B", capacity: 19, stock: 15, capacityLabel: "281RB", stockLabel: "213RB", category: ">80%" },
+  { name: "N.T.T", capacity: 4.2, stock: 2.6, capacityLabel: "52.8RB", stockLabel: "28.9RB", category: "50%-80%" },
+  { name: "PAPUA PABAR", capacity: 3.7, stock: 1.9, capacityLabel: "48RB", stockLabel: "19.6RB", category: "<50%" },
+  { name: "RIAU DAN KEPRI", capacity: 3.5, stock: 1.6, capacityLabel: "43.7RB", stockLabel: "16.3RB", category: "<50%" },
+  { name: "SULSEL SULBAR", capacity: 62, stock: 55, capacityLabel: "921RB", stockLabel: "827RB", category: ">80%" },
+  { name: "SULTENG", capacity: 4, stock: 2.3, capacityLabel: "42.9RB", stockLabel: "21.5RB", category: "50%-80%" },
+  { name: "SULTRA", capacity: 7.6, stock: 4.7, capacityLabel: "110RB", stockLabel: "63RB", category: ">80%" },
+  { name: "SULUT GORONTALO", capacity: 3.3, stock: 1.5, capacityLabel: "31.4RB", stockLabel: "14.7RB", category: "<50%" },
+  { name: "SUMBAR", capacity: 3.1, stock: 1.4, capacityLabel: "39.0RB", stockLabel: "11.6RB", category: "<50%" },
+  { name: "SUMSEL BABEL", capacity: 13, stock: 10, capacityLabel: "178RB", stockLabel: "143RB", category: ">80%" },
+  { name: "SUMUT", capacity: 7, stock: 3.1, capacityLabel: "96.9RB", stockLabel: "34.2RB", category: "<50%" },
+];
+
+const categoryColors: Record<string, string> = {
+  ">80%": "#bd4325",
+  "50%-80%": "#ffac00",
+  "<50%": "#1f5a90",
+};
+
 function markerColor(value: number) {
   if (value > 80) return "#c84d28";
   if (value >= 50) return "#ffad0a";
@@ -244,6 +281,15 @@ function formatDashboardDate(value: string) {
   }).format(new Date(`${value}T00:00:00Z`));
 }
 
+function CardTools({ onMore }: { onMore: () => void }) {
+  return (
+    <div className="card-tools">
+      <span><ListFilter size={14} /><b>1</b></span>
+      <button type="button" onClick={onMore} aria-label="Opsi kartu"><MoreVertical size={20} /></button>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const [legendOpen, setLegendOpen] = useState(true);
   const [summaryOpen, setSummaryOpen] = useState(true);
@@ -268,6 +314,8 @@ export default function HomePage() {
   const [refreshCount, setRefreshCount] = useState(0);
   const [zoom, setZoom] = useState(5);
   const [toast, setToast] = useState("");
+  const [chartCategory, setChartCategory] = useState("all");
+  const [chartInverted, setChartInverted] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
 
   const selectedLabel = selectedRegion.replace("\n", " ");
@@ -518,6 +566,120 @@ export default function HomePage() {
             </button>
           ))}
         </nav>
+
+        {activeTab === "Persediaan Beras" && (
+          <section className="inventory-analytics" aria-label="Analitik persediaan beras">
+            <div className="active-filter-bar">
+              <Filter size={18} />
+              <strong>Filter aktif:</strong>
+              <span><b>Wilayah:</b> {level}</span>
+              <span><b>Periode:</b> {formatDashboardDate(appliedStartDate)} – {formatDashboardDate(appliedEndDate)}</span>
+              <button type="button" onClick={() => setFilterOpen(true)}>Ubah</button>
+            </div>
+
+            <article className="report-panel">
+              <header className="report-panel__header">
+                <h2>SCCT - Dashboard Persediaan ({appliedDashboardType})</h2>
+                <button type="button" onClick={() => showToast("Menu dashboard dibuka")} aria-label="Opsi dashboard"><MoreVertical size={24} /></button>
+              </header>
+              <div className="report-panel__body">
+                <div className="sync-grid">
+                  <section className="stat-card stat-card--sync">
+                    <div className="stat-card__head">
+                      <strong>Status Pembaruan Data ERP</strong>
+                      <CardTools onMore={() => showToast("Detail status ERP dibuka")} />
+                    </div>
+                    <p>Minggu, 09 Agustus 2026 23:58:48</p>
+                  </section>
+                  <section className="stat-card stat-card--sync">
+                    <div className="stat-card__head">
+                      <strong>Sync Terakhir Pipeline</strong>
+                      <CardTools onMore={() => showToast("Detail pipeline dibuka")} />
+                    </div>
+                    <p>Senin, 10 Agustus 2026 17:39:45</p>
+                  </section>
+                </div>
+
+                <h3 className="analytics-heading">STATUS STOK NASIONAL TERKINI</h3>
+                <div className="national-metrics">
+                  {[
+                    ["Total Stok Keseluruhan", "5.253.936", "Ton"],
+                    ["Kapasitas Gudang Keseluruhan", "5.695.125", "Ton"],
+                    ["Persentase Gudang Terpakai", "92,25", "Persen (%)"],
+                  ].map(([title, value, unit]) => (
+                    <section className="stat-card stat-card--metric" key={title}>
+                      <div className="stat-card__head">
+                        <strong>{title}</strong>
+                        <CardTools onMore={() => showToast(`Detail ${title} dibuka`)} />
+                      </div>
+                      <p><b>{value}</b><span>{unit}</span></p>
+                    </section>
+                  ))}
+                </div>
+
+                <h3 className="analytics-heading analytics-heading--chart">STOK DAN KAPASITAS BERDASARKAN KANWIL DAN KANCAB</h3>
+                <div className="kanwil-layout">
+                  <section className="kanwil-chart-card" aria-label="Grafik stok dan kapasitas per Kanwil">
+                    <div className="kanwil-chart-title">
+                      <strong>Stok dan Kapasitas per Kanwil</strong>
+                      <CardTools onMore={() => showToast("Opsi grafik dibuka")} />
+                    </div>
+                    <div className="chart-legend">
+                      {[">80%", "<50%", "50%-80%"].map((category) => (
+                        <span key={category}><i style={{ background: categoryColors[category] }} />Kapasitas Gudang, {category}</span>
+                      ))}
+                      {[">80%", "<50%", "50%-80%"].map((category) => (
+                        <span key={`stock-${category}`}><i style={{ background: categoryColors[category] }} />Total Stok, {category}</span>
+                      ))}
+                      <button type="button" onClick={() => setChartCategory("all")}>All</button>
+                      <button type="button" className={chartInverted ? "active" : ""} onClick={() => setChartInverted((value) => !value)}>Inv</button>
+                    </div>
+                    <div className="chart-scroll">
+                      <div className="chart-plot">
+                        <div className="y-axis-labels" aria-hidden="true">
+                          <span>1.50JT</span><span>1.20JT</span><span>900RB</span><span>600RB</span><span>300RB</span><span>0.00</span>
+                        </div>
+                        <div className="bars-grid">
+                          {kanwilData.map((item) => {
+                            const muted = chartCategory !== "all" && chartCategory !== item.category;
+                            return (
+                              <div className={`bar-column${chartInverted ? " inverted" : ""}${muted ? " muted" : ""}`} key={item.name}>
+                                <div className="bar-pair">
+                                  <span className="bar" style={{ height: `${item.capacity}%`, background: categoryColors[item.category] }}><i>{item.capacityLabel}</i></span>
+                                  <span className="bar" style={{ height: `${item.stock}%`, background: categoryColors[item.category] }}><i>{item.stockLabel}</i></span>
+                                </div>
+                                <b>{item.name}</b>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  <aside className="chart-category-panel">
+                    <div className="category-title"><strong>Kategori</strong><MoreVertical size={22} /></div>
+                    <div className="category-buttons">
+                      {[">80%", "50%-80%", "<50%"].map((category) => (
+                        <button
+                          type="button"
+                          key={category}
+                          className={chartCategory === category ? "selected" : ""}
+                          style={{ background: categoryColors[category] }}
+                          onClick={() => setChartCategory((value) => value === category ? "all" : category)}
+                        >
+                          {category === "50%-80%" ? "50%-80%" : category}
+                        </button>
+                      ))}
+                    </div>
+                    <p>Klik pada salah satu kategori untuk memfilter Diagram Batang di samping.</p>
+                    <p>Klik ulang pada kategori terpilih untuk membatalkan filter.</p>
+                  </aside>
+                </div>
+              </div>
+            </article>
+          </section>
+        )}
       </section>
 
       <aside

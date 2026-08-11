@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "scct-bulog-dashboard.bangunindo-t-1626.chatgpt.site";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
-  const ogImage = `${protocol}://${host}/og.png`;
+  const ogImage = `${protocol}://${host}/og-v2.png`;
 
   return {
     title: "SCCT BULOG | Dashboard Persediaan",
