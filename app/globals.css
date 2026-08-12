@@ -679,6 +679,10 @@ button {
 .route-target b { font-weight: 400; }
 .route-flow-hint { margin: 0; padding: 8px 18px 14px; color: #738094; font-size: 11px; text-align: right; }
 
+.safety-stock-report-body { padding-bottom: 76px; }
+.safety-stock-heading { margin-bottom: 58px; }
+.safety-stock-rule { margin-top: 40px; }
+
 .filter-drawer {
   position: fixed;
   z-index: 70;
@@ -951,6 +955,7 @@ button {
   .chart-category-panel { grid-template-columns: 1fr; }
   .category-title { grid-column: auto; }
   .route-report-body { padding-bottom: 56px; }
+  .safety-stock-report-body { padding-bottom: 50px; }
   .route-flow-title { justify-content: flex-start; padding-right: 88px; padding-left: 16px; text-align: left; }
 }
 

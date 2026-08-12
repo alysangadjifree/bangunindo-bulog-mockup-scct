@@ -873,6 +873,62 @@ export default function HomePage() {
             </article>
           </section>
         )}
+
+        {activeTab === "Safety Stock" && (
+          <section className="inventory-analytics safety-stock-analytics" aria-label="Analitik safety stock">
+            <div className="active-filter-bar">
+              <Filter size={18} />
+              <strong>Filter aktif:</strong>
+              <span><b>Wilayah:</b> {level}</span>
+              <span><b>Periode:</b> {formatDashboardDate(appliedStartDate)} – {formatDashboardDate(appliedEndDate)}</span>
+              <button type="button" onClick={() => setFilterOpen(true)}>Ubah</button>
+            </div>
+
+            <article className="report-panel">
+              <header className="report-panel__header">
+                <h2>SCCT - Dashboard Persediaan (Safety Stock)</h2>
+                <button type="button" onClick={() => showToast("Menu safety stock dibuka")} aria-label="Opsi dashboard"><MoreVertical size={24} /></button>
+              </header>
+              <div className="report-panel__body safety-stock-report-body">
+                <div className="sync-grid">
+                  <section className="stat-card stat-card--sync">
+                    <div className="stat-card__head">
+                      <strong>Status Pembaruan Data ERP</strong>
+                      <CardTools onMore={() => showToast("Detail status ERP dibuka")} />
+                    </div>
+                    <p>Selasa, 11 Agustus 2026 23:58:48</p>
+                  </section>
+                  <section className="stat-card stat-card--sync">
+                    <div className="stat-card__head">
+                      <strong>Sync Terakhir Pipeline</strong>
+                      <CardTools onMore={() => showToast("Detail pipeline dibuka")} />
+                    </div>
+                    <p>Rabu, 12 Agustus 2026 02:25:57</p>
+                  </section>
+                </div>
+
+                <h3 className="analytics-heading safety-stock-heading">STATUS STOK TERHADAP SAFETY STOCK</h3>
+                <div className="national-metrics safety-stock-metrics">
+                  {[
+                    ["Total Stok Setara Beras", "5.252.664,64", "Ton"],
+                    ["Total Safety Stock", "375.003", "Ton"],
+                    ["% Stok terhadap Safety Stock", "1.400,7", "Persen (%)"],
+                  ].map(([title, value, unit]) => (
+                    <section className="stat-card stat-card--metric" key={title}>
+                      <div className="stat-card__head">
+                        <strong>{title}</strong>
+                        <CardTools onMore={() => showToast(`Detail ${title} dibuka`)} />
+                      </div>
+                      <p><b>{value}</b><span>{unit}</span></p>
+                    </section>
+                  ))}
+                </div>
+
+                <div className="analytics-rule safety-stock-rule" aria-hidden="true" />
+              </div>
+            </article>
+          </section>
+        )}
       </section>
 
       <aside
