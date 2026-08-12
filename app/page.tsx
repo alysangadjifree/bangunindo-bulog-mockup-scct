@@ -2,11 +2,13 @@
 
 import {
   AlignLeft,
+  ArrowLeft,
   BarChart3,
   Boxes,
   BriefcaseBusiness,
   Check,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   CircleUserRound,
   Database,
@@ -27,6 +29,7 @@ import {
   ShieldCheck,
   TrendingUp,
   UserRound,
+  Warehouse,
   X,
 } from "lucide-react";
 import type { CSSProperties, ComponentType } from "react";
@@ -55,6 +58,38 @@ type FlowTarget = {
   name: string;
   detail: string;
   color: string;
+};
+
+type WarehouseRecord = {
+  id: string;
+  name: string;
+  region: string;
+  kanwil: string;
+  kancab: string;
+  longitude: string;
+  latitude: string;
+  address: string;
+  units: string;
+  condition: string;
+  facilities: string;
+  closeDate: string;
+  capacity: string;
+  stock: string;
+  usedPercentage: string;
+  products: string;
+  commodities: string;
+};
+
+type KancabNode = {
+  code: string;
+  name: string;
+  warehouses: WarehouseRecord[];
+};
+
+type KanwilNode = {
+  code: string;
+  name: string;
+  kancabs: KancabNode[];
 };
 
 const filterDefaults = {
@@ -154,6 +189,94 @@ const tabs = [
   { label: "Safety Stock", icon: ShieldCheck },
   { label: "Persediaan Non Beras", icon: Layers3 },
 ];
+
+const warehouseTree: KanwilNode[] = [
+  {
+    code: "01001",
+    name: "KANWIL ACEH",
+    kancabs: [
+      {
+        code: "01010",
+        name: "KANCAB LHOKSEUMAWE",
+        warehouses: [
+          {
+            id: "ulee-blang-mane",
+            name: "Kompleks Pergudangan Ulee Blang Mane",
+            region: "Sumatra",
+            kanwil: "KANWIL ACEH",
+            kancab: "KANCAB LHOKSEUMAWE",
+            longitude: "97.1744613647461",
+            latitude: "5.117623805999756",
+            address: "Jl. Banda Aceh - Medan, Ds. Ulee Blang Mane, Kec. Blang Mangat, Kab. Aceh Utara",
+            units: "9",
+            condition: "Baik",
+            facilities: "-",
+            closeDate: "31/08/2026",
+            capacity: "0",
+            stock: "0",
+            usedPercentage: "0",
+            products: "0",
+            commodities: "0",
+          },
+          {
+            id: "siron",
+            name: "Kompleks Pergudangan Siron",
+            region: "Sumatra",
+            kanwil: "KANWIL ACEH",
+            kancab: "KANCAB LHOKSEUMAWE",
+            longitude: "95.402226",
+            latitude: "5.480812",
+            address: "Siron, Kec. Ingin Jaya, Kabupaten Aceh Besar, Aceh",
+            units: "6",
+            condition: "Baik",
+            facilities: "CCTV, Timbangan",
+            closeDate: "31/08/2026",
+            capacity: "18.500",
+            stock: "12.420",
+            usedPercentage: "67,14",
+            products: "4",
+            commodities: "3",
+          },
+          {
+            id: "cot-bau",
+            name: "Kompleks Pergudangan Cot Ba'u",
+            region: "Sumatra",
+            kanwil: "KANWIL ACEH",
+            kancab: "KANCAB LHOKSEUMAWE",
+            longitude: "96.835718",
+            latitude: "5.157194",
+            address: "Cot Ba'u, Kabupaten Bireuen, Aceh",
+            units: "4",
+            condition: "Baik",
+            facilities: "Timbangan",
+            closeDate: "31/08/2026",
+            capacity: "12.000",
+            stock: "8.760",
+            usedPercentage: "73,00",
+            products: "3",
+            commodities: "2",
+          },
+        ],
+      },
+      { code: "01020", name: "KANCAB LANGSA", warehouses: [] },
+      { code: "01030", name: "KANCAB MEULABOH", warehouses: [] },
+      { code: "01040", name: "KANCAB SIGLI", warehouses: [] },
+      { code: "01050", name: "KANCAB KUTACANE", warehouses: [] },
+      { code: "01060", name: "KANCAB BLANG PIDIE", warehouses: [] },
+      { code: "01070", name: "KANCAB TAKENGON", warehouses: [] },
+    ],
+  },
+  { code: "02001", name: "KANWIL SUMUT", kancabs: [] },
+  { code: "03001", name: "KANWIL RIAU DAN KEPRI", kancabs: [] },
+  { code: "04001", name: "KANWIL SUMBAR", kancabs: [] },
+  { code: "05001", name: "KANWIL JAMBI", kancabs: [] },
+  { code: "06001", name: "KANWIL SUMSEL", kancabs: [] },
+  { code: "07001", name: "KANWIL BENGKULU", kancabs: [] },
+];
+
+const allWarehouses = warehouseTree.flatMap((kanwil) =>
+  kanwil.kancabs.flatMap((kancab) => kancab.warehouses),
+);
 
 const sumatraFlow = {
   sources: [
@@ -342,6 +465,209 @@ function CardTools({ onMore, count = 1 }: { onMore: () => void; count?: number }
   );
 }
 
+function WarehouseDetailPage({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
+  const [search, setSearch] = useState("");
+  const [expandedKanwil, setExpandedKanwil] = useState<string[]>(["01001"]);
+  const [expandedKancab, setExpandedKancab] = useState<string[]>(["01010"]);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState("ulee-blang-mane");
+
+  const selectedWarehouse = allWarehouses.find((warehouse) => warehouse.id === selectedWarehouseId) ?? allWarehouses[0];
+  const filteredTree = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase("id-ID");
+    if (!query) return warehouseTree;
+
+    return warehouseTree.flatMap((kanwil) => {
+      const kanwilMatches = `${kanwil.code} ${kanwil.name}`.toLocaleLowerCase("id-ID").includes(query);
+      const matchingKancabs = kanwil.kancabs.flatMap((kancab) => {
+        const kancabMatches = `${kancab.code} ${kancab.name}`.toLocaleLowerCase("id-ID").includes(query);
+        const matchingWarehouses = kancab.warehouses.filter((warehouse) =>
+          `${warehouse.name} ${warehouse.address}`.toLocaleLowerCase("id-ID").includes(query),
+        );
+        return kanwilMatches || kancabMatches || matchingWarehouses.length
+          ? [{ ...kancab, warehouses: kanwilMatches || kancabMatches ? kancab.warehouses : matchingWarehouses }]
+          : [];
+      });
+      return kanwilMatches || matchingKancabs.length ? [{ ...kanwil, kancabs: matchingKancabs }] : [];
+    });
+  }, [search]);
+
+  function toggleItem(value: string, items: string[], update: (next: string[]) => void) {
+    update(items.includes(value) ? items.filter((item) => item !== value) : [...items, value]);
+  }
+
+  return (
+    <section className="warehouse-detail-page" aria-label="Detail wilayah persediaan">
+      <header className="warehouse-detail-heading">
+        <h1>Persediaan – {selectedWarehouse.name}</h1>
+      </header>
+
+      <div className="warehouse-detail-shell">
+        <aside className="warehouse-tree-panel" aria-label="Daftar Kanwil, Kancab, dan Gudang">
+          <div className="warehouse-tree-actions">
+            <label>
+              <span className="sr-only">Cari berdasarkan nama</span>
+              <input
+                type="search"
+                placeholder="Search by Name"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </label>
+            <button type="button" onClick={onBack} aria-label="Kembali ke dashboard persediaan" title="Kembali ke dashboard">
+              <ArrowLeft size={24} />
+            </button>
+          </div>
+
+          <nav className="warehouse-tree" aria-label="Hierarki gudang">
+            {filteredTree.length ? filteredTree.map((kanwil) => {
+              const kanwilOpen = search.trim().length > 0 || expandedKanwil.includes(kanwil.code);
+              return (
+                <div className="warehouse-tree__kanwil" key={kanwil.code}>
+                  <button
+                    type="button"
+                    className="warehouse-tree__node warehouse-tree__node--kanwil"
+                    onClick={() => toggleItem(kanwil.code, expandedKanwil, setExpandedKanwil)}
+                    aria-expanded={kanwilOpen}
+                  >
+                    {kanwilOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                    <span>{kanwil.code} - {kanwil.name}</span>
+                  </button>
+
+                  {kanwilOpen && (
+                    <div className="warehouse-tree__children warehouse-tree__children--kanwil">
+                      {kanwil.kancabs.length ? kanwil.kancabs.map((kancab) => {
+                        const kancabOpen = search.trim().length > 0 || expandedKancab.includes(kancab.code);
+                        return (
+                          <div className="warehouse-tree__kancab" key={kancab.code}>
+                            <button
+                              type="button"
+                              className="warehouse-tree__node warehouse-tree__node--kancab"
+                              onClick={() => toggleItem(kancab.code, expandedKancab, setExpandedKancab)}
+                              aria-expanded={kancabOpen}
+                            >
+                              {kancabOpen ? <ChevronDown size={17} /> : <ChevronRight size={17} />}
+                              <span>{kancab.code} - {kancab.name}</span>
+                            </button>
+
+                            {kancabOpen && (
+                              <div className="warehouse-tree__children warehouse-tree__children--kancab">
+                                {kancab.warehouses.length ? kancab.warehouses.map((warehouse) => (
+                                  <button
+                                    type="button"
+                                    key={warehouse.id}
+                                    className={`warehouse-tree__warehouse${selectedWarehouse.id === warehouse.id ? " active" : ""}`}
+                                    onClick={() => setSelectedWarehouseId(warehouse.id)}
+                                  >
+                                    <Warehouse size={21} />
+                                    <span>{warehouse.name}</span>
+                                  </button>
+                                )) : <span className="warehouse-tree__empty">Belum ada data gudang</span>}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }) : <span className="warehouse-tree__empty">Belum ada data Kancab</span>}
+                    </div>
+                  )}
+                </div>
+              );
+            }) : <p className="warehouse-tree__not-found">Data tidak ditemukan.</p>}
+          </nav>
+        </aside>
+
+        <div className="warehouse-detail-content">
+          <section className="warehouse-table-card" aria-label="Lokasi gudang terpilih">
+            <div className="warehouse-card-title">
+              <strong>Lokasi Gudang</strong>
+              <CardTools count={2} onMore={() => onNotify("Opsi lokasi gudang dibuka")} />
+            </div>
+            <div className="warehouse-table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Region</th>
+                    <th>Kanwil</th>
+                    <th>Kancab</th>
+                    <th>Gudang</th>
+                    <th>Longitude Gudang</th>
+                    <th>Latitude Gudang</th>
+                    <th>Alamat Gudang</th>
+                    <th>Jumlah Unit Gudang</th>
+                    <th>Kondisi Gudang</th>
+                    <th>Sarana Penunjang Gudang</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{selectedWarehouse.region}</td>
+                    <td>{selectedWarehouse.kanwil}</td>
+                    <td>{selectedWarehouse.kancab}</td>
+                    <td>{selectedWarehouse.name}</td>
+                    <td>{selectedWarehouse.longitude}</td>
+                    <td>{selectedWarehouse.latitude}</td>
+                    <td>{selectedWarehouse.address}</td>
+                    <td>{selectedWarehouse.units}</td>
+                    <td>{selectedWarehouse.condition}</td>
+                    <td>{selectedWarehouse.facilities}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <div className="warehouse-time-grid">
+            {[
+              ["Tanggal Close Terkini", selectedWarehouse.closeDate],
+              ["Sync Terakhir Pipeline", "Rabu, 12 Agustus 2026 02:26:14"],
+            ].map(([title, value]) => (
+              <section className="stat-card stat-card--sync warehouse-detail-card" key={title}>
+                <div className="stat-card__head">
+                  <strong>{title}</strong>
+                  <CardTools count={2} onMore={() => onNotify(`Detail ${title} dibuka`)} />
+                </div>
+                <p>{value}</p>
+              </section>
+            ))}
+          </div>
+
+          <div className="warehouse-primary-metrics">
+            {[
+              ["Kapasitas Gudang", selectedWarehouse.capacity, "Ton"],
+              ["Jumlah Stok", selectedWarehouse.stock, "Ton"],
+              ["Persentase Space Terpakai", selectedWarehouse.usedPercentage, "Persen (%)"],
+            ].map(([title, value, unit]) => (
+              <section className="stat-card stat-card--metric warehouse-detail-card" key={title}>
+                <div className="stat-card__head">
+                  <strong>{title}</strong>
+                  <CardTools count={2} onMore={() => onNotify(`Detail ${title} dibuka`)} />
+                </div>
+                <p><b>{value}</b><span>{unit}</span></p>
+              </section>
+            ))}
+          </div>
+
+          <div className="warehouse-secondary-metrics">
+            {[
+              ["Sisa Space", selectedWarehouse.capacity === "0" ? "0" : selectedWarehouse.capacity, "Ton"],
+              ["Persentase Sisa", selectedWarehouse.usedPercentage === "0" ? "0" : (100 - Number(selectedWarehouse.usedPercentage.replace(",", "."))).toFixed(2).replace(".", ","), "Persen (%)"],
+              ["Jumlah Produk", selectedWarehouse.products, "Produk"],
+              ["Jumlah Komoditi", selectedWarehouse.commodities, "Komoditi"],
+            ].map(([title, value, unit]) => (
+              <section className="stat-card stat-card--metric warehouse-detail-card warehouse-detail-card--compact" key={title}>
+                <div className="stat-card__head">
+                  <strong>{title}</strong>
+                  <CardTools count={2} onMore={() => onNotify(`Detail ${title} dibuka`)} />
+                </div>
+                <p><b>{value}</b><span>{unit}</span></p>
+              </section>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function RouteFlowDiagram({
   title,
   sources,
@@ -435,6 +761,7 @@ export default function HomePage() {
   const [level, setLevel] = useState("Region");
   const [activeNav, setActiveNav] = useState("Beranda");
   const [activeTab, setActiveTab] = useState("Persediaan Beras");
+  const [detailViewOpen, setDetailViewOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -575,9 +902,8 @@ export default function HomePage() {
             type="button"
             className="title-bar__detail"
             onClick={() => {
-              setSummaryOpen(true);
-              mapRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-              showToast(`Detail wilayah ${selectedLabel} ditampilkan`);
+              setDetailViewOpen(true);
+              setFilterOpen(false);
             }}
           >
             Detail Wilayah
@@ -997,6 +1323,8 @@ export default function HomePage() {
             </article>
           </section>
         )}
+
+        {detailViewOpen && <WarehouseDetailPage onBack={() => setDetailViewOpen(false)} onNotify={showToast} />}
       </section>
 
       <aside
