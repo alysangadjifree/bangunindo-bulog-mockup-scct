@@ -213,7 +213,7 @@ const sidebarSections: SidebarSection[] = [
     ],
   },
   {
-    title: "PHASE I — SUPPLY CHAIN MONITORING",
+    title: "SUPPLY CHAIN MONITORING",
     items: [
       { label: "Persediaan", icon: PackageSearch, children: ["Ringkasan Persediaan", "Kapasitas Gudang", "Aging & Kualitas", "Mutasi Stok", "Safety Stock", "Simulasi Persediaan"] },
       { label: "Pengadaan", icon: BriefcaseBusiness, children: ["Ringkasan Pengadaan", "Kinerja Wilayah", "Sumber Pengadaan", "Tren & Proyeksi", "Gap Analysis", "Simulasi Pengadaan"] },
@@ -224,7 +224,7 @@ const sidebarSections: SidebarSection[] = [
     ],
   },
   {
-    title: "PHASE II — DECISION INTELLIGENCE",
+    title: "DECISION INTELLIGENCE",
     items: [
       { label: "AI Decision Center", icon: BrainCircuit, children: ["Executive AI Insights", "Risiko & Peluang", "Root Cause Analysis", "Prioritas Tindakan", "Recommendation Center"] },
       { label: "Scenario Workspace", icon: FlaskConical, children: ["Scenario Overview", "Buat Skenario", "Perbandingan Skenario", "Skenario Tersimpan", "Template Skenario"] },
