@@ -720,7 +720,7 @@ button {
 .warehouse-detail-page {
   position: fixed;
   z-index: 58;
-  inset: 72px 0 0;
+  inset: 72px 0 0 88px;
   padding: 26px 28px 54px;
   background: #fbfcfe;
   overflow: auto;
@@ -1101,6 +1101,7 @@ button {
   .map-card { flex-basis: calc(100vh - 280px); margin-top: 16px; padding: 14px; min-height: 420px; }
   .action-row { flex-basis: 62px; }
   .dashboard-tabs { flex-basis: 48px; }
+  .warehouse-detail-page { inset: 64px 0 0 88px; }
   .summary-list > div { min-height: 39px; padding: 6px 10px; }
   .filter-title { flex-basis: 82px; }
   .filter-title strong { font-size: 25px; }
