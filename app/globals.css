@@ -624,7 +624,8 @@ button {
 .stat-card--metric > p b { color: #05070a; font-size: clamp(39px, 3.1vw, 59px); font-weight: 400; line-height: 1; }
 .stat-card--metric > p span { color: #2c2d30; font-size: clamp(18px, 1.35vw, 28px); }
 
-.analytics-heading--chart { margin-top: 94px; margin-bottom: 66px; }
+.analytics-rule { height: 7px; margin: 38px 20px 0; background: #86a4c4; }
+.analytics-heading--chart { margin-top: 74px; margin-bottom: 66px; }
 .kanwil-layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 56px; align-items: start; }
 .kanwil-chart-card { min-width: 0; border: 1.5px solid #2e6ba7; border-radius: 6px; background: white; overflow: hidden; }
 .kanwil-chart-title { min-height: 70px; position: relative; display: flex; align-items: center; justify-content: center; padding: 12px 100px; color: #1e5a91; }

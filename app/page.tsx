@@ -48,7 +48,7 @@ const filterDefaults = {
   mapLevel: "Region",
   chartSize: "Select Chart Size",
   startDate: "2026-01-01",
-  endDate: "2026-08-11",
+  endDate: "2026-08-12",
 };
 
 const regions: Region[] = [
@@ -111,9 +111,9 @@ const regions: Region[] = [
 ];
 
 const nationalSummary = [
-  ["VOLUME STOCK (TON)", "5.253.936 Ton"],
+  ["VOLUME STOCK (TON)", "5.252.664,64 Ton"],
   ["KAPASITAS GUDANG (TON)", "5.695.125 Ton"],
-  ["PERSEN", "92,25%"],
+  ["PERSEN", "92,23%"],
   ["UMUR 0–1 BULAN TON", "698.463,89 Ton"],
   ["UMUR 1–2 BULAN TON", "693.915,1 Ton"],
   ["UMUR 2–3 BULAN TON", "646.080,37 Ton"],
@@ -135,39 +135,39 @@ const navItems: { label: string; icon: ComponentType<{ size?: number }> }[] = [
 ];
 
 const tabs = [
-  { label: "Persediaan Beras", icon: Boxes },
   { label: "Rute Alternatif", icon: Route },
+  { label: "Persediaan Beras", icon: Boxes },
   { label: "Safety Stock", icon: ShieldCheck },
   { label: "Persediaan Non Beras", icon: Layers3 },
 ];
 
 const kanwilData = [
-  { name: "ACEH", capacity: 1, stock: 12, capacityLabel: "0.00", stockLabel: "160RB", category: "<50%" },
-  { name: "BALI", capacity: 9, stock: 6, capacityLabel: "135RB", stockLabel: "91.2RB", category: "50%-80%" },
-  { name: "BENGKULU", capacity: 2.1, stock: 1.3, capacityLabel: "21.7RB", stockLabel: "12.7RB", category: "50%-80%" },
-  { name: "DI YOGYAKARTA", capacity: 2.3, stock: 1.1, capacityLabel: "17.8RB", stockLabel: "6.93RB", category: ">80%" },
-  { name: "DKI JAKARTA BANTEN", capacity: 27, stock: 14, capacityLabel: "388RB", stockLabel: "194RB", category: "<50%" },
-  { name: "JABAR", capacity: 66, stock: 56, capacityLabel: "970RB", stockLabel: "828RB", category: ">80%" },
-  { name: "JAMBI", capacity: 2.4, stock: 1.2, capacityLabel: "23.7RB", stockLabel: "11.9RB", category: "50%-80%" },
-  { name: "JATENG", capacity: 32, stock: 30, capacityLabel: "443RB", stockLabel: "438RB", category: ">80%" },
+  { name: "ACEH", capacity: 1, stock: 12.5, capacityLabel: "0.00", stockLabel: "170RB", category: "<50%" },
+  { name: "BALI", capacity: 9, stock: 6, capacityLabel: "135RB", stockLabel: "92.2RB", category: "50%-80%" },
+  { name: "BENGKULU", capacity: 2.1, stock: 1.3, capacityLabel: "21.25RB", stockLabel: "12.7RB", category: "50%-80%" },
+  { name: "DI YOGYAKARTA", capacity: 16.5, stock: 15.5, capacityLabel: "240RB", stockLabel: "226RB", category: ">80%" },
+  { name: "DKI JAKARTA BANTEN", capacity: 27, stock: 14, capacityLabel: "388RB", stockLabel: "193RB", category: "<50%" },
+  { name: "JABAR", capacity: 66, stock: 56, capacityLabel: "970RB", stockLabel: "824RB", category: ">80%" },
+  { name: "JAMBI", capacity: 2.1, stock: 1.5, capacityLabel: "21.7RB", stockLabel: "19.7RB", category: "50%-80%" },
+  { name: "JATENG", capacity: 32, stock: 30, capacityLabel: "443RB", stockLabel: "437RB", category: ">80%" },
   { name: "JATIM", capacity: 93, stock: 86, capacityLabel: "1.39JT", stockLabel: "1.29JT", category: ">80%" },
-  { name: "KALBAR", capacity: 3, stock: 1.4, capacityLabel: "35.5RB", stockLabel: "13.0RB", category: "<50%" },
+  { name: "KALBAR", capacity: 3, stock: 1.4, capacityLabel: "35.5RB", stockLabel: "13.4RB", category: "<50%" },
   { name: "KALSEL", capacity: 2.6, stock: 1.6, capacityLabel: "32.0RB", stockLabel: "20.0RB", category: "50%-80%" },
   { name: "KALTENG", capacity: 2.3, stock: 1.3, capacityLabel: "27.0RB", stockLabel: "17.0RB", category: "50%-80%" },
   { name: "KALTARA", capacity: 2.2, stock: 1.1, capacityLabel: "26.3RB", stockLabel: "16.6RB", category: "<50%" },
-  { name: "LAMPUNG", capacity: 20, stock: 17, capacityLabel: "289RB", stockLabel: "247RB", category: ">80%" },
-  { name: "MALUKU MALUT", capacity: 2.1, stock: 1, capacityLabel: "21.5RB", stockLabel: "5.7RB", category: "<50%" },
+  { name: "LAMPUNG", capacity: 20, stock: 17, capacityLabel: "286RB", stockLabel: "247RB", category: ">80%" },
+  { name: "MALUKU MALUT", capacity: 2.1, stock: 1, capacityLabel: "21.5RB", stockLabel: "9.3RB", category: "<50%" },
   { name: "N.T.B", capacity: 19, stock: 15, capacityLabel: "281RB", stockLabel: "213RB", category: ">80%" },
-  { name: "N.T.T", capacity: 4.2, stock: 2.6, capacityLabel: "52.8RB", stockLabel: "28.9RB", category: "50%-80%" },
-  { name: "PAPUA PABAR", capacity: 3.7, stock: 1.9, capacityLabel: "48RB", stockLabel: "19.6RB", category: "<50%" },
-  { name: "RIAU DAN KEPRI", capacity: 3.5, stock: 1.6, capacityLabel: "43.7RB", stockLabel: "16.3RB", category: "<50%" },
-  { name: "SULSEL SULBAR", capacity: 62, stock: 55, capacityLabel: "921RB", stockLabel: "827RB", category: ">80%" },
-  { name: "SULTENG", capacity: 4, stock: 2.3, capacityLabel: "42.9RB", stockLabel: "21.5RB", category: "50%-80%" },
+  { name: "N.T.T", capacity: 4.2, stock: 2.6, capacityLabel: "50.3RB", stockLabel: "28.5RB", category: "50%-80%" },
+  { name: "PAPUA PABAR", capacity: 3.7, stock: 1.9, capacityLabel: "52.4RB", stockLabel: "19.4RB", category: "<50%" },
+  { name: "RIAU DAN KEPRI", capacity: 3.5, stock: 1.6, capacityLabel: "43.7RB", stockLabel: "16.0RB", category: "<50%" },
+  { name: "SULSEL SULBAR", capacity: 62, stock: 55, capacityLabel: "921RB", stockLabel: "826RB", category: ">80%" },
+  { name: "SULTENG", capacity: 4, stock: 2.3, capacityLabel: "42.0RB", stockLabel: "22.0RB", category: "50%-80%" },
   { name: "SULTRA", capacity: 7.6, stock: 4.7, capacityLabel: "110RB", stockLabel: "63RB", category: ">80%" },
-  { name: "SULUT GORONTALO", capacity: 3.3, stock: 1.5, capacityLabel: "31.4RB", stockLabel: "14.7RB", category: "<50%" },
-  { name: "SUMBAR", capacity: 3.1, stock: 1.4, capacityLabel: "39.0RB", stockLabel: "11.6RB", category: "<50%" },
-  { name: "SUMSEL BABEL", capacity: 13, stock: 10, capacityLabel: "178RB", stockLabel: "143RB", category: ">80%" },
-  { name: "SUMUT", capacity: 7, stock: 3.1, capacityLabel: "96.9RB", stockLabel: "34.2RB", category: "<50%" },
+  { name: "SULUT GORONTALO", capacity: 3.3, stock: 1.5, capacityLabel: "31.4RB", stockLabel: "14.6RB", category: "<50%" },
+  { name: "SUMBAR", capacity: 3.1, stock: 1.4, capacityLabel: "39.0RB", stockLabel: "12.1RB", category: "<50%" },
+  { name: "SUMSEL BABEL", capacity: 13, stock: 10, capacityLabel: "178RB", stockLabel: "144RB", category: ">80%" },
+  { name: "SUMUT", capacity: 7, stock: 3.1, capacityLabel: "96.9RB", stockLabel: "34.3RB", category: "<50%" },
 ];
 
 const categoryColors: Record<string, string> = {
@@ -589,23 +589,23 @@ export default function HomePage() {
                       <strong>Status Pembaruan Data ERP</strong>
                       <CardTools onMore={() => showToast("Detail status ERP dibuka")} />
                     </div>
-                    <p>Minggu, 09 Agustus 2026 23:58:48</p>
+                    <p>Selasa, 11 Agustus 2026 23:58:48</p>
                   </section>
                   <section className="stat-card stat-card--sync">
                     <div className="stat-card__head">
                       <strong>Sync Terakhir Pipeline</strong>
                       <CardTools onMore={() => showToast("Detail pipeline dibuka")} />
                     </div>
-                    <p>Senin, 10 Agustus 2026 17:39:45</p>
+                    <p>Rabu, 12 Agustus 2026 02:25:57</p>
                   </section>
                 </div>
 
                 <h3 className="analytics-heading">STATUS STOK NASIONAL TERKINI</h3>
                 <div className="national-metrics">
                   {[
-                    ["Total Stok Keseluruhan", "5.253.936", "Ton"],
+                    ["Total Stok Keseluruhan", "5.252.664,64", "Ton"],
                     ["Kapasitas Gudang Keseluruhan", "5.695.125", "Ton"],
-                    ["Persentase Gudang Terpakai", "92,25", "Persen (%)"],
+                    ["Persentase Gudang Terpakai", "92,23", "Persen (%)"],
                   ].map(([title, value, unit]) => (
                     <section className="stat-card stat-card--metric" key={title}>
                       <div className="stat-card__head">
@@ -616,6 +616,8 @@ export default function HomePage() {
                     </section>
                   ))}
                 </div>
+
+                <div className="analytics-rule" aria-hidden="true" />
 
                 <h3 className="analytics-heading analytics-heading--chart">STOK DAN KAPASITAS BERDASARKAN KANWIL DAN KANCAB</h3>
                 <div className="kanwil-layout">
