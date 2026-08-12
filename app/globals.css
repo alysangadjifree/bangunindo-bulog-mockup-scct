@@ -934,6 +934,53 @@ button {
 .overview-data-footer > div { display: grid; gap: 5px; }.overview-data-footer strong { font-size: 10px; }.overview-data-footer span { color: #5e7892; font-size: 9px; }
 .overview-data-footer button { display: flex; align-items: center; gap: 3px; border: 0; color: #21609d; background: transparent; cursor: pointer; font-size: 9px; font-weight: 600; }
 
+/* Keep National Overview typography aligned with the National Dashboard. */
+.national-overview-page,
+.national-overview-page button,
+.national-overview-page select {
+  font-family: var(--font-instrument-sans), "Instrument Sans", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.national-overview-page h1,
+.national-overview-page h2,
+.national-overview-page h3,
+.national-overview-page p,
+.national-overview-page li { font-weight: 400; }
+.overview-page-header h1 { font-size: clamp(29px, 2.1vw, 40px); font-weight: 400; letter-spacing: -.55px; }
+.overview-page-header p,
+.overview-updated { font-size: 13px; font-weight: 400; }
+.overview-breadcrumb,
+.overview-filter-panel label > span,
+.overview-scope strong,
+.overview-panel-heading > div > span { font-weight: 500; }
+.overview-filter-panel select,
+.overview-filter-actions button { font-size: 13px; font-weight: 400; }
+.overview-national-narrative h2,
+.overview-panel-heading h2 { font-weight: 400; letter-spacing: -.15px; }
+.overview-national-narrative > p { font-size: 13px; font-weight: 400; }
+.overview-national-narrative h3 { font-size: 12px; font-weight: 500; }
+.overview-national-narrative ol { font-size: 11px; font-weight: 400; }
+.overview-health-score strong,
+.overview-hero-stats strong,
+.severity-card strong,
+.overview-panel-heading h2 b,
+.overview-kpi-grid article > p { font-weight: 400; }
+.overview-panel-heading > button,
+.overview-data-footer button { font-size: 11px; font-weight: 500; }
+.overview-actions-list strong,
+.exception-name strong,
+.overview-ranking-list > div > span:nth-child(2) > strong { font-size: 11px; font-weight: 500; }
+.overview-actions-list small,
+.exception-name small,
+.exception-value small,
+.overview-ranking-list > div > span:last-child small,
+.overview-data-footer span { font-size: 10px; font-weight: 400; }
+.overview-kpi-grid article header > strong,
+.overview-kpi-grid article > small,
+.overview-kpi-grid article footer,
+.overview-domain-bars > div { font-size: 10px; font-weight: 400; }
+
 .warehouse-detail-page {
   position: fixed;
   z-index: 58;
