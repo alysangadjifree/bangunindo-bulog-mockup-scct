@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AlignLeft,
   Activity,
   AlertTriangle,
   ArrowLeft,
@@ -1163,13 +1162,6 @@ export default function HomePage() {
           </span>
           <span>bulog</span>
         </div>
-        <button
-          className="menu-button"
-          aria-label={sidebarCollapsed ? "Perluas menu utama" : "Ringkas menu utama"}
-          onClick={() => setSidebarCollapsed((value) => !value)}
-        >
-          {sidebarCollapsed ? <ChevronRight size={19} /> : <AlignLeft size={19} />}
-        </button>
         <div className="topbar-spacer" />
         <span className="version-pill">v0.0.0.74</span>
         <div className="profile-wrap">
@@ -1196,7 +1188,14 @@ export default function HomePage() {
         <div className="side-rail__header">
           <span className="side-rail__eyebrow">SCCT BULOG</span>
           <strong>Control Tower</strong>
-          <button type="button" onClick={() => setSidebarCollapsed(true)} aria-label="Ringkas menu"><ChevronLeft size={17} /></button>
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed((value) => !value)}
+            aria-label={sidebarCollapsed ? "Tampilkan menu" : "Sembunyikan menu"}
+            title={sidebarCollapsed ? "Tampilkan menu" : "Sembunyikan menu"}
+          >
+            {sidebarCollapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
+          </button>
         </div>
         <nav className="side-nav">
           {sidebarSections.map((section) => (
