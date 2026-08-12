@@ -2,6 +2,8 @@
 
 import {
   AlignLeft,
+  Activity,
+  AlertTriangle,
   ArrowLeft,
   BarChart3,
   BellRing,
@@ -16,6 +18,7 @@ import {
   ChevronRight,
   ChevronUp,
   CircleHelp,
+  Clock3,
   CircleUserRound,
   Database,
   FileChartColumn,
@@ -33,10 +36,13 @@ import {
   PackageSearch,
   Plus,
   RotateCw,
+  Share2,
   Route,
   Settings,
   ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
+  Target,
   TrendingUp,
   Truck,
   UserRound,
@@ -530,6 +536,200 @@ function CardTools({ onMore, count = 1 }: { onMore: () => void; count?: number }
   );
 }
 
+function NationalOverviewPage({ onNotify }: { onNotify: (message: string) => void }) {
+  const [period, setPeriod] = useState("Year to Date");
+  const [commodity, setCommodity] = useState("Semua Komoditas");
+  const [area, setArea] = useState("Nasional");
+  const [program, setProgram] = useState("Semua Program");
+  const [refreshingOverview, setRefreshingOverview] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("12 Agustus 2026, 08:24 WIB");
+
+  const kpis = [
+    { title: "Persediaan", value: "5.252.665 ton", target: "Target 4,80 juta ton", progress: 100, result: "109,5% tercapai", delta: "+9,5%", status: "On Track", tone: "good" },
+    { title: "Pengadaan", value: "2.850.000 ton", target: "Target 3,63 juta ton", progress: 78, result: "78% tercapai", delta: "-22%", status: "At Risk", tone: "risk" },
+    { title: "Penjualan & Penyaluran", value: "3,91 juta ton", target: "Target 4,44 juta ton", progress: 88.2, result: "88,2% tercapai", delta: "-526 rb ton", status: "Watch", tone: "watch" },
+    { title: "Keuangan", value: "Rp31,60 T", target: "Target Rp34,20 T", progress: 92.4, result: "92,4% tercapai", delta: "-Rp2,60 T", status: "Watch", tone: "watch" },
+  ];
+  const exceptions = [
+    { severity: "Critical", title: "Stok di bawah safety stock", meta: "Kanwil Papua • Persediaan", value: "8 hari", target: "Target 14 hari", state: "Baru" },
+    { severity: "Critical", title: "Kapasitas gudang melebihi batas", meta: "Kanwil Bali • Gudang", value: "111%", target: "Target ≤ 80%", state: "Ditugaskan" },
+    { severity: "High", title: "Realisasi pengadaan tertinggal", meta: "Kanwil Jawa Barat • Pengadaan", value: "72%", target: "Target 91%", state: "Diproses" },
+    { severity: "High", title: "OTIF di bawah standar", meta: "Kanwil Sulselbar • Distribusi", value: "82,4%", target: "Target ≥ 95%", state: "Diproses" },
+  ];
+  const regions = [
+    { name: "Jawa Timur", value: 104, status: "On Track" },
+    { name: "Jawa Tengah", value: 98, status: "Watch" },
+    { name: "Sulselbar", value: 94, status: "Watch" },
+    { name: "Sumatera Utara", value: 91, status: "Watch" },
+    { name: "Jawa Barat", value: 82, status: "At Risk" },
+    { name: "Papua", value: 68, status: "Critical" },
+  ];
+
+  function refreshOverview() {
+    setRefreshingOverview(true);
+    window.setTimeout(() => {
+      setRefreshingOverview(false);
+      setLastUpdated("Baru saja");
+      onNotify("National Overview berhasil diperbarui");
+    }, 700);
+  }
+
+  function resetOverviewFilters() {
+    setPeriod("Year to Date");
+    setCommodity("Semua Komoditas");
+    setArea("Nasional");
+    setProgram("Semua Program");
+    onNotify("Filter National Overview direset");
+  }
+
+  return (
+    <section className="national-overview-page" aria-label="National Overview">
+      <header className="overview-page-header">
+        <div>
+          <span className="overview-breadcrumb">COMMAND CENTER / NATIONAL OVERVIEW</span>
+          <h1>National Overview</h1>
+          <p>Ringkasan rantai pasok BULOG, pencapaian target, dan exception yang memerlukan tindak lanjut.</p>
+        </div>
+        <div className="overview-updated"><i /><Clock3 size={15} />Data diperbarui {lastUpdated}</div>
+      </header>
+
+      <section className="overview-filter-panel" aria-label="Filter National Overview">
+        {[
+          ["Periode", period, ["Year to Date", "Bulan Berjalan", "30 Hari Terakhir"]],
+          ["Komoditas", commodity, ["Semua Komoditas", "Beras", "Gula", "Jagung"]],
+          ["Wilayah", area, ["Nasional", "Sumatra", "Jawa", "Kalimantan", "Sulawesi", "Bali & Nusa Tenggara", "Maluku & Papua"]],
+          ["Program", program, ["Semua Program", "Komersial", "SPHP", "Bantuan Pangan"]],
+        ].map(([label, value, options]) => (
+          <label key={label as string}>
+            <span>{label as string}</span>
+            <select
+              value={value as string}
+              onChange={(event) => {
+                const next = event.target.value;
+                if (label === "Periode") setPeriod(next);
+                if (label === "Komoditas") setCommodity(next);
+                if (label === "Wilayah") setArea(next);
+                if (label === "Program") setProgram(next);
+              }}
+            >
+              {(options as string[]).map((option) => <option key={option}>{option}</option>)}
+            </select>
+          </label>
+        ))}
+        <div className="overview-filter-actions">
+          <button type="button" className="overview-reset" onClick={resetOverviewFilters}>Reset</button>
+          <button type="button" className="overview-refresh" onClick={refreshOverview} aria-label="Perbarui data"><RotateCw size={19} className={refreshingOverview ? "spin" : ""} /></button>
+          <button type="button" className="overview-share" onClick={() => onNotify("Snapshot National Overview siap dibagikan")}><Share2 size={17} />Bagikan Snapshot</button>
+        </div>
+      </section>
+
+      <div className="overview-scope">
+        <strong>MENAMPILKAN</strong><span>{period}</span><i /> <span>{commodity}</span><i /> <span>{area}</span><i /> <span>{program}</span>
+      </div>
+
+      <section className="overview-hero" aria-label="Narasi kondisi nasional">
+        <div className="overview-health-score">
+          <span>PERLU PERHATIAN</span>
+          <div><strong>78</strong><small>Supply Chain<br />Health Score</small></div>
+        </div>
+        <div className="overview-national-narrative">
+          <h2>Kinerja nasional memerlukan perhatian terarah</h2>
+          <p>Persediaan nasional berada di atas target, namun pencapaian pengadaan baru 78%. Terdapat ketimpangan stok antarwilayah serta 18 alert aktif pada cakupan yang dipilih.</p>
+          <h3><Sparkles size={16} /> Rekomendasi tindakan hari ini</h3>
+          <ol>
+            <li>Validasi 3 exception kritis dan tetapkan PIC sebelum pukul 10.00 WIB.</li>
+            <li>Percepat realisasi pengadaan Jawa Barat dan koridor dengan gap terbesar.</li>
+            <li>Siapkan redistribusi stok dari wilayah surplus ke Papua dan wilayah berisiko.</li>
+          </ol>
+        </div>
+        <div className="overview-hero-stats">
+          {[["18", "Alert aktif"], ["3", "Kritis"], ["5", "Lewat SLA"], ["7/12", "KPI on track"]].map(([value, label]) => (
+            <div key={label}><strong>{value}</strong><span>{label}</span></div>
+          ))}
+        </div>
+      </section>
+
+      <div className="overview-upper-grid">
+        <section className="overview-panel overview-priority-panel">
+          <div className="overview-panel-heading">
+            <div><span>PRIORITAS PENANGANAN</span><h2><b>18</b> Alert Aktif</h2></div>
+            <button type="button" onClick={() => onNotify("Alert Center dibuka")}>Lihat semua <ChevronRight size={15} /></button>
+          </div>
+          <div className="overview-severity-grid">
+            {[["3", "Critical", "critical"], ["5", "High", "high"], ["8", "Medium", "medium"], ["2", "Low", "low"]].map(([value, label, tone]) => (
+              <div className={`severity-card ${tone}`} key={label}><i /><strong>{value}</strong><span>{label}</span></div>
+            ))}
+          </div>
+          <div className="overview-domain-bars">
+            {[["Persediaan", 7], ["Pengadaan", 5], ["Distribusi", 3], ["Keuangan", 2], ["Kualitas Data", 1]].map(([label, value]) => (
+              <div key={label as string}><span>{label}</span><i><b style={{ width: `${Number(value) * 13}%` }} /></i><strong>{value}</strong></div>
+            ))}
+          </div>
+          <p className="overview-priority-note"><AlertTriangle size={15} /><b>+3 alert</b> dibandingkan kemarin. Lima alert telah melewati SLA dan memerlukan eskalasi.</p>
+        </section>
+
+        <section className="overview-panel overview-action-panel">
+          <div className="overview-panel-heading"><div><span>REKOMENDASI TINDAKAN HARI INI</span><h2>Fokus Eksekusi</h2></div><Target size={25} /></div>
+          <div className="overview-actions-list">
+            {[
+              ["01", "Eskalasi stok kritis Papua", "Redistribusi 8.500 ton dari Jawa Timur; keputusan dibutuhkan hari ini.", "Persediaan", "Kritis"],
+              ["02", "Pulihkan trajectory pengadaan", "Naikkan serapan harian menjadi 21.500 ton pada 4 Kanwil prioritas.", "Pengadaan", "Tinggi"],
+              ["03", "Normalisasi OTIF Sulselbar", "Validasi kapasitas transporter dan alihkan rute berisiko.", "Distribusi", "Tinggi"],
+            ].map(([no, title, copy, domain, priority]) => (
+              <button type="button" key={no} onClick={() => onNotify(`${title} dipilih`)}>
+                <b>{no}</b><span><strong>{title}</strong><small>{copy}</small><em>{domain} • {priority}</em></span><ChevronRight size={17} />
+              </button>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <section className="overview-panel overview-kpi-panel">
+        <div className="overview-panel-heading"><div><span>KINERJA UTAMA • YEAR TO DATE</span><h2>Target vs Realisasi</h2></div><button type="button" onClick={() => onNotify("Analisis KPI dibuka")}>Analisis lengkap <ChevronRight size={15} /></button></div>
+        <div className="overview-kpi-grid">
+          {kpis.map((kpi) => (
+            <article key={kpi.title}>
+              <header><strong>{kpi.title}</strong><span className={kpi.tone}>{kpi.status}</span></header>
+              <p>{kpi.value}</p><small>{kpi.target}</small>
+              <i><b style={{ width: `${kpi.progress}%` }} /></i>
+              <footer><strong>{kpi.result}</strong><span>{kpi.delta}</span></footer>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <div className="overview-lower-grid">
+        <section className="overview-panel overview-exception-panel">
+          <div className="overview-panel-heading"><div><span>EXCEPTION BERDAMPAK TINGGI</span><h2>Prioritas Tindakan Nasional</h2></div><button type="button" onClick={() => onNotify("Exception Center dibuka")}>Kelola exception <ChevronRight size={15} /></button></div>
+          <div className="overview-exception-list">
+            {exceptions.map((item) => (
+              <button type="button" key={item.title} onClick={() => onNotify(`${item.title} dibuka`)}>
+                <span className={`exception-badge ${item.severity.toLowerCase()}`}>{item.severity}</span>
+                <span className="exception-name"><strong>{item.title}</strong><small>{item.meta}</small></span>
+                <span className="exception-value"><strong>{item.value}</strong><small>{item.target}</small></span>
+                <span className="exception-state">{item.state}</span><ChevronRight size={17} />
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="overview-panel overview-region-panel">
+          <div className="overview-panel-heading"><div><span>PERFORMA WILAYAH</span><h2>Ranking Kanwil</h2></div><button type="button" onClick={() => onNotify("Seluruh wilayah dibuka")}>Semua wilayah <ChevronRight size={15} /></button></div>
+          <div className="overview-ranking-list">
+            {regions.map((region, index) => (
+              <div key={region.name}><b>{index + 1}</b><span><strong>{region.name}</strong><i><em style={{ width: `${Math.min(region.value, 100)}%` }} /></i></span><span><strong>{region.value}%</strong><small>{region.status}</small></span></div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <footer className="overview-data-footer">
+        <Activity size={20} /><div><strong>Status Data Control Tower</strong><span>ERP, WMS, TMS, dan data keuangan telah tersinkron. Pembaruan terakhir: {lastUpdated}.</span></div><button type="button" onClick={() => onNotify("Status integrasi data dibuka")}>Lihat status integrasi <ChevronRight size={15} /></button>
+      </footer>
+    </section>
+  );
+}
+
 function WarehouseDetailPage({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
   const [search, setSearch] = useState("");
   const [expandedKanwil, setExpandedKanwil] = useState<string[]>(["01001"]);
@@ -829,6 +1029,7 @@ export default function HomePage() {
   const [expandedSidebarItems, setExpandedSidebarItems] = useState<string[]>(["Persediaan"]);
   const [activeTab, setActiveTab] = useState("Persediaan Beras");
   const [detailViewOpen, setDetailViewOpen] = useState(false);
+  const [nationalOverviewOpen, setNationalOverviewOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -908,9 +1109,15 @@ export default function HomePage() {
   function selectSidebarItem(label: string) {
     setActiveNav(label);
     setDetailViewOpen(false);
+    setNationalOverviewOpen(false);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
       showToast("National Dashboard aktif");
+      return;
+    }
+    if (label === "National Overview") {
+      setNationalOverviewOpen(true);
+      showToast("National Overview aktif");
       return;
     }
     if (label === "Ringkasan Persediaan" || label === "Persediaan") {
@@ -1031,6 +1238,7 @@ export default function HomePage() {
             className="title-bar__detail"
             onClick={() => {
               setDetailViewOpen(true);
+              setNationalOverviewOpen(false);
               setFilterOpen(false);
             }}
           >
@@ -1455,6 +1663,11 @@ export default function HomePage() {
         {detailViewOpen && (
           <div className={sidebarCollapsed ? "detail-view-host sidebar-collapsed" : "detail-view-host"}>
             <WarehouseDetailPage onBack={() => setDetailViewOpen(false)} onNotify={showToast} />
+          </div>
+        )}
+        {nationalOverviewOpen && (
+          <div className={sidebarCollapsed ? "overview-view-host sidebar-collapsed" : "overview-view-host"}>
+            <NationalOverviewPage onNotify={showToast} />
           </div>
         )}
       </section>
