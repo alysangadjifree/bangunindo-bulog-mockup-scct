@@ -682,6 +682,9 @@ button {
 .safety-stock-report-body { padding-bottom: 76px; }
 .safety-stock-heading { margin-bottom: 58px; }
 .safety-stock-rule { margin-top: 40px; }
+.non-rice-report-body { padding-bottom: 76px; }
+.non-rice-heading { margin-bottom: 58px; }
+.non-rice-rule { margin-top: 40px; }
 
 .filter-drawer {
   position: fixed;
@@ -956,6 +959,7 @@ button {
   .category-title { grid-column: auto; }
   .route-report-body { padding-bottom: 56px; }
   .safety-stock-report-body { padding-bottom: 50px; }
+  .non-rice-report-body { padding-bottom: 50px; }
   .route-flow-title { justify-content: flex-start; padding-right: 88px; padding-left: 16px; text-align: left; }
 }
 

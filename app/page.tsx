@@ -333,10 +333,10 @@ function formatDashboardDate(value: string) {
   }).format(new Date(`${value}T00:00:00Z`));
 }
 
-function CardTools({ onMore }: { onMore: () => void }) {
+function CardTools({ onMore, count = 1 }: { onMore: () => void; count?: number }) {
   return (
     <div className="card-tools">
-      <span><ListFilter size={14} /><b>1</b></span>
+      <span><ListFilter size={14} /><b>{count}</b></span>
       <button type="button" onClick={onMore} aria-label="Opsi kartu"><MoreVertical size={20} /></button>
     </div>
   );
@@ -925,6 +925,63 @@ export default function HomePage() {
                 </div>
 
                 <div className="analytics-rule safety-stock-rule" aria-hidden="true" />
+              </div>
+            </article>
+          </section>
+        )}
+
+        {activeTab === "Persediaan Non Beras" && (
+          <section className="inventory-analytics non-rice-analytics" aria-label="Analitik persediaan komoditi non beras">
+            <div className="active-filter-bar non-rice-filter-bar">
+              <Filter size={18} />
+              <strong>Filter aktif:</strong>
+              <span><b>Komoditas:</b> BERAS, BERAS PREMIUM (+5 lainnya)</span>
+              <span><b>Wilayah:</b> {level}</span>
+              <span><b>Periode:</b> {formatDashboardDate(appliedStartDate)} – {formatDashboardDate(appliedEndDate)}</span>
+              <button type="button" onClick={() => setFilterOpen(true)}>Ubah</button>
+            </div>
+
+            <article className="report-panel">
+              <header className="report-panel__header">
+                <h2>SCCT - Dashboard Persediaan (Persediaan Komoditi Non Beras)</h2>
+                <button type="button" onClick={() => showToast("Menu persediaan non beras dibuka")} aria-label="Opsi dashboard"><MoreVertical size={24} /></button>
+              </header>
+              <div className="report-panel__body non-rice-report-body">
+                <div className="sync-grid">
+                  <section className="stat-card stat-card--sync">
+                    <div className="stat-card__head">
+                      <strong>Status Pembaruan Data ERP</strong>
+                      <MoreVertical size={22} className="route-status-more" />
+                    </div>
+                    <p>Selasa, 11 Agustus 2026 23:58:48</p>
+                  </section>
+                  <section className="stat-card stat-card--sync">
+                    <div className="stat-card__head">
+                      <strong>Sync Terakhir Pipeline</strong>
+                      <MoreVertical size={22} className="route-status-more" />
+                    </div>
+                    <p>Rabu, 12 Agustus 2026 02:25:57</p>
+                  </section>
+                </div>
+
+                <h3 className="analytics-heading non-rice-heading">STATUS STOK NASIONAL TERKINI</h3>
+                <div className="national-metrics non-rice-metrics">
+                  {[
+                    ["Total Stok Keseluruhan", "176.908,92", "Ton"],
+                    ["Kapasitas Gudang Keseluruhan", "5.695.125", "Ton"],
+                    ["Persentase Gudang Terpakai", "3,11", "Persen (%)"],
+                  ].map(([title, value, unit]) => (
+                    <section className="stat-card stat-card--metric" key={title}>
+                      <div className="stat-card__head">
+                        <strong>{title}</strong>
+                        <CardTools count={2} onMore={() => showToast(`Detail ${title} dibuka`)} />
+                      </div>
+                      <p><b>{value}</b><span>{unit}</span></p>
+                    </section>
+                  ))}
+                </div>
+
+                <div className="analytics-rule non-rice-rule" aria-hidden="true" />
               </div>
             </article>
           </section>
