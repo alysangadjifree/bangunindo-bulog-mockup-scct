@@ -658,6 +658,27 @@ button {
 .chart-category-panel p { margin: 130px 0 0; padding: 6px; color: #2685eb; background: linear-gradient(90deg, #f5f5f5 75%, transparent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; line-height: 1.65; }
 .chart-category-panel p + p { margin-top: 26px; }
 
+.route-report-body { padding-bottom: 90px; }
+.route-status-more { position: absolute; right: 8px; color: #7b8793; }
+.route-visual-heading { margin: 66px 0 56px; }
+.route-flow-stack { display: grid; gap: 46px; padding: 0 20px; }
+.route-flow-card { min-width: 0; border: 1.5px solid #2e6ba7; border-radius: 6px; background: white; overflow: hidden; }
+.route-flow-title { position: relative; min-height: 70px; display: flex; align-items: center; justify-content: center; padding: 12px 105px; color: #1e5a91; text-align: center; }
+.route-flow-title > strong { font-size: clamp(17px, 1.3vw, 24px); font-weight: 600; }
+.route-flow-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; }
+.route-flow-canvas { position: relative; width: 1250px; height: 420px; margin: 0 auto; overflow: hidden; }
+.route-flow-link { position: absolute; z-index: 1; transform-origin: left center; opacity: .2; clip-path: polygon(0 0, 100% 22%, 100% 78%, 0 100%); transition: opacity 180ms ease, filter 180ms ease; pointer-events: none; }
+.route-flow-link.muted { opacity: .035; }
+.route-source { position: absolute; z-index: 3; left: 36px; width: 178px; display: flex; align-items: center; padding: 0 0 0 25px; border: 0; border-left: 18px solid; color: #42464b; background: rgba(255,255,255,.9); cursor: pointer; text-align: left; transition: box-shadow 160ms ease, transform 160ms ease; }
+.route-source:hover, .route-source.selected { z-index: 5; transform: translateX(3px); box-shadow: 0 4px 14px rgba(29, 81, 130, .16); }
+.route-source i { display: none; }
+.route-source span { font-size: 13px; }
+.route-target { position: absolute; z-index: 4; left: 925px; width: 310px; height: 25px; display: flex; align-items: center; gap: 9px; padding: 0; border: 0; color: #42464b; background: rgba(255,255,255,.94); cursor: pointer; text-align: left; }
+.route-target i { width: 18px; height: 25px; flex: 0 0 auto; }
+.route-target span { font-size: 12px; white-space: nowrap; }
+.route-target b { font-weight: 400; }
+.route-flow-hint { margin: 0; padding: 8px 18px 14px; color: #738094; font-size: 11px; text-align: right; }
+
 .filter-drawer {
   position: fixed;
   z-index: 70;
@@ -886,6 +907,7 @@ button {
   .category-title { grid-column: 1 / -1; }
   .category-buttons { margin-top: 0; }
   .chart-category-panel p, .chart-category-panel p + p { margin: 0; }
+  .route-flow-stack { padding: 0; }
 }
 
 @media (max-width: 900px) {
@@ -928,6 +950,8 @@ button {
   .analytics-heading--chart { margin-top: 62px; }
   .chart-category-panel { grid-template-columns: 1fr; }
   .category-title { grid-column: auto; }
+  .route-report-body { padding-bottom: 56px; }
+  .route-flow-title { justify-content: flex-start; padding-right: 88px; padding-left: 16px; text-align: left; }
 }
 
 @media (max-width: 580px) {
@@ -960,6 +984,7 @@ button {
   .stat-card--metric > p b { font-size: 40px; }
   .kanwil-chart-title { justify-content: flex-start; padding-right: 80px; padding-left: 16px; }
   .chart-legend { justify-content: flex-start; }
+  .route-visual-heading { font-size: 20px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
