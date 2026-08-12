@@ -227,7 +227,7 @@ const sidebarSections: SidebarSection[] = [
     items: [
       { label: "AI Decision Center", icon: BrainCircuit, children: ["Executive AI Insights", "Risiko & Peluang", "Root Cause Analysis", "Prioritas Tindakan", "Recommendation Center"] },
       { label: "Scenario Workspace", icon: FlaskConical, children: ["Scenario Overview", "Buat Skenario", "Perbandingan Skenario", "Skenario Tersimpan", "Template Skenario"] },
-      { label: "Simulasi What-If", icon: SlidersHorizontal, children: ["Shortage & Surplus", "Lonjakan Permintaan", "Rute & Moda", "Aging & Risiko Disposal", "Dampak Harga SPHP"] },
+      { label: "Simulasi What-If", icon: SlidersHorizontal, children: ["Rice Outflow Optimizer", "Shortage & Surplus", "Lonjakan Permintaan", "Rute & Moda", "Aging & Risiko Disposal", "Dampak Harga SPHP"] },
       { label: "Prediksi AI", icon: ChartNoAxesCombined, children: ["Demand Forecasting", "Supply Forecasting", "Prediksi Shortage & Surplus", "Prediksi Mutu Stok", "Price Forecasting", "Akurasi Model"] },
       { label: "Optimasi & Rekomendasi", icon: Sparkles, children: ["Optimasi Safety Stock", "Optimasi Alokasi Stok", "Optimasi Pengadaan", "Optimasi Rute & Moda", "Rekomendasi Redistribusi"] },
       { label: "AI Orchestration", icon: Bot, children: ["Recommendation Queue", "Orchestration Rules", "Action Monitoring", "Automation History"] },
