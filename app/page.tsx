@@ -207,47 +207,69 @@ const sidebarSections: SidebarSection[] = [
     items: [
       { label: "National Dashboard", icon: Home },
       { label: "National Overview", icon: BarChart3 },
+      { label: "Target vs Realisasi", icon: Target },
+      { label: "Regional Performance", icon: ChartNoAxesCombined },
+      { label: "National Exceptions", icon: AlertTriangle },
     ],
   },
   {
-    title: "SUPPLY CHAIN MONITORING",
+    title: "PHASE I — SUPPLY CHAIN MONITORING",
     items: [
-      { label: "Persediaan", icon: PackageSearch, children: ["Ringkasan Persediaan", "Kapasitas Gudang", "Aging & Kualitas", "Mutasi Stok", "Safety Stock"] },
-      { label: "Pengadaan", icon: BriefcaseBusiness, children: ["Ringkasan Pengadaan", "Kinerja Wilayah", "Sumber Pengadaan", "Tren & Proyeksi", "Gap Analysis"] },
-      { label: "Penjualan & Penyaluran", icon: TrendingUp, children: ["Ringkasan", "Penjualan Komersial", "Penyaluran Program", "Kinerja Wilayah", "Order Fulfillment"] },
-      { label: "Distribusi", icon: Truck, children: ["Ringkasan Distribusi", "Monitoring Pengiriman", "Kinerja Rute", "Kinerja OTIF", "Exception Distribusi"] },
-      { label: "Keuangan", icon: WalletCards, children: ["Ringkasan Keuangan", "Pendapatan", "Biaya Supply Chain", "Piutang", "Budget vs Actual"] },
-      { label: "Alert & Exception", icon: BellRing, children: ["Alert Center", "My Cases", "SLA Monitoring", "Exception History"] },
+      { label: "Persediaan", icon: PackageSearch, children: ["Ringkasan Persediaan", "Kapasitas Gudang", "Aging & Kualitas", "Mutasi Stok", "Safety Stock", "Simulasi Persediaan"] },
+      { label: "Pengadaan", icon: BriefcaseBusiness, children: ["Ringkasan Pengadaan", "Kinerja Wilayah", "Sumber Pengadaan", "Tren & Proyeksi", "Gap Analysis", "Simulasi Pengadaan"] },
+      { label: "Penjualan & Penyaluran", icon: TrendingUp, children: ["Ringkasan Penjualan & Penyaluran", "Penjualan Komersial", "Penyaluran Program", "Kinerja Wilayah", "Order Fulfillment", "Simulasi Penyaluran"] },
+      { label: "Distribusi", icon: Truck, children: ["Ringkasan Distribusi", "Monitoring Pengiriman", "Kinerja Rute", "Kinerja OTIF", "Exception Distribusi", "Simulasi Distribusi"] },
+      { label: "Keuangan", icon: WalletCards, children: ["Ringkasan Keuangan", "Pendapatan", "Biaya Supply Chain", "Piutang", "Budget vs Actual", "Simulasi Dampak Keuangan"] },
+      { label: "Alert & Exception", icon: BellRing, children: ["Alert Center", "My Cases", "SLA Monitoring", "Exception History", "Alert Rules"] },
     ],
   },
   {
-    title: "AI & SIMULATION",
+    title: "PHASE II — DECISION INTELLIGENCE",
     items: [
-      { label: "AI Decision Center", icon: BrainCircuit, children: ["Executive AI Insights", "Prioritas Tindakan", "Root Cause Analysis", "Recommendation Center"] },
-      { label: "Forecasting", icon: ChartNoAxesCombined, children: ["Demand Forecast", "Supply Forecast", "Stock Projection", "Price Forecast", "Forecast Accuracy"] },
-      { label: "Simulation & Scenario", icon: FlaskConical, children: ["Scenario Workspace", "Simulasi Persediaan", "Simulasi Pengadaan", "Simulasi Penyaluran", "Simulasi Distribusi", "Dampak Keuangan"] },
-      { label: "Optimization", icon: SlidersHorizontal, children: ["Optimasi Safety Stock", "Optimasi Alokasi Stok", "Optimasi Pengadaan", "Optimasi Distribusi", "Rekomendasi Redistribusi"] },
-      { label: "AI Assistant", icon: Bot, children: ["Tanya Data", "Analisis Otomatis", "Buat Dashboard", "Riwayat Percakapan"] },
+      { label: "AI Decision Center", icon: BrainCircuit, children: ["Executive AI Insights", "Risiko & Peluang", "Root Cause Analysis", "Prioritas Tindakan", "Recommendation Center"] },
+      { label: "Scenario Workspace", icon: FlaskConical, children: ["Scenario Overview", "Buat Skenario", "Perbandingan Skenario", "Skenario Tersimpan", "Template Skenario"] },
+      { label: "Simulasi What-If", icon: SlidersHorizontal, children: ["Shortage & Surplus", "Lonjakan Permintaan", "Rute & Moda", "Aging & Risiko Disposal", "Dampak Harga SPHP"] },
+      { label: "Prediksi AI", icon: ChartNoAxesCombined, children: ["Demand Forecasting", "Supply Forecasting", "Prediksi Shortage & Surplus", "Prediksi Mutu Stok", "Price Forecasting", "Akurasi Model"] },
+      { label: "Optimasi & Rekomendasi", icon: Sparkles, children: ["Optimasi Safety Stock", "Optimasi Alokasi Stok", "Optimasi Pengadaan", "Optimasi Rute & Moda", "Rekomendasi Redistribusi"] },
+      { label: "AI Orchestration", icon: Bot, children: ["Recommendation Queue", "Orchestration Rules", "Action Monitoring", "Automation History"] },
+      { label: "Approval Center", icon: Check, children: ["Menunggu Persetujuan", "Disetujui", "Ditolak", "Delegasi Persetujuan"] },
+      { label: "Decision History", icon: Clock3, children: ["Riwayat Simulasi", "Riwayat Prediksi", "Riwayat Rekomendasi", "Riwayat Persetujuan", "Decision Audit Trail"] },
     ],
   },
   {
     title: "REPORT & GOVERNANCE",
     items: [
-      { label: "Executive Report", icon: FileChartColumn, children: ["Executive Snapshot", "Laporan Berkala", "Report Builder", "Riwayat Laporan"] },
-      { label: "Data Quality", icon: Database, children: ["Data Health", "Data Freshness", "Integration Status", "Data Issues"] },
+      { label: "Executive Report", icon: FileChartColumn, children: ["Executive Snapshot", "Laporan Harian", "Laporan Mingguan", "Laporan Bulanan", "Report Builder", "Laporan Terjadwal", "Riwayat Laporan"] },
+      { label: "Data Quality", icon: Database, children: ["Data Health Overview", "Data Freshness", "Completeness", "Consistency", "Data Issues", "Riwayat Perbaikan"] },
+      { label: "Integration Monitoring", icon: Activity, children: ["Integration Overview", "Status Sumber Data", "Sinkronisasi Data", "Integration Logs", "Failed Transactions"] },
+    ],
+  },
+  {
+    title: "MASTER DATA",
+    items: [
+      { label: "Organisasi & Lokasi", icon: Warehouse, children: ["Wilayah", "Kanwil", "Kancab", "Gudang", "Titik Penyaluran"] },
+      { label: "Produk & Komoditas", icon: Boxes, children: ["Komoditas", "Produk", "Satuan", "Klasifikasi Mutu"] },
+      { label: "Program & Transaksi", icon: FileChartColumn, children: ["Program Penyaluran", "Jenis Transaksi", "Kanal Penjualan", "Sumber Pengadaan"] },
+      { label: "Mitra", icon: UserRound, children: ["Pemasok", "Transporter", "Pelanggan", "Kelompok Tani"] },
+      { label: "Parameter", icon: SlidersHorizontal, children: ["Safety Stock", "Target KPI", "Threshold Alert", "SLA", "Kalender Operasional"] },
     ],
   },
   {
     title: "ADMINISTRATION",
     items: [
-      { label: "Master Data", icon: Database, children: ["Wilayah", "Kanwil", "Kancab", "Gudang", "Komoditas", "Program", "Mitra/Pemasok"] },
-      { label: "Pengaturan", icon: Settings, children: ["User", "Role & Permission", "Dashboard Management", "Menu Management", "Alert Rules", "AI Configuration", "Audit Trail", "Session & Security"] },
+      { label: "User Management", icon: CircleUserRound, children: ["User", "Role", "Permission", "Organisasi Pengguna", "Status Pengguna"] },
+      { label: "Dashboard Management", icon: BarChart3, children: ["Dashboard", "Widget", "Menu", "Saved View", "Executive Layout"] },
+      { label: "Alert Configuration", icon: BellRing, children: ["Alert Rules", "Severity", "Notification Rules", "Escalation Rules", "SLA Rules"] },
+      { label: "AI Configuration", icon: BrainCircuit, children: ["Model Configuration", "AI Prompt Template", "Recommendation Rules", "Confidence Threshold", "Orchestration Policy"] },
+      { label: "Security", icon: ShieldCheck, children: ["Authentication", "Session & Idle Timeout", "Access Policy", "API Access", "Login History"] },
+      { label: "System", icon: Settings, children: ["General Setting", "Notification", "Audit Trail", "Application Logs", "System Information"] },
     ],
   },
   {
     title: "AKUN",
     items: [
-      { label: "Profil", icon: CircleUserRound },
+      { label: "Profil Saya", icon: CircleUserRound },
+      { label: "Preferensi", icon: Settings },
       { label: "Bantuan", icon: CircleHelp },
       { label: "Keluar", icon: LogOut },
     ],
@@ -1115,9 +1137,9 @@ export default function HomePage() {
       showToast("National Dashboard aktif");
       return;
     }
-    if (label === "National Overview") {
+    if (["National Overview", "Target vs Realisasi", "Regional Performance", "National Exceptions"].includes(label)) {
       setNationalOverviewOpen(true);
-      showToast("National Overview aktif");
+      showToast(`${label} aktif`);
       return;
     }
     if (label === "Ringkasan Persediaan" || label === "Persediaan") {
