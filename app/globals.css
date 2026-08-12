@@ -239,6 +239,25 @@ button {
 
 .title-bar span { font-size: clamp(17px, 1.05vw, 21px); font-weight: 500; }
 
+.title-bar__detail {
+  min-width: 138px;
+  height: 42px;
+  margin-left: auto;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, .85);
+  color: #285887;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 3px 9px rgba(20, 55, 94, .16);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.title-bar__detail:hover { color: #173e72; background: #f4f8fd; transform: translateY(-1px); }
+.title-bar__detail:focus-visible { outline: 3px solid rgba(255, 255, 255, .65); outline-offset: 2px; }
+
 .filter-handle {
   position: fixed;
   z-index: 56;
@@ -926,9 +945,11 @@ button {
   .side-rail { display: none; }
   .app-shell { overflow: visible; }
   .workspace { position: relative; inset: auto; min-height: 100vh; padding: 80px 14px 0; overflow: visible; }
-  .title-bar { flex: none; height: auto; min-height: 74px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 3px; }
+  .title-bar { position: relative; flex: none; height: auto; min-height: 74px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 3px; padding-right: 170px; }
   .title-bar h1 { font-size: 24px; }
   .title-bar span { font-size: 14px; }
+  .title-bar__detail { position: absolute; top: 50%; right: 14px; margin: 0; transform: translateY(-50%); }
+  .title-bar__detail:hover { transform: translateY(calc(-50% - 1px)); }
   .map-card { flex: none; height: 660px; margin-top: 14px; padding: 10px; }
   .summary-panel, .summary-panel.collapsed { top: auto; right: 8px; bottom: 8px; width: 230px; max-height: 290px; overflow: auto; }
   .summary-list > div { min-height: 40px; padding: 6px 9px; }
@@ -965,6 +986,10 @@ button {
 
 @media (max-width: 580px) {
   .brand { font-size: 28px; }
+  .title-bar { padding-right: 142px; }
+  .title-bar h1 { font-size: 20px; }
+  .title-bar span { font-size: 12px; }
+  .title-bar__detail { right: 10px; min-width: 120px; height: 38px; padding: 0 12px; font-size: 13px; }
   .avatar { width: 36px; height: 36px; }
   .map-card { height: 590px; }
   .map-stage { min-height: 550px; }

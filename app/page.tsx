@@ -571,6 +571,17 @@ export default function HomePage() {
         <div className="title-bar">
           <h1>Dashboard {appliedDashboardType}</h1>
           <span>({formatDashboardDate(appliedStartDate)} – {formatDashboardDate(appliedEndDate)})</span>
+          <button
+            type="button"
+            className="title-bar__detail"
+            onClick={() => {
+              setSummaryOpen(true);
+              mapRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+              showToast(`Detail wilayah ${selectedLabel} ditampilkan`);
+            }}
+          >
+            Detail Wilayah
+          </button>
         </div>
 
         <button
