@@ -4,19 +4,28 @@ import {
   AlignLeft,
   ArrowLeft,
   BarChart3,
+  BellRing,
+  Bot,
   Boxes,
+  BrainCircuit,
   BriefcaseBusiness,
   Check,
+  ChartNoAxesCombined,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   ChevronUp,
+  CircleHelp,
   CircleUserRound,
   Database,
+  FileChartColumn,
+  FlaskConical,
   ExternalLink,
   Filter,
   Home,
   Layers3,
   ListFilter,
+  LogOut,
   Maximize,
   MessageCircle,
   Minus,
@@ -27,9 +36,12 @@ import {
   Route,
   Settings,
   ShieldCheck,
+  SlidersHorizontal,
   TrendingUp,
+  Truck,
   UserRound,
   Warehouse,
+  WalletCards,
   X,
 } from "lucide-react";
 import type { CSSProperties, ComponentType } from "react";
@@ -90,6 +102,17 @@ type KanwilNode = {
   code: string;
   name: string;
   kancabs: KancabNode[];
+};
+
+type SidebarItem = {
+  label: string;
+  icon: ComponentType<{ size?: number }>;
+  children?: string[];
+};
+
+type SidebarSection = {
+  title: string;
+  items: SidebarItem[];
 };
 
 const filterDefaults = {
@@ -172,15 +195,57 @@ const nationalSummary = [
   ["MIN UMUR SIMPAN", "2.0 hari"],
 ];
 
-const navItems: { label: string; icon: ComponentType<{ size?: number }> }[] = [
-  { label: "Beranda", icon: Home },
-  { label: "Persediaan", icon: PackageSearch },
-  { label: "Pengadaan", icon: BriefcaseBusiness },
-  { label: "Pergerakan", icon: TrendingUp },
-  { label: "Analitik", icon: BarChart3 },
-  { label: "Basis data", icon: Database },
-  { label: "Pengaturan", icon: Settings },
-  { label: "Profil", icon: CircleUserRound },
+const sidebarSections: SidebarSection[] = [
+  {
+    title: "BERANDA",
+    items: [
+      { label: "National Dashboard", icon: Home },
+      { label: "National Overview", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "SUPPLY CHAIN MONITORING",
+    items: [
+      { label: "Persediaan", icon: PackageSearch, children: ["Ringkasan Persediaan", "Kapasitas Gudang", "Aging & Kualitas", "Mutasi Stok", "Safety Stock"] },
+      { label: "Pengadaan", icon: BriefcaseBusiness, children: ["Ringkasan Pengadaan", "Kinerja Wilayah", "Sumber Pengadaan", "Tren & Proyeksi", "Gap Analysis"] },
+      { label: "Penjualan & Penyaluran", icon: TrendingUp, children: ["Ringkasan", "Penjualan Komersial", "Penyaluran Program", "Kinerja Wilayah", "Order Fulfillment"] },
+      { label: "Distribusi", icon: Truck, children: ["Ringkasan Distribusi", "Monitoring Pengiriman", "Kinerja Rute", "Kinerja OTIF", "Exception Distribusi"] },
+      { label: "Keuangan", icon: WalletCards, children: ["Ringkasan Keuangan", "Pendapatan", "Biaya Supply Chain", "Piutang", "Budget vs Actual"] },
+      { label: "Alert & Exception", icon: BellRing, children: ["Alert Center", "My Cases", "SLA Monitoring", "Exception History"] },
+    ],
+  },
+  {
+    title: "AI & SIMULATION",
+    items: [
+      { label: "AI Decision Center", icon: BrainCircuit, children: ["Executive AI Insights", "Prioritas Tindakan", "Root Cause Analysis", "Recommendation Center"] },
+      { label: "Forecasting", icon: ChartNoAxesCombined, children: ["Demand Forecast", "Supply Forecast", "Stock Projection", "Price Forecast", "Forecast Accuracy"] },
+      { label: "Simulation & Scenario", icon: FlaskConical, children: ["Scenario Workspace", "Simulasi Persediaan", "Simulasi Pengadaan", "Simulasi Penyaluran", "Simulasi Distribusi", "Dampak Keuangan"] },
+      { label: "Optimization", icon: SlidersHorizontal, children: ["Optimasi Safety Stock", "Optimasi Alokasi Stok", "Optimasi Pengadaan", "Optimasi Distribusi", "Rekomendasi Redistribusi"] },
+      { label: "AI Assistant", icon: Bot, children: ["Tanya Data", "Analisis Otomatis", "Buat Dashboard", "Riwayat Percakapan"] },
+    ],
+  },
+  {
+    title: "REPORT & GOVERNANCE",
+    items: [
+      { label: "Executive Report", icon: FileChartColumn, children: ["Executive Snapshot", "Laporan Berkala", "Report Builder", "Riwayat Laporan"] },
+      { label: "Data Quality", icon: Database, children: ["Data Health", "Data Freshness", "Integration Status", "Data Issues"] },
+    ],
+  },
+  {
+    title: "ADMINISTRATION",
+    items: [
+      { label: "Master Data", icon: Database, children: ["Wilayah", "Kanwil", "Kancab", "Gudang", "Komoditas", "Program", "Mitra/Pemasok"] },
+      { label: "Pengaturan", icon: Settings, children: ["User", "Role & Permission", "Dashboard Management", "Menu Management", "Alert Rules", "AI Configuration", "Audit Trail", "Session & Security"] },
+    ],
+  },
+  {
+    title: "AKUN",
+    items: [
+      { label: "Profil", icon: CircleUserRound },
+      { label: "Bantuan", icon: CircleHelp },
+      { label: "Keluar", icon: LogOut },
+    ],
+  },
 ];
 
 const tabs = [
@@ -759,7 +824,9 @@ export default function HomePage() {
   const [summaryOpen, setSummaryOpen] = useState(true);
   const [selectedRegion, setSelectedRegion] = useState("NASIONAL");
   const [level, setLevel] = useState("Region");
-  const [activeNav, setActiveNav] = useState("Beranda");
+  const [activeNav, setActiveNav] = useState("National Dashboard");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [expandedSidebarItems, setExpandedSidebarItems] = useState<string[]>(["Persediaan"]);
   const [activeTab, setActiveTab] = useState("Persediaan Beras");
   const [detailViewOpen, setDetailViewOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -838,6 +905,24 @@ export default function HomePage() {
     showToast("Filter dikembalikan ke pengaturan awal");
   }
 
+  function selectSidebarItem(label: string) {
+    setActiveNav(label);
+    setDetailViewOpen(false);
+    if (label === "National Dashboard") {
+      setActiveTab("Persediaan Beras");
+      showToast("National Dashboard aktif");
+      return;
+    }
+    if (label === "Ringkasan Persediaan" || label === "Persediaan") {
+      setActiveTab("Persediaan Beras");
+    } else if (label === "Safety Stock") {
+      setActiveTab("Safety Stock");
+    } else if (label === "Kapasitas Gudang") {
+      setDetailViewOpen(true);
+    }
+    showToast(`${label} dipilih`);
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -849,8 +934,12 @@ export default function HomePage() {
           </span>
           <span>bulog</span>
         </div>
-        <button className="menu-button" aria-label="Buka menu utama">
-          <AlignLeft size={19} />
+        <button
+          className="menu-button"
+          aria-label={sidebarCollapsed ? "Perluas menu utama" : "Ringkas menu utama"}
+          onClick={() => setSidebarCollapsed((value) => !value)}
+        >
+          {sidebarCollapsed ? <ChevronRight size={19} /> : <AlignLeft size={19} />}
         </button>
         <div className="topbar-spacer" />
         <span className="version-pill">v0.0.0.74</span>
@@ -874,27 +963,66 @@ export default function HomePage() {
         </div>
       </header>
 
-      <aside className="side-rail" aria-label="Navigasi utama">
-        <nav>
-          {navItems.map(({ label, icon: Icon }) => (
-            <button
-              key={label}
-              className={activeNav === label ? "active" : ""}
-              aria-label={label}
-              title={label}
-              onClick={() => {
-                setActiveNav(label);
-                if (label !== "Beranda") showToast(`${label} dipilih`);
-              }}
-            >
-              <Icon size={19} />
-            </button>
+      <aside className={`side-rail${sidebarCollapsed ? " collapsed" : ""}`} aria-label="Navigasi utama">
+        <div className="side-rail__header">
+          <span className="side-rail__eyebrow">SCCT BULOG</span>
+          <strong>Control Tower</strong>
+          <button type="button" onClick={() => setSidebarCollapsed(true)} aria-label="Ringkas menu"><ChevronLeft size={17} /></button>
+        </div>
+        <nav className="side-nav">
+          {sidebarSections.map((section) => (
+            <section className="side-nav__section" key={section.title}>
+              <h2>{section.title}</h2>
+              <div className="side-nav__items">
+                {section.items.map(({ label, icon: Icon, children }) => {
+                  const expanded = expandedSidebarItems.includes(label);
+                  const childActive = children?.includes(activeNav);
+                  return (
+                    <div className={`side-nav__group${expanded ? " expanded" : ""}`} key={label}>
+                      <button
+                        type="button"
+                        className={`side-nav__item${activeNav === label || childActive ? " active" : ""}`}
+                        title={sidebarCollapsed ? label : undefined}
+                        aria-expanded={children ? expanded : undefined}
+                        onClick={() => {
+                          if (children) {
+                            if (sidebarCollapsed) setSidebarCollapsed(false);
+                            setExpandedSidebarItems((items) => items.includes(label) ? items.filter((item) => item !== label) : [...items, label]);
+                            if (label === "Persediaan") selectSidebarItem(label);
+                          } else {
+                            selectSidebarItem(label);
+                          }
+                        }}
+                      >
+                        <Icon size={17} />
+                        <span>{label}</span>
+                        {children && (expanded ? <ChevronDown size={14} className="side-nav__chevron" /> : <ChevronRight size={14} className="side-nav__chevron" />)}
+                      </button>
+                      {children && expanded && !sidebarCollapsed && (
+                        <div className="side-nav__children">
+                          {children.map((child) => (
+                            <button
+                              type="button"
+                              key={child}
+                              className={activeNav === child ? "active" : ""}
+                              onClick={() => selectSidebarItem(child)}
+                            >
+                              <span>{child}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
           ))}
         </nav>
         <span className="rail-version">v0.0.0.74</span>
       </aside>
 
-      <section className="workspace">
+      <section className={`workspace${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
         <div className="title-bar">
           <h1>Dashboard {appliedDashboardType}</h1>
           <span>({formatDashboardDate(appliedStartDate)} – {formatDashboardDate(appliedEndDate)})</span>
@@ -1324,7 +1452,11 @@ export default function HomePage() {
           </section>
         )}
 
-        {detailViewOpen && <WarehouseDetailPage onBack={() => setDetailViewOpen(false)} onNotify={showToast} />}
+        {detailViewOpen && (
+          <div className={sidebarCollapsed ? "detail-view-host sidebar-collapsed" : "detail-view-host"}>
+            <WarehouseDetailPage onBack={() => setDetailViewOpen(false)} onNotify={showToast} />
+          </div>
+        )}
       </section>
 
       <aside
