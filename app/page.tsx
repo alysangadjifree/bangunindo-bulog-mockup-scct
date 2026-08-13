@@ -11,6 +11,7 @@ import {
   Boxes,
   BrainCircuit,
   BriefcaseBusiness,
+  CalendarDays,
   Check,
   CheckCircle2,
   ChartNoAxesCombined,
@@ -239,7 +240,7 @@ const sidebarSections: SidebarSection[] = [
     items: [
       { label: "AI Decision Center", icon: BrainCircuit, children: ["Executive AI Insights", "Risiko & Peluang", "Root Cause Analysis", "Prioritas Tindakan", "Recommendation Center"] },
       { label: "Scenario Workspace", icon: FlaskConical, children: ["Scenario Overview", "Buat Skenario", "Perbandingan Skenario", "Skenario Tersimpan", "Template Skenario"] },
-      { label: "Simulasi What-If", icon: SlidersHorizontal, children: ["Rice Outflow Optimizer", "Shortage & Surplus", "Lonjakan Permintaan", "Rute & Moda", "Aging & Risiko Disposal", "Dampak Harga SPHP"] },
+      { label: "Simulasi What-If", icon: SlidersHorizontal, children: ["Rice Outflow Optimizer", "Shortage & Surplus", "Seasonal Demand Surge", "Rute & Moda", "Aging & Risiko Disposal", "Dampak Harga SPHP"] },
       { label: "Prediksi AI", icon: ChartNoAxesCombined, children: ["Demand Forecasting", "Supply Forecasting", "Prediksi Shortage & Surplus", "Prediksi Mutu Stok", "Price Forecasting", "Akurasi Model"] },
       { label: "Optimasi & Rekomendasi", icon: Sparkles, children: ["Optimasi Safety Stock", "Optimasi Alokasi Stok", "Optimasi Pengadaan", "Optimasi Rute & Moda", "Rekomendasi Redistribusi"] },
       { label: "AI Orchestration", icon: Bot, children: ["Recommendation Queue", "Orchestration Rules", "Action Monitoring", "Automation History"] },
@@ -1201,6 +1202,116 @@ function ShortageSurplusSimulatorPage({ onNotify }: { onNotify: (message: string
   );
 }
 
+function SeasonalDemandSurgePage({ onNotify }: { onNotify: (message: string) => void }) {
+  const [eventType, setEventType] = useState("Ramadhan & Idulfitri 2027");
+  const [uplift, setUplift] = useState(24);
+  const [peakWeeks, setPeakWeeks] = useState(6);
+  const [bufferDays, setBufferDays] = useState(7);
+  const [selectedStrategy, setSelectedStrategy] = useState<"balanced" | "service" | "lean">("balanced");
+  const [selectedRegion, setSelectedRegion] = useState("Jabodetabek");
+  const [running, setRunning] = useState(false);
+  const [reportState, setReportState] = useState("Pratinjau dinamis");
+  const [lastRun, setLastRun] = useState("Belum dijalankan");
+
+  const regionData = useMemo(() => {
+    const base = [
+      { region: "Jabodetabek", demand: 438, stock: 392, baselineUplift: 29, lead: 5, readiness: 68 },
+      { region: "Jawa Barat", demand: 371, stock: 355, baselineUplift: 26, lead: 4, readiness: 74 },
+      { region: "Jawa Timur", demand: 342, stock: 418, baselineUplift: 22, lead: 3, readiness: 91 },
+      { region: "Jawa Tengah", demand: 306, stock: 349, baselineUplift: 21, lead: 3, readiness: 88 },
+      { region: "Sumatera Utara", demand: 183, stock: 171, baselineUplift: 18, lead: 6, readiness: 72 },
+      { region: "Sulselbar", demand: 155, stock: 168, baselineUplift: 17, lead: 5, readiness: 84 },
+      { region: "Nusa Tenggara Timur", demand: 91, stock: 68, baselineUplift: 16, lead: 9, readiness: 55 },
+      { region: "Papua", demand: 78, stock: 51, baselineUplift: 19, lead: 14, readiness: 43 },
+    ];
+    return base.map((item) => {
+      const demand = Math.round(item.demand * (1 + (uplift + item.baselineUplift - 20) / 100));
+      const requirement = Math.round(demand * (1 + bufferDays / 30));
+      const gap = item.stock - requirement;
+      const coverage = Math.max(4, Math.round((item.stock / demand) * 30));
+      const readiness = Math.max(35, Math.min(98, Math.round(item.readiness - Math.max(0, uplift - 20) * .55 - Math.max(0, peakWeeks - 5) * 1.5 + bufferDays * .45)));
+      return { ...item, demand, requirement, gap, coverage, readiness, status: gap < -40 ? "Kritis" : gap < 0 ? "Perlu tindakan" : "Siap" };
+    });
+  }, [uplift, peakWeeks, bufferDays]);
+
+  const strategies = {
+    balanced: { label: "Seimbang", service: 96.2, inventory: "1,18 jt ton", cost: "Rp284 M", waste: "-19%", description: "Menyeimbangkan service level, biaya, dan aging inventory." },
+    service: { label: "Service Maksimum", service: 98.4, inventory: "1,34 jt ton", cost: "Rp347 M", waste: "-11%", description: "Prioritas ketersediaan dan respons puncak dengan buffer lebih tinggi." },
+    lean: { label: "Inventory Lean", service: 93.8, inventory: "0,96 jt ton", cost: "Rp226 M", waste: "-27%", description: "Menekan inventory dan biaya dengan replenishment lebih sering." },
+  };
+  const activeStrategy = strategies[selectedStrategy];
+  const criticalRegions = regionData.filter((item) => item.status !== "Siap");
+  const prepositionVolume = regionData.reduce((total, item) => total + Math.max(0, -item.gap), 0);
+  const selected = regionData.find((item) => item.region === selectedRegion) ?? regionData[0];
+  const waves = [
+    { wave: "Gelombang 1", timing: "H-45 s.d. H-30", volume: 420, focus: "Papua, NTT, Sumut", action: "Kunci kapal dan gudang penerima", status: "Mulai sekarang" },
+    { wave: "Gelombang 2", timing: "H-29 s.d. H-15", volume: 465, focus: "Jabodetabek, Jawa Barat", action: "Pre-positioning dekat titik penyaluran", status: "Terjadwal" },
+    { wave: "Gelombang 3", timing: "H-14 s.d. H-1", volume: 295, focus: "Seluruh wilayah prioritas", action: "Top-up berbasis demand harian", status: "Menunggu sinyal" },
+  ];
+
+  function runSimulation() {
+    setRunning(true);
+    setReportState("Pratinjau dinamis");
+    window.setTimeout(() => {
+      setRunning(false);
+      setLastRun("Baru saja");
+      onNotify(`Simulasi ${eventType} selesai`);
+    }, 900);
+  }
+
+  function buildReport() {
+    setReportState("Report siap");
+    window.setTimeout(() => document.getElementById("seasonal-report")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    onNotify("Report Seasonal Demand Surge berhasil dibuat");
+  }
+
+  return (
+    <section className="seasonal-page" aria-label="Seasonal Demand Surge Simulator">
+      <header className="seasonal-header">
+        <div><span>DECISION INTELLIGENCE / SIMULASI WHAT-IF</span><h1>Seasonal Demand Surge</h1><p>Model lonjakan kebutuhan Ramadhan, Idulfitri, Nataru, dan periode strategis per wilayah untuk menguji pre-positioning stok sebelum dieksekusi.</p></div>
+        <div className="seasonal-header-actions"><span><i /><Clock3 size={15} /> Simulasi terakhir: {lastRun}</span><button type="button" onClick={() => onNotify("Skenario musiman disimpan")}><Save size={16} />Simpan Draf</button><button type="button" className="primary" onClick={buildReport}><FileText size={16} />Buat Report</button></div>
+      </header>
+      <div className="seasonal-scope"><span><i />Mode simulasi</span><b>Model SDS v2.1</b><i /><b>Nasional</b><i /><b>Beras CBP</b><i /><b>{eventType}</b></div>
+      <nav className="seasonal-tabs"><button type="button" onClick={() => document.getElementById("seasonal-builder")?.scrollIntoView({ behavior: "smooth" })}>Skenario</button><button type="button" onClick={() => document.getElementById("seasonal-forecast")?.scrollIntoView({ behavior: "smooth" })}>Demand Forecast</button><button type="button" onClick={() => document.getElementById("seasonal-plan")?.scrollIntoView({ behavior: "smooth" })}>Pre-positioning</button><button type="button" onClick={() => document.getElementById("seasonal-report")?.scrollIntoView({ behavior: "smooth" })}>Report</button></nav>
+
+      <section className="seasonal-hero"><span><TrendingUp size={24} /></span><div><strong>Peringatan permintaan musiman</strong><p>Permintaan beras diproyeksikan naik <b>{uplift}%</b> selama {peakWeeks} minggu. Tanpa intervensi, {criticalRegions.length} wilayah berisiko berada di bawah kebutuhan selama periode puncak.</p></div><div><strong>H-45</strong><span>mulai pre-positioning</span></div><div><strong>{prepositionVolume.toLocaleString("id-ID")} rb</strong><span>ton perlu diposisikan</span></div></section>
+
+      <section className="seasonal-card" id="seasonal-builder">
+        <header><div><span>LANGKAH 1</span><h2>Definisikan Event &amp; Asumsi</h2><p>Kalender, pola historis, harga, dan sinyal demand menjadi baseline simulasi.</p></div><CalendarDays size={24} /></header>
+        <div className="seasonal-builder-grid">
+          <div className="seasonal-event-form"><label><span>Event musiman</span><select value={eventType} onChange={(event) => setEventType(event.target.value)}><option>Ramadhan &amp; Idulfitri 2027</option><option>Natal &amp; Tahun Baru 2026/2027</option><option>Stabilisasi Harga Semester I</option><option>Event Regional Prioritas</option></select></label><label><span>Baseline demand</span><select defaultValue="Historis 3 tahun + tren terkini"><option>Historis 3 tahun + tren terkini</option><option>Realisasi tahun sebelumnya</option><option>Target program 2027</option></select></label><label><span>Cakupan program</span><select defaultValue="SPHP + Komersial + Bantuan"><option>SPHP + Komersial + Bantuan</option><option>SPHP</option><option>Bantuan Pangan</option><option>Komersial</option></select></label></div>
+          <div className="seasonal-sliders"><label><span><b>Demand uplift nasional</b><strong>+{uplift}%</strong></span><input type="range" min="5" max="50" value={uplift} onChange={(event) => { setUplift(Number(event.target.value)); setReportState("Pratinjau dinamis"); }} /><small>+5% moderat · +50% ekstrem</small></label><label><span><b>Durasi periode puncak</b><strong>{peakWeeks} minggu</strong></span><input type="range" min="2" max="12" value={peakWeeks} onChange={(event) => setPeakWeeks(Number(event.target.value))} /><small>2 minggu · 12 minggu</small></label><label><span><b>Buffer lead time</b><strong>+{bufferDays} hari</strong></span><input type="range" min="0" max="21" value={bufferDays} onChange={(event) => setBufferDays(Number(event.target.value))} /><small>0 hari · 21 hari</small></label></div>
+          <div className="seasonal-guardrails"><h3>Guardrail SCCT</h3>{["Service level minimal 95%", "Safety stock minimal 14 hari", "FEFO dan batas aging aktif", "Kapasitas gudang maksimal 85%", "Harga dan kuota program dipatuhi"].map((item) => <label key={item}><input type="checkbox" defaultChecked /><span>{item}</span></label>)}<div><ShieldCheck size={15} /><span>Rekomendasi hanya memakai stok yang aman dialihkan dan kapasitas tujuan yang tervalidasi.</span></div></div>
+        </div>
+        <button type="button" className="seasonal-run" onClick={runSimulation} disabled={running}><Play size={17} />{running ? "Memproses demand 26 Kanwil…" : "Jalankan Simulasi"}</button>
+      </section>
+
+      <section className="seasonal-card seasonal-forecast" id="seasonal-forecast">
+        <header><div><span>LANGKAH 2</span><h2>Demand Forecast &amp; Readiness Wilayah</h2><p>Bandingkan kebutuhan puncak dengan stok tersedia dan kesiapan jaringan.</p></div><span className="seasonal-confidence">Confidence 92%</span></header>
+        <div className="seasonal-kpis"><article><span>Tambahan demand</span><strong>+{Math.round(uplift * 54.2).toLocaleString("id-ID")} rb ton</strong><small>terhadap baseline nasional</small></article><article className="risk"><span>Wilayah perlu tindakan</span><strong>{criticalRegions.length} Kanwil</strong><small>stok atau jaringan belum siap</small></article><article><span>Service level tanpa aksi</span><strong>{Math.max(73, 96 - criticalRegions.length * 2.5).toFixed(1)}%</strong><small>target minimal 95%</small></article><article className="good"><span>Service level rekomendasi</span><strong>{activeStrategy.service}%</strong><small>setelah pre-positioning</small></article></div>
+        <div className="seasonal-readiness-grid">
+          <section className="seasonal-region-table"><div className="seasonal-region-head"><span>Wilayah</span><span>Demand puncak</span><span>Stok tersedia</span><span>Gap</span><span>Coverage</span><span>Readiness</span></div>{regionData.map((item) => <button type="button" key={item.region} className={selectedRegion === item.region ? "selected" : ""} onClick={() => setSelectedRegion(item.region)}><span><strong>{item.region}</strong><small>{item.status}</small></span><span>{item.demand} rb</span><span>{item.stock} rb</span><span className={item.gap < 0 ? "negative" : "positive"}>{item.gap > 0 ? "+" : ""}{item.gap} rb</span><span>{item.coverage} hari</span><span><i><b style={{ width: `${item.readiness}%` }} /></i><strong>{item.readiness}%</strong></span></button>)}</section>
+          <aside className="seasonal-region-detail"><span>WILAYAH TERPILIH</span><h3>{selected.region}</h3><em className={selected.status === "Siap" ? "ready" : "risk"}>{selected.status}</em><div><span>Gap periode puncak</span><strong>{selected.gap > 0 ? "+" : ""}{selected.gap} rb ton</strong></div><div><span>Days of stock</span><strong>{selected.coverage} hari</strong></div><div><span>Lead time replenishment</span><strong>{selected.lead} hari</strong></div><div><span>Readiness score</span><strong>{selected.readiness}%</strong></div><p>{selected.gap < 0 ? `Mulai pre-positioning maksimal H-${Math.max(14, selected.lead + bufferDays + 14)} agar stok tiba sebelum puncak.` : "Stok memadai; jadwalkan replenishment berbasis konsumsi aktual agar aging tetap terkendali."}</p></aside>
+        </div>
+      </section>
+
+      <section className="seasonal-card" id="seasonal-plan">
+        <header><div><span>LANGKAH 3</span><h2>Pilih Strategi Pre-positioning</h2><p>Bandingkan trade-off layanan, inventory, biaya, dan risiko aging.</p></div><MapPinned size={24} /></header>
+        <div className="seasonal-strategies">{(Object.keys(strategies) as Array<keyof typeof strategies>).map((key) => { const item = strategies[key]; return <button type="button" key={key} className={selectedStrategy === key ? "selected" : ""} onClick={() => setSelectedStrategy(key)}><span>{item.label}{selectedStrategy === key && <b>Direkomendasikan</b>}</span><p>{item.description}</p><div><span><small>Service level</small><strong>{item.service}%</strong></span><span><small>Pre-position</small><strong>{item.inventory}</strong></span><span><small>Biaya</small><strong>{item.cost}</strong></span><span><small>Aging risk</small><strong>{item.waste}</strong></span></div></button>; })}</div>
+        <div className="seasonal-wave-head"><span>Gelombang</span><span>Timing</span><span>Volume</span><span>Wilayah fokus</span><span>Tindakan utama</span><span>Status</span></div><div className="seasonal-waves">{waves.map((wave, index) => <article key={wave.wave}><span><b>{index + 1}</b><strong>{wave.wave}</strong></span><span>{wave.timing}</span><span>{wave.volume} rb ton</span><span>{wave.focus}</span><span>{wave.action}</span><span>{wave.status}</span></article>)}</div>
+        <div className="seasonal-action-note"><Sparkles size={18} /><div><strong>Rekomendasi Control Tower</strong><p>Eksekusi Gelombang 1 sekarang, validasi demand harian mulai H-30, dan gunakan replenishment adaptif untuk mengurangi inventory rata-rata hingga 25% tanpa menurunkan service level.</p></div><button type="button" onClick={() => onNotify("Rencana pre-positioning dikirim ke Approval Center")}><Send size={15} />Ajukan Rencana</button></div>
+      </section>
+
+      <section className={`seasonal-report ${reportState === "Report siap" ? "ready" : ""}`} id="seasonal-report">
+        <header><div><span>LANGKAH 4</span><h2>Report Rekomendasi Musiman</h2><p>Executive brief untuk keputusan penyaluran dan kesiapan wilayah.</p></div><span>{reportState}</span></header>
+        <div className="seasonal-report-grid"><section><div><span>EXECUTIVE SUMMARY</span><strong>{eventType}</strong><small>Skenario +{uplift}% demand • {peakWeeks} minggu • buffer {bufferDays} hari</small></div><p>Model memproyeksikan tambahan demand <b>{Math.round(uplift * 54.2).toLocaleString("id-ID")} ribu ton</b>. Sebanyak <b>{criticalRegions.length} wilayah</b> memerlukan tindakan. Strategi <b>{activeStrategy.label}</b> merekomendasikan pre-positioning {activeStrategy.inventory} mulai H-45 untuk menjaga service level {activeStrategy.service}%.</p><h3>Keputusan yang direkomendasikan</h3><ol><li>Setujui Gelombang 1 untuk Papua, NTT, dan Sumatera Utara dalam 2×24 jam.</li><li>Kunci kapasitas gudang, armada, dan slot kapal sebelum H-30.</li><li>Aktifkan monitoring sell-out, harga, dan stok harian selama periode puncak.</li><li>Sesuaikan Gelombang 3 berdasarkan forecast error dan realisasi program.</li></ol></section><aside><span>PAKET REPORT</span><h3>Siap untuk review</h3><ul>{["Executive summary", "Asumsi & kalender event", "Forecast per Kanwil", "Rencana pre-positioning", "Kebutuhan moda & gudang", "Risiko, guardrail & audit"].map((item) => <li key={item}><CheckCircle2 size={15} />{item}</li>)}</ul><button type="button" className="download" onClick={() => onNotify("Report Seasonal Demand Surge siap diunduh")}><Download size={16} />Unduh Report PDF</button><button type="button" onClick={() => onNotify("Report dikirim untuk persetujuan")}><Send size={16} />Kirim untuk Persetujuan</button></aside></div>
+      </section>
+
+      <footer className="seasonal-disclaimer"><AlertTriangle size={16} /><span><strong>Mode simulasi—bukan instruksi operasional.</strong> Data contoh harus diganti dengan kalender resmi, histori penyaluran, harga, WMS, demand wilayah, Simotandi, TMS/Simlog, dan aturan program BULOG sebelum dipakai untuk keputusan.</span></footer>
+    </section>
+  );
+}
+
 function WarehouseDetailPage({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
   const [search, setSearch] = useState("");
   const [expandedKanwil, setExpandedKanwil] = useState<string[]>(["01001"]);
@@ -1503,6 +1614,7 @@ export default function HomePage() {
   const [nationalOverviewOpen, setNationalOverviewOpen] = useState(false);
   const [riceOptimizerOpen, setRiceOptimizerOpen] = useState(false);
   const [shortageSimulatorOpen, setShortageSimulatorOpen] = useState(false);
+  const [seasonalDemandOpen, setSeasonalDemandOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -1585,6 +1697,7 @@ export default function HomePage() {
     setNationalOverviewOpen(false);
     setRiceOptimizerOpen(false);
     setShortageSimulatorOpen(false);
+    setSeasonalDemandOpen(false);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
       showToast("National Dashboard aktif");
@@ -1603,6 +1716,11 @@ export default function HomePage() {
     if (label === "Shortage & Surplus") {
       setShortageSimulatorOpen(true);
       showToast("Shortage & Surplus Simulator aktif");
+      return;
+    }
+    if (label === "Seasonal Demand Surge") {
+      setSeasonalDemandOpen(true);
+      showToast("Seasonal Demand Surge aktif");
       return;
     }
     if (label === "Ringkasan Persediaan" || label === "Persediaan") {
@@ -1726,6 +1844,7 @@ export default function HomePage() {
               setNationalOverviewOpen(false);
               setRiceOptimizerOpen(false);
               setShortageSimulatorOpen(false);
+              setSeasonalDemandOpen(false);
               setFilterOpen(false);
             }}
           >
@@ -2165,6 +2284,11 @@ export default function HomePage() {
         {shortageSimulatorOpen && (
           <div className={sidebarCollapsed ? "shortage-view-host sidebar-collapsed" : "shortage-view-host"}>
             <ShortageSurplusSimulatorPage onNotify={showToast} />
+          </div>
+        )}
+        {seasonalDemandOpen && (
+          <div className={sidebarCollapsed ? "seasonal-view-host sidebar-collapsed" : "seasonal-view-host"}>
+            <SeasonalDemandSurgePage onNotify={showToast} />
           </div>
         )}
       </section>
