@@ -1312,6 +1312,78 @@ function SeasonalDemandSurgePage({ onNotify }: { onNotify: (message: string) => 
   );
 }
 
+function AgingDisposalRiskPage({ onNotify }: { onNotify: (message: string) => void }) {
+  const [horizon, setHorizon] = useState(90);
+  const [qualityStress, setQualityStress] = useState(15);
+  const [minQuality, setMinQuality] = useState(78);
+  const [selectedLot, setSelectedLot] = useState("LOT-JTM-2401");
+  const [strategy, setStrategy] = useState<"preventive" | "balanced" | "cost">("preventive");
+  const [running, setRunning] = useState(false);
+  const [reportReady, setReportReady] = useState(false);
+  const [lastRun, setLastRun] = useState("Belum dijalankan");
+
+  const lots = useMemo(() => {
+    const source = [
+      { id: "LOT-JTM-2401", warehouse: "Gudang GBB Surabaya", kanwil: "Jawa Timur", age: 14.2, volume: 128400, quality: 82, temp: 29.1, humidity: 72, value: 1412 },
+      { id: "LOT-SLB-2312", warehouse: "Gudang Panaikang", kanwil: "Sulselbar", age: 16.8, volume: 96400, quality: 76, temp: 30.3, humidity: 78, value: 1060 },
+      { id: "LOT-SUM-2402", warehouse: "Gudang Medan II", kanwil: "Sumatera Utara", age: 12.5, volume: 87300, quality: 85, temp: 28.7, humidity: 69, value: 960 },
+      { id: "LOT-NTB-2311", warehouse: "Gudang Dasan Cermen", kanwil: "NTB", age: 18.1, volume: 45200, quality: 71, temp: 30.8, humidity: 81, value: 497 },
+      { id: "LOT-JTG-2403", warehouse: "Gudang Randugarut", kanwil: "Jawa Tengah", age: 10.7, volume: 112600, quality: 88, temp: 28.4, humidity: 67, value: 1239 },
+      { id: "LOT-PAP-2401", warehouse: "Gudang Jayapura", kanwil: "Papua", age: 15.4, volume: 38400, quality: 74, temp: 31.0, humidity: 80, value: 422 },
+    ];
+    return source.map((lot) => {
+      const degradation = horizon / 30 * (qualityStress / 12) + Math.max(0, lot.humidity - 70) * .28 + Math.max(0, lot.temp - 29) * .6;
+      const projectedQuality = Math.max(35, Math.round((lot.quality - degradation) * 10) / 10);
+      const risk = Math.min(99, Math.round((lot.age / 18) * 42 + (100 - projectedQuality) * 1.55 + Math.max(0, lot.humidity - 70) * 1.1));
+      const loss = Math.round(lot.value * Math.max(0, (minQuality - projectedQuality) / 100) * 1.8);
+      const action = risk >= 85 ? "Tindakan ≤ 7 hari" : risk >= 70 ? "Tindakan ≤ 30 hari" : risk >= 55 ? "Monitor mingguan" : "Normal";
+      return { ...lot, projectedQuality, risk, loss, action };
+    });
+  }, [horizon, qualityStress, minQuality]);
+
+  const selected = lots.find((lot) => lot.id === selectedLot) ?? lots[0];
+  const critical = lots.filter((lot) => lot.risk >= 70);
+  const exposedVolume = critical.reduce((total, lot) => total + lot.volume, 0);
+  const exposedLoss = critical.reduce((total, lot) => total + lot.loss, 0);
+  const strategies = {
+    preventive: { label: "Cegah Turun Mutu", saved: 82, cost: 126, disposal: 12, service: 96.8, copy: "Prioritaskan FEFO, percepatan penyaluran, dan redistribusi sebelum mutu menurun." },
+    balanced: { label: "Mitigasi Seimbang", saved: 71, cost: 98, disposal: 21, service: 95.1, copy: "Seimbangkan percepatan keluar, reproses, perawatan, dan biaya operasional." },
+    cost: { label: "Biaya Minimum", saved: 58, cost: 72, disposal: 34, service: 92.7, copy: "Kurangi biaya jangka pendek dengan tindakan selektif pada lot paling kritis." },
+  };
+  const activeStrategy = strategies[strategy];
+  const actions = [
+    { action: "Percepat penyaluran FEFO", volume: 168400, lots: 2, deadline: "≤ 7 hari", effect: "Rp186 M", owner: "Divisi Penyaluran", status: "Prioritas 1" },
+    { action: "Redistribusi ke wilayah defisit", volume: 112600, lots: 1, deadline: "≤ 14 hari", effect: "Rp121 M", owner: "Divisi Supply Chain", status: "Prioritas 2" },
+    { action: "Reproses / perbaikan mutu", volume: 96400, lots: 1, deadline: "≤ 10 hari", effect: "Rp78 M", owner: "Divisi Operasional", status: "Perlu uji mutu" },
+    { action: "Perawatan intensif & monitoring", volume: 87300, lots: 1, deadline: "Mulai hari ini", effect: "Rp42 M", owner: "Kanwil", status: "Siap eksekusi" },
+    { action: "Kajian pelepasan stok turun mutu", volume: 38400, lots: 1, deadline: "Review komite", effect: "Rp36 M", owner: "Komite berwenang", status: "Approval wajib" },
+  ];
+
+  function runSimulation() {
+    setRunning(true); setReportReady(false);
+    window.setTimeout(() => { setRunning(false); setLastRun("Baru saja"); onNotify("Simulasi Aging & Risiko Disposal selesai"); }, 900);
+  }
+
+  return (
+    <section className="aging-page" aria-label="Aging and Disposal Risk Simulator">
+      <header className="aging-header"><div><span>DECISION INTELLIGENCE / SIMULASI WHAT-IF</span><h1>Aging &amp; Risiko Disposal</h1><p>Prediksi penurunan mutu per lot dan uji tindakan mitigasi untuk meminimalkan kerugian serta pelepasan stok turun mutu.</p></div><div className="aging-header-actions"><span><i /><Clock3 size={15} /> Simulasi terakhir: {lastRun}</span><button type="button" onClick={() => onNotify("Skenario aging disimpan")}><Save size={16} />Simpan Draf</button><button type="button" className="primary" onClick={() => { setReportReady(true); onNotify("Report risiko disposal berhasil dibuat"); }}><FileText size={16} />Buat Report</button></div></header>
+      <div className="aging-scope"><span><i />Mode simulasi</span><b>Model ADR v2.2</b><i /><b>Beras CBP</b><i /><b>Lot-level FEFO</b><i /><b>Horizon {horizon} hari</b></div>
+      <nav className="aging-tabs"><button type="button" onClick={() => document.getElementById("aging-builder")?.scrollIntoView({ behavior: "smooth" })}>Skenario</button><button type="button" onClick={() => document.getElementById("aging-risk")?.scrollIntoView({ behavior: "smooth" })}>Risk Monitor</button><button type="button" onClick={() => document.getElementById("aging-actions")?.scrollIntoView({ behavior: "smooth" })}>Mitigasi</button><button type="button" onClick={() => document.getElementById("aging-report")?.scrollIntoView({ behavior: "smooth" })}>Report &amp; Approval</button></nav>
+
+      <section className="aging-hero"><span><AlertTriangle size={23} /></span><div><strong>{critical.length} lot memerlukan keputusan</strong><p><b>{exposedVolume.toLocaleString("id-ID")} ton</b> terekspos risiko turun mutu dalam {horizon} hari dengan estimasi kerugian <b>Rp{exposedLoss} miliar</b> apabila tidak dimitigasi.</p></div><div><strong>{Math.round(exposedVolume / 1000)} rb ton</strong><span>volume berisiko</span></div><div><strong>Rp{exposedLoss} M</strong><span>potential loss</span></div></section>
+
+      <section className="aging-card" id="aging-builder"><header><div><span>LANGKAH 1</span><h2>Bangun Skenario Penurunan Mutu</h2><p>Uji pengaruh waktu simpan, kondisi gudang, dan ambang mutu.</p></div><FlaskConical size={24} /></header><div className="aging-builder-grid"><div><label><span>Horizon simulasi</span><select value={horizon} onChange={(event) => setHorizon(Number(event.target.value))}><option value="30">30 hari</option><option value="60">60 hari</option><option value="90">90 hari</option><option value="180">180 hari</option></select></label><label><span>Cakupan</span><select defaultValue="Nasional"><option>Nasional</option><option>Kanwil Prioritas</option><option>Gudang Terpilih</option></select></label><label><span>Komoditas</span><select defaultValue="Beras CBP"><option>Beras CBP</option><option>Beras Komersial</option><option>Gabah</option></select></label></div><div className="aging-sliders"><label><span><b>Stress kondisi gudang</b><strong>+{qualityStress}%</strong></span><input type="range" min="0" max="40" value={qualityStress} onChange={(event) => setQualityStress(Number(event.target.value))} /><small>Normal · Suhu/kelembapan ekstrem</small></label><label><span><b>Ambang mutu internal</b><strong>{minQuality}/100</strong></span><input type="range" min="60" max="90" value={minQuality} onChange={(event) => setMinQuality(Number(event.target.value))} /><small>Monitoring · Tindakan segera</small></label></div><div className="aging-guardrails"><h3>Guardrail Tata Kelola</h3>{["Verifikasi mutu dan sampling lot", "FEFO sebagai prioritas pertama", "Reproses wajib hasil uji & tim pemeriksa", "Pelepasan/disposal memerlukan approval", "Jejak audit dan dokumen lengkap"].map((item) => <label key={item}><input type="checkbox" defaultChecked /><span>{item}</span></label>)}<p><ShieldCheck size={15} />Tidak ada rekomendasi pelepasan otomatis.</p></div></div><button type="button" className="aging-run" onClick={runSimulation} disabled={running}><Play size={17} />{running ? "Menghitung kurva degradasi lot…" : "Jalankan Simulasi"}</button></section>
+
+      <section className="aging-card" id="aging-risk"><header><div><span>LANGKAH 2</span><h2>Risk Monitor per Lot</h2><p>Urutan tindakan berdasarkan aging, mutu, kondisi gudang, dan nilai eksposur.</p></div><span className="aging-confidence">Confidence 88%</span></header><div className="aging-kpis"><article><span>Stok &gt; 12 bulan</span><strong>395.700 ton</strong><small>6 lot dalam sampel</small></article><article className="risk"><span>Lot risiko tinggi</span><strong>{critical.length} lot</strong><small>risk score ≥ 70</small></article><article><span>Potensi reproses</span><strong>96.400 ton</strong><small>menunggu hasil uji mutu</small></article><article className="good"><span>Loss avoided</span><strong>Rp{Math.round(exposedLoss * activeStrategy.saved / 100)} M</strong><small>strategi {activeStrategy.label}</small></article></div><div className="aging-lot-layout"><section className="aging-lot-table"><div className="aging-lot-head"><span>Lot &amp; Gudang</span><span>Umur</span><span>Mutu kini</span><span>Proyeksi</span><span>Risk</span><span>Potential loss</span><span>Deadline</span></div>{lots.sort((a,b) => b.risk-a.risk).map((lot) => <button type="button" key={lot.id} className={selectedLot === lot.id ? "selected" : ""} onClick={() => setSelectedLot(lot.id)}><span><strong>{lot.id}</strong><small>{lot.warehouse} • {lot.kanwil}</small></span><span>{lot.age} bln</span><span>{lot.quality}/100</span><span className={lot.projectedQuality < minQuality ? "negative" : "positive"}>{lot.projectedQuality}/100</span><span><b className={lot.risk >= 85 ? "critical" : lot.risk >= 70 ? "high" : "normal"}>{lot.risk}</b></span><span>Rp{lot.loss} M</span><span>{lot.action}</span></button>)}</section><aside className="aging-lot-detail"><span>LOT TERPILIH</span><h3>{selected.id}</h3><em className={selected.risk >= 85 ? "critical" : "high"}>Risk {selected.risk}/100</em><div><span>Volume</span><strong>{selected.volume.toLocaleString("id-ID")} ton</strong></div><div><span>Suhu / RH</span><strong>{selected.temp}°C / {selected.humidity}%</strong></div><div><span>Mutu proyeksi</span><strong>{selected.projectedQuality}/100</strong></div><div><span>Potential loss</span><strong>Rp{selected.loss} M</strong></div><p>Validasi sampling laboratorium dan kondisi fisik wajib sebelum keputusan mitigasi atau pelepasan.</p></aside></div></section>
+
+      <section className="aging-card" id="aging-actions"><header><div><span>LANGKAH 3</span><h2>Bandingkan Strategi Mitigasi</h2><p>Prioritaskan pencegahan turun mutu sebelum opsi pelepasan.</p></div><Sparkles size={24} /></header><div className="aging-strategies">{(Object.keys(strategies) as Array<keyof typeof strategies>).map((key) => { const item = strategies[key]; return <button type="button" key={key} className={strategy === key ? "selected" : ""} onClick={() => setStrategy(key)}><span>{item.label}{strategy === key && <b>Direkomendasikan</b>}</span><p>{item.copy}</p><div><span><small>Loss avoided</small><strong>{item.saved}%</strong></span><span><small>Biaya tindakan</small><strong>Rp{item.cost} M</strong></span><span><small>Risiko disposal</small><strong>{item.disposal}%</strong></span><span><small>Service level</small><strong>{item.service}%</strong></span></div></button>; })}</div><div className="aging-action-head"><span>Tindakan</span><span>Volume</span><span>Lot</span><span>Deadline</span><span>Loss avoided</span><span>PIC</span><span>Status</span></div><div className="aging-actions-list">{actions.map((item,index) => <article key={item.action}><span><b>{index+1}</b><strong>{item.action}</strong></span><span>{item.volume.toLocaleString("id-ID")} ton</span><span>{item.lots}</span><span>{item.deadline}</span><span>{item.effect}</span><span>{item.owner}</span><button type="button" onClick={() => onNotify(`${item.action} dibuka`)}>{item.status}<ChevronRight size={14} /></button></article>)}</div><div className="aging-policy-note"><ShieldCheck size={18} /><div><strong>Decision gate wajib</strong><p>Reproses, pelepasan, atau disposal hanya dapat dilanjutkan setelah hasil uji mutu, berita acara tim, analisis nilai, kewenangan approval, dan dokumen audit lengkap.</p></div><button type="button" onClick={() => onNotify("Paket mitigasi dikirim ke Approval Center")}><Send size={15} />Ajukan Paket</button></div></section>
+
+      <section className={`aging-report ${reportReady ? "ready" : ""}`} id="aging-report"><header><div><span>LANGKAH 4</span><h2>Report Risiko Aging &amp; Disposal</h2><p>Executive brief untuk keputusan mitigasi dan governance.</p></div><span>{reportReady ? "Report siap" : "Pratinjau dinamis"}</span></header><div className="aging-report-grid"><section><div><span>EXECUTIVE SUMMARY</span><strong>Skenario Aging Nasional • {horizon} Hari</strong><small>Stress gudang +{qualityStress}% • ambang mutu {minQuality}/100</small></div><p>Model mengidentifikasi <b>{critical.length} lot risiko tinggi</b> dengan volume {exposedVolume.toLocaleString("id-ID")} ton dan eksposur Rp{exposedLoss} miliar. Strategi <b>{activeStrategy.label}</b> diproyeksikan menghindari {activeStrategy.saved}% potensi kerugian melalui FEFO, redistribusi, reproses tervalidasi, dan perawatan intensif.</p><h3>Rekomendasi keputusan</h3><ol><li>Eksekusi penyaluran FEFO untuk lot kritis maksimal tujuh hari.</li><li>Lakukan sampling ulang dan review mutu oleh tim yang berwenang.</li><li>Aktifkan redistribusi ke wilayah defisit tanpa melanggar safety stock.</li><li>Gunakan kajian pelepasan stok turun mutu hanya bila mitigasi tidak layak.</li></ol></section><aside><span>PAKET REPORT</span><h3>Siap untuk review</h3><ul>{["Daftar lot & risk score", "Kurva proyeksi mutu", "Bukti kondisi gudang", "Opsi mitigasi & biaya", "Kajian nilai eksposur", "Approval & audit checklist"].map((item) => <li key={item}><CheckCircle2 size={15} />{item}</li>)}</ul><button type="button" className="download" onClick={() => onNotify("Report aging siap diunduh")}><Download size={16} />Unduh Report PDF</button><button type="button" onClick={() => onNotify("Report dikirim ke komite berwenang")}><Send size={16} />Kirim untuk Review</button></aside></div></section>
+      <footer className="aging-disclaimer"><AlertTriangle size={16} /><span><strong>Mode simulasi—bukan keputusan disposal.</strong> Data contoh harus diganti dengan WMS, hasil uji mutu, kondisi IoT gudang, nilai persediaan, rencana penyaluran, serta kewenangan dan ketentuan resmi BULOG yang berlaku.</span></footer>
+    </section>
+  );
+}
+
 function WarehouseDetailPage({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
   const [search, setSearch] = useState("");
   const [expandedKanwil, setExpandedKanwil] = useState<string[]>(["01001"]);
@@ -1615,6 +1687,7 @@ export default function HomePage() {
   const [riceOptimizerOpen, setRiceOptimizerOpen] = useState(false);
   const [shortageSimulatorOpen, setShortageSimulatorOpen] = useState(false);
   const [seasonalDemandOpen, setSeasonalDemandOpen] = useState(false);
+  const [agingDisposalOpen, setAgingDisposalOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -1698,6 +1771,7 @@ export default function HomePage() {
     setRiceOptimizerOpen(false);
     setShortageSimulatorOpen(false);
     setSeasonalDemandOpen(false);
+    setAgingDisposalOpen(false);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
       showToast("National Dashboard aktif");
@@ -1721,6 +1795,11 @@ export default function HomePage() {
     if (label === "Seasonal Demand Surge") {
       setSeasonalDemandOpen(true);
       showToast("Seasonal Demand Surge aktif");
+      return;
+    }
+    if (label === "Aging & Risiko Disposal") {
+      setAgingDisposalOpen(true);
+      showToast("Aging & Risiko Disposal aktif");
       return;
     }
     if (label === "Ringkasan Persediaan" || label === "Persediaan") {
@@ -1845,6 +1924,7 @@ export default function HomePage() {
               setRiceOptimizerOpen(false);
               setShortageSimulatorOpen(false);
               setSeasonalDemandOpen(false);
+              setAgingDisposalOpen(false);
               setFilterOpen(false);
             }}
           >
@@ -2289,6 +2369,11 @@ export default function HomePage() {
         {seasonalDemandOpen && (
           <div className={sidebarCollapsed ? "seasonal-view-host sidebar-collapsed" : "seasonal-view-host"}>
             <SeasonalDemandSurgePage onNotify={showToast} />
+          </div>
+        )}
+        {agingDisposalOpen && (
+          <div className={sidebarCollapsed ? "aging-view-host sidebar-collapsed" : "aging-view-host"}>
+            <AgingDisposalRiskPage onNotify={showToast} />
           </div>
         )}
       </section>
