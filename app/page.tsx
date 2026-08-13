@@ -23,6 +23,8 @@ import {
   Clock3,
   CircleUserRound,
   Database,
+  Download,
+  FileText,
   FileChartColumn,
   FlaskConical,
   ExternalLink,
@@ -41,6 +43,7 @@ import {
   Plus,
   Play,
   RotateCw,
+  Scale,
   Save,
   Send,
   Share2,
@@ -995,6 +998,209 @@ function RiceOutflowOptimizerPage({ onNotify }: { onNotify: (message: string) =>
   );
 }
 
+function ShortageSurplusSimulatorPage({ onNotify }: { onNotify: (message: string) => void }) {
+  const [scenarioName, setScenarioName] = useState("Tekanan Pasokan Q3");
+  const [horizon, setHorizon] = useState("6 bulan");
+  const [supplyShock, setSupplyShock] = useState(-20);
+  const [demandShock, setDemandShock] = useState(15);
+  const [distributionDisruption, setDistributionDisruption] = useState(10);
+  const [selectedRegion, setSelectedRegion] = useState("Papua");
+  const [running, setRunning] = useState(false);
+  const [reportReady, setReportReady] = useState(false);
+  const [lastRun, setLastRun] = useState("Belum dijalankan");
+
+  const regionalProjection = useMemo(() => {
+    const base = [
+      { region: "Jawa Timur", baseline: 520, supply: 12, demand: 7, route: 1.2, days: 43 },
+      { region: "Jawa Tengah", baseline: 310, supply: 10, demand: 6, route: .9, days: 35 },
+      { region: "Lampung", baseline: 260, supply: 8, demand: 4, route: .7, days: 32 },
+      { region: "Sulselbar", baseline: 180, supply: 7, demand: 7, route: 1.1, days: 24 },
+      { region: "Sumatera Utara", baseline: 120, supply: 8, demand: 5, route: .7, days: 21 },
+      { region: "Kalimantan Barat", baseline: 40, supply: 5, demand: 6, route: 1.3, days: 17 },
+      { region: "Nusa Tenggara Timur", baseline: -20, supply: 4, demand: 7, route: 1.7, days: 13 },
+      { region: "Papua", baseline: -45, supply: 5, demand: 9, route: 2.1, days: 9 },
+    ];
+    return base.map((item) => {
+      const balance = Math.round(item.baseline + supplyShock * item.supply - demandShock * item.demand - distributionDisruption * item.route);
+      const projectedDays = Math.max(3, Math.round(item.days + supplyShock * .35 - demandShock * .22 - distributionDisruption * .12));
+      return { ...item, balance, projectedDays, status: balance < -50 ? "Shortage" : balance > 50 ? "Surplus" : "Seimbang" };
+    });
+  }, [supplyShock, demandShock, distributionDisruption]);
+
+  const shortageRegions = regionalProjection.filter((item) => item.status === "Shortage");
+  const surplusRegions = regionalProjection.filter((item) => item.status === "Surplus");
+  const shortageVolume = Math.abs(regionalProjection.filter((item) => item.balance < 0).reduce((total, item) => total + item.balance, 0));
+  const surplusVolume = regionalProjection.filter((item) => item.balance > 0).reduce((total, item) => total + item.balance, 0);
+  const selectedProjection = regionalProjection.find((item) => item.region === selectedRegion) ?? regionalProjection[0];
+
+  const recommendations = [
+    { source: "Jawa Timur", target: "Papua", volume: 210, mode: "Kapal + truk", lead: "12–16 hari", cost: "Rp148 M", impact: "+18 hari stok", priority: "Kritis" },
+    { source: "Lampung", target: "Nusa Tenggara Timur", volume: 125, mode: "Kapal", lead: "9–12 hari", cost: "Rp76 M", impact: "+14 hari stok", priority: "Tinggi" },
+    { source: "Jawa Tengah", target: "Kalimantan Barat", volume: 98, mode: "Kapal + truk", lead: "7–10 hari", cost: "Rp54 M", impact: "+11 hari stok", priority: "Tinggi" },
+    { source: "Jawa Timur", target: "Sulselbar", volume: 72, mode: "Kapal", lead: "5–7 hari", cost: "Rp31 M", impact: "+8 hari stok", priority: "Menengah" },
+  ];
+
+  function applyPreset(preset: "moderate" | "severe" | "recovery") {
+    if (preset === "moderate") { setSupplyShock(-10); setDemandShock(8); setDistributionDisruption(5); setScenarioName("Tekanan Moderat"); }
+    if (preset === "severe") { setSupplyShock(-30); setDemandShock(25); setDistributionDisruption(25); setScenarioName("Stress Test Ekstrem"); }
+    if (preset === "recovery") { setSupplyShock(8); setDemandShock(3); setDistributionDisruption(0); setScenarioName("Pemulihan Pasokan"); }
+    setReportReady(false);
+  }
+
+  function runSimulation() {
+    setRunning(true);
+    setReportReady(false);
+    window.setTimeout(() => {
+      setRunning(false);
+      setLastRun("Baru saja");
+      onNotify(`Simulasi ${scenarioName} selesai`);
+    }, 900);
+  }
+
+  function createReport() {
+    setReportReady(true);
+    window.setTimeout(() => document.getElementById("shortage-report")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    onNotify("Report rekomendasi berhasil dibuat");
+  }
+
+  return (
+    <section className="shortage-page" aria-label="Shortage and Surplus Simulator">
+      <header className="shortage-header">
+        <div>
+          <span>DECISION INTELLIGENCE / SIMULASI WHAT-IF</span>
+          <h1>Shortage &amp; Surplus Simulator</h1>
+          <p>Uji keseimbangan stok nasional saat pasokan, permintaan, atau jaringan distribusi berubah—sebelum shortage dan overstock berdampak.</p>
+        </div>
+        <div className="shortage-header-actions">
+          <span className="shortage-model-state"><i /><Clock3 size={15} /> Simulasi terakhir: {lastRun}</span>
+          <button type="button" onClick={() => onNotify("Skenario disimpan sebagai draf")}><Save size={16} />Simpan Draf</button>
+          <button type="button" className="primary" onClick={createReport}><FileText size={16} />Buat Report</button>
+        </div>
+      </header>
+
+      <div className="shortage-scope">
+        <span><i />Mode simulasi</span><b>Model S3 v1.8</b><i /><b>Nasional</b><i /><b>Beras CBP</b><i /><b>Horizon {horizon}</b>
+      </div>
+
+      <nav className="shortage-tabs" aria-label="Navigasi simulator">
+        <button type="button" onClick={() => document.getElementById("shortage-builder")?.scrollIntoView({ behavior: "smooth" })}>Bangun Skenario</button>
+        <button type="button" onClick={() => document.getElementById("shortage-results")?.scrollIntoView({ behavior: "smooth" })}>Hasil Proyeksi</button>
+        <button type="button" onClick={() => document.getElementById("shortage-actions")?.scrollIntoView({ behavior: "smooth" })}>Rekomendasi</button>
+        <button type="button" onClick={() => document.getElementById("shortage-report")?.scrollIntoView({ behavior: "smooth" })}>Report</button>
+      </nav>
+
+      <section className="shortage-hero">
+        <span><Scale size={24} /></span>
+        <div><strong>Pertanyaan simulasi aktif</strong><p>Jika produksi/pengadaan turun <b>{Math.abs(supplyShock)}%</b>, permintaan naik <b>{demandShock}%</b>, dan gangguan distribusi <b>{distributionDisruption}%</b>, wilayah mana mengalami shortage dan dari mana surplus dapat dialihkan?</p></div>
+        <div><strong>{shortageRegions.length}</strong><span>wilayah shortage</span></div>
+        <div><strong>{surplusRegions.length}</strong><span>wilayah surplus</span></div>
+      </section>
+
+      <section className="shortage-card scenario-builder" id="shortage-builder">
+        <header><div><span>LANGKAH 1</span><h2>Bangun Skenario What-If</h2><p>Atur asumsi terhadap baseline resmi yang dipilih.</p></div><SlidersHorizontal size={24} /></header>
+        <div className="scenario-presets">
+          <span>Preset cepat</span>
+          <button type="button" onClick={() => applyPreset("moderate")}>Tekanan Moderat</button>
+          <button type="button" onClick={() => applyPreset("severe")}>Stress Test Ekstrem</button>
+          <button type="button" onClick={() => applyPreset("recovery")}>Pemulihan Pasokan</button>
+        </div>
+        <div className="scenario-form-grid">
+          <div className="scenario-baseline">
+            <h3>Konteks & Baseline</h3>
+            <label><span>Nama skenario</span><input value={scenarioName} onChange={(event) => setScenarioName(event.target.value)} /></label>
+            <label><span>Baseline data</span><select defaultValue="Realisasi Agustus 2026"><option>Realisasi Agustus 2026</option><option>Rencana Kerja 2026</option><option>Rata-rata 3 tahun</option></select></label>
+            <label><span>Horizon proyeksi</span><select value={horizon} onChange={(event) => setHorizon(event.target.value)}><option>3 bulan</option><option>6 bulan</option><option>12 bulan</option></select></label>
+            <label><span>Program prioritas</span><select defaultValue="Seluruh program"><option>Seluruh program</option><option>SPHP</option><option>Bantuan Pangan</option><option>Komersial</option></select></label>
+          </div>
+          <div className="scenario-shocks">
+            <h3>Shock Assumptions</h3>
+            <label><span><b>Produksi / pengadaan</b><strong className={supplyShock < 0 ? "negative" : "positive"}>{supplyShock > 0 ? "+" : ""}{supplyShock}%</strong></span><input type="range" min="-40" max="20" step="1" value={supplyShock} onChange={(event) => { setSupplyShock(Number(event.target.value)); setReportReady(false); }} /><small>-40% penurunan · +20% kenaikan</small></label>
+            <label><span><b>Permintaan wilayah</b><strong className={demandShock > 0 ? "negative" : "positive"}>{demandShock > 0 ? "+" : ""}{demandShock}%</strong></span><input type="range" min="-10" max="35" step="1" value={demandShock} onChange={(event) => { setDemandShock(Number(event.target.value)); setReportReady(false); }} /><small>-10% penurunan · +35% lonjakan</small></label>
+            <label><span><b>Gangguan distribusi</b><strong className={distributionDisruption > 15 ? "negative" : "neutral"}>{distributionDisruption}%</strong></span><input type="range" min="0" max="50" step="1" value={distributionDisruption} onChange={(event) => { setDistributionDisruption(Number(event.target.value)); setReportReady(false); }} /><small>0% normal · 50% gangguan berat</small></label>
+          </div>
+          <div className="scenario-guardrails">
+            <h3>Guardrail Keputusan</h3>
+            {["Safety stock minimal 14 hari", "Kapasitas gudang maksimal 85%", "Prioritaskan stok FEFO", "Penuhi kebutuhan program pemerintah", "Redistribusi lintas wilayah diizinkan"].map((item) => <label key={item}><input type="checkbox" defaultChecked /><span>{item}</span></label>)}
+            <div><AlertTriangle size={15} /><span>Model tidak akan merekomendasikan transfer yang menurunkan sumber di bawah safety stock.</span></div>
+          </div>
+        </div>
+        <button type="button" className="run-shortage-simulation" onClick={runSimulation} disabled={running}><Play size={17} />{running ? "Menghitung proyeksi 26 Kanwil…" : "Jalankan Simulasi"}</button>
+      </section>
+
+      <section className="shortage-results" id="shortage-results">
+        <header><div><span>LANGKAH 2</span><h2>Hasil Proyeksi Keseimbangan Stok</h2><p>Proyeksi akhir periode berdasarkan skenario “{scenarioName}”.</p></div><span className="confidence-badge">Confidence 89%</span></header>
+        <div className="shortage-kpis">
+          <article className="critical"><span>Proyeksi shortage</span><strong>{shortageVolume.toLocaleString("id-ID")} rb ton</strong><small>{shortageRegions.length} wilayah di bawah kebutuhan</small></article>
+          <article className="good"><span>Surplus tersedia</span><strong>{surplusVolume.toLocaleString("id-ID")} rb ton</strong><small>{surplusRegions.length} wilayah berpotensi sumber</small></article>
+          <article><span>Gap setelah redistribusi</span><strong>{Math.max(shortageVolume - Math.round(surplusVolume * .82), 0).toLocaleString("id-ID")} rb ton</strong><small>Perlu pengadaan / intervensi tambahan</small></article>
+          <article><span>Service level nasional</span><strong>{Math.max(68, 96 - shortageRegions.length * 3)}%</strong><small>Target ≥ 95%</small></article>
+        </div>
+
+        <div className="balance-workspace">
+          <section className="balance-chart-card">
+            <header><div><span>PROYEKSI PER WILAYAH</span><h3>Shortage vs Surplus</h3></div><span>rb ton</span></header>
+            <div className="balance-axis"><span>Shortage</span><i /><span>Surplus</span></div>
+            <div className="balance-bars">
+              {regionalProjection.map((item) => (
+                <button type="button" key={item.region} className={selectedRegion === item.region ? "selected" : ""} onClick={() => setSelectedRegion(item.region)}>
+                  <span>{item.region}</span>
+                  <div><i className="zero" /><b className={item.balance < 0 ? "shortage" : "surplus"} style={item.balance < 0 ? { width: `${Math.min(Math.abs(item.balance) / 5.2, 48)}%`, right: "50%" } : { width: `${Math.min(item.balance / 5.2, 48)}%`, left: "50%" }} /></div>
+                  <strong className={item.status.toLowerCase()}>{item.balance > 0 ? "+" : ""}{item.balance}</strong>
+                </button>
+              ))}
+            </div>
+          </section>
+          <aside className="region-impact-card">
+            <header><span>WILAYAH TERPILIH</span><h3>{selectedProjection.region}</h3></header>
+            <span className={`region-status ${selectedProjection.status.toLowerCase()}`}>{selectedProjection.status}</span>
+            <div><span>Proyeksi balance</span><strong>{selectedProjection.balance > 0 ? "+" : ""}{selectedProjection.balance} rb ton</strong></div>
+            <div><span>Days of stock</span><strong>{selectedProjection.projectedDays} hari</strong></div>
+            <div><span>Ambang safety stock</span><strong>14 hari</strong></div>
+            <p>{selectedProjection.status === "Shortage" ? "Wilayah memerlukan redistribusi atau percepatan pengadaan sebelum periode kritis." : selectedProjection.status === "Surplus" ? "Surplus dapat dialokasikan dengan tetap menjaga safety stock sumber." : "Kondisi relatif seimbang; monitor perubahan permintaan mingguan."}</p>
+          </aside>
+        </div>
+      </section>
+
+      <section className="shortage-card recommendation-engine" id="shortage-actions">
+        <header><div><span>LANGKAH 3</span><h2>Rekomendasi Penyeimbangan</h2><p>Urutan tindakan berdasarkan dampak service level, lead time, biaya, dan risiko sumber.</p></div><Sparkles size={24} /></header>
+        <div className="recommendation-summary-bar"><span><strong>505 rb ton</strong> direkomendasikan untuk redistribusi</span><i /><span><strong>4 koridor</strong> prioritas</span><i /><span><strong>Rp309 M</strong> estimasi biaya</span><i /><span><strong>96%</strong> shortage tertangani</span></div>
+        <div className="transfer-table-head"><span>Prioritas & koridor</span><span>Volume</span><span>Moda</span><span>Lead time</span><span>Biaya</span><span>Dampak</span><span>Tindakan</span></div>
+        <div className="transfer-list">
+          {recommendations.map((item, index) => (
+            <article key={`${item.source}-${item.target}`}>
+              <span className="transfer-route"><b>{index + 1}</b><span><strong>{item.source} <ArrowRight size={12} /> {item.target}</strong><small>Prioritas {item.priority}</small></span></span>
+              <span><strong>{item.volume} rb</strong><small>ton</small></span><span>{item.mode}</span><span>{item.lead}</span><span>{item.cost}</span><span className="impact">{item.impact}</span>
+              <button type="button" onClick={() => onNotify(`Rencana transfer ${item.source} ke ${item.target} dibuka`)}>Review <ChevronRight size={14} /></button>
+            </article>
+          ))}
+        </div>
+        <div className="recommendation-note"><ShieldCheck size={18} /><div><strong>Guardrail terpenuhi</strong><p>Seluruh rekomendasi menjaga wilayah sumber di atas safety stock 14 hari dan tidak melebihi kapasitas gudang penerima 85%.</p></div><button type="button" onClick={() => onNotify("Paket rekomendasi dikirim ke Approval Center")}><Send size={15} />Ajukan Paket</button></div>
+      </section>
+
+      <section className={`shortage-report ${reportReady ? "ready" : ""}`} id="shortage-report">
+        <header><div><span>LANGKAH 4</span><h2>Report Rekomendasi Simulasi</h2><p>Ringkasan keputusan untuk review manajemen dan tindak lanjut operasional.</p></div><span className="report-state">{reportReady ? "Report siap" : "Pratinjau dinamis"}</span></header>
+        <div className="report-grid">
+          <section className="executive-report-card">
+            <div className="report-title"><span>EXECUTIVE SUMMARY</span><strong>{scenarioName}</strong><small>Dibuat 13 Agustus 2026 • Horizon {horizon}</small></div>
+            <p>Dengan asumsi pasokan <b>{supplyShock}%</b>, permintaan <b>+{demandShock}%</b>, dan gangguan distribusi <b>{distributionDisruption}%</b>, model memproyeksikan <b>{shortageRegions.length} wilayah shortage</b> dengan gap {shortageVolume.toLocaleString("id-ID")} ribu ton. Redistribusi 505 ribu ton melalui empat koridor prioritas diperkirakan menutup 96% kebutuhan mendesak.</p>
+            <div className="report-metrics"><span><small>Risiko nasional</small><strong className="red">TINGGI</strong></span><span><small>Wilayah kritis</small><strong>{shortageRegions.slice(0, 3).map((item) => item.region).join(", ")}</strong></span><span><small>Keputusan maksimal</small><strong>2 × 24 jam</strong></span></div>
+            <h3>Rekomendasi utama</h3>
+            <ol><li>Setujui redistribusi gelombang pertama ke Papua dan NTT.</li><li>Kunci slot kapal, armada lanjutan, dan ruang gudang penerima dalam 24 jam.</li><li>Aktifkan contingency procurement untuk gap yang tidak tertutup surplus.</li><li>Monitor days of stock wilayah kritis setiap hari hingga kembali ≥ 14 hari.</li></ol>
+          </section>
+          <aside className="report-actions-card">
+            <span>PAKET REPORT</span><h3>Siap untuk keputusan</h3>
+            <ul><li><CheckCircle2 size={15} />Executive summary</li><li><CheckCircle2 size={15} />Asumsi & metodologi</li><li><CheckCircle2 size={15} />Proyeksi 26 Kanwil</li><li><CheckCircle2 size={15} />Rencana redistribusi</li><li><CheckCircle2 size={15} />Risiko & guardrail</li><li><CheckCircle2 size={15} />Audit input model</li></ul>
+            <button type="button" className="download-report" onClick={() => onNotify("Report PDF siap diunduh")}><Download size={16} />Unduh Report PDF</button>
+            <button type="button" onClick={() => onNotify("Report dikirim ke Approval Center")}><Send size={16} />Kirim untuk Persetujuan</button>
+          </aside>
+        </div>
+      </section>
+
+      <footer className="shortage-disclaimer"><AlertTriangle size={16} /><span><strong>Mode simulasi—bukan instruksi operasional.</strong> Nilai merupakan data contoh UI/UX. Keputusan produksi wajib menggunakan integrasi WMS, pengadaan, demand wilayah, Simotandi, TMS/Simlog, aturan program, dan otorisasi resmi BULOG.</span></footer>
+    </section>
+  );
+}
+
 function WarehouseDetailPage({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
   const [search, setSearch] = useState("");
   const [expandedKanwil, setExpandedKanwil] = useState<string[]>(["01001"]);
@@ -1296,6 +1502,7 @@ export default function HomePage() {
   const [detailViewOpen, setDetailViewOpen] = useState(false);
   const [nationalOverviewOpen, setNationalOverviewOpen] = useState(false);
   const [riceOptimizerOpen, setRiceOptimizerOpen] = useState(false);
+  const [shortageSimulatorOpen, setShortageSimulatorOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -1377,6 +1584,7 @@ export default function HomePage() {
     setDetailViewOpen(false);
     setNationalOverviewOpen(false);
     setRiceOptimizerOpen(false);
+    setShortageSimulatorOpen(false);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
       showToast("National Dashboard aktif");
@@ -1390,6 +1598,11 @@ export default function HomePage() {
     if (label === "Rice Outflow Optimizer") {
       setRiceOptimizerOpen(true);
       showToast("Rice Outflow Optimizer aktif");
+      return;
+    }
+    if (label === "Shortage & Surplus") {
+      setShortageSimulatorOpen(true);
+      showToast("Shortage & Surplus Simulator aktif");
       return;
     }
     if (label === "Ringkasan Persediaan" || label === "Persediaan") {
@@ -1512,6 +1725,7 @@ export default function HomePage() {
               setDetailViewOpen(true);
               setNationalOverviewOpen(false);
               setRiceOptimizerOpen(false);
+              setShortageSimulatorOpen(false);
               setFilterOpen(false);
             }}
           >
@@ -1946,6 +2160,11 @@ export default function HomePage() {
         {riceOptimizerOpen && (
           <div className={sidebarCollapsed ? "optimizer-view-host sidebar-collapsed" : "optimizer-view-host"}>
             <RiceOutflowOptimizerPage onNotify={showToast} />
+          </div>
+        )}
+        {shortageSimulatorOpen && (
+          <div className={sidebarCollapsed ? "shortage-view-host sidebar-collapsed" : "shortage-view-host"}>
+            <ShortageSurplusSimulatorPage onNotify={showToast} />
           </div>
         )}
       </section>
