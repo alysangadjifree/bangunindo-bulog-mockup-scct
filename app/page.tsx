@@ -240,7 +240,7 @@ const sidebarSections: SidebarSection[] = [
     items: [
       { label: "AI Decision Center", icon: BrainCircuit, children: ["Executive AI Insights", "Risiko & Peluang", "Root Cause Analysis", "Prioritas Tindakan", "Recommendation Center"] },
       { label: "Scenario Workspace", icon: FlaskConical, children: ["Scenario Overview", "Buat Skenario", "Perbandingan Skenario", "Skenario Tersimpan", "Template Skenario"] },
-      { label: "Simulasi What-If", icon: SlidersHorizontal, children: ["Rice Outflow Optimizer", "Shortage & Surplus", "Seasonal Demand Surge", "Rute & Moda", "Aging & Risiko Disposal", "Dampak Harga SPHP"] },
+      { label: "Simulasi What-If", icon: SlidersHorizontal, children: ["Rice Outflow Optimizer", "Shortage & Surplus", "Seasonal Demand Surge", "Route & Mode", "Aging & Risiko Disposal", "Dampak Harga SPHP"] },
       { label: "Prediksi AI", icon: ChartNoAxesCombined, children: ["Demand Forecasting", "Supply Forecasting", "Prediksi Shortage & Surplus", "Prediksi Mutu Stok", "Price Forecasting", "Akurasi Model"] },
       { label: "Optimasi & Rekomendasi", icon: Sparkles, children: ["Optimasi Safety Stock", "Optimasi Alokasi Stok", "Optimasi Pengadaan", "Optimasi Rute & Moda", "Rekomendasi Redistribusi"] },
       { label: "AI Orchestration", icon: Bot, children: ["Recommendation Queue", "Orchestration Rules", "Action Monitoring", "Automation History"] },
@@ -1384,6 +1384,70 @@ function AgingDisposalRiskPage({ onNotify }: { onNotify: (message: string) => vo
   );
 }
 
+function RouteModeSimulatorPage({ onNotify }: { onNotify: (message: string) => void }) {
+  const [volume, setVolume] = useState(12000);
+  const [fuelShock, setFuelShock] = useState(8);
+  const [seaDelay, setSeaDelay] = useState(2);
+  const [capacityLoss, setCapacityLoss] = useState(10);
+  const [objective, setObjective] = useState<"balanced" | "speed" | "cost">("balanced");
+  const [selectedRoute, setSelectedRoute] = useState("multimoda");
+  const [running, setRunning] = useState(false);
+  const [reportReady, setReportReady] = useState(false);
+  const [lastRun, setLastRun] = useState("Belum dijalankan");
+
+  const routes = useMemo(() => {
+    const profiles = [
+      { id: "multimoda", name: "Laut + Truk", path: "Tanjung Perak → Makassar → Panaikang", icon: Ship, baseCost: 15.8, days: 5.2, otif: 96.8, emission: 18, capacity: 14800, risk: 24 },
+      { id: "direct", name: "Kapal Langsung", path: "Tanjung Perak → Soekarno-Hatta Makassar", icon: Ship, baseCost: 13.6, days: 7.1, otif: 91.4, emission: 14, capacity: 22000, risk: 38 },
+      { id: "road", name: "Truk + Ferry", path: "Surabaya → Ketapang → Lembar → Makassar", icon: Truck, baseCost: 22.4, days: 4.6, otif: 94.2, emission: 34, capacity: 10800, risk: 31 },
+    ];
+    return profiles.map((route) => {
+      const cost = route.baseCost * (1 + fuelShock / 100) * (volume / 12000);
+      const lead = route.days + (route.id === "road" ? seaDelay * .25 : seaDelay * .75);
+      const availableCapacity = Math.round(route.capacity * (1 - capacityLoss / 100));
+      const capacityPenalty = volume > availableCapacity ? 15 : 0;
+      const otif = Math.max(65, route.otif - seaDelay * (route.id === "road" ? .7 : 1.8) - capacityPenalty);
+      const weights = objective === "speed" ? [35, 40, 10, 15] : objective === "cost" ? [45, 15, 20, 20] : [30, 30, 20, 20];
+      const score = Math.round((100 - cost * 2) * weights[0] / 100 + (100 - lead * 7) * weights[1] / 100 + otif * weights[2] / 100 + (100 - route.risk) * weights[3] / 100);
+      return { ...route, cost, lead, availableCapacity, otif, score };
+    }).sort((a, b) => b.score - a.score);
+  }, [volume, fuelShock, seaDelay, capacityLoss, objective]);
+  const selected = routes.find((route) => route.id === selectedRoute) ?? routes[0];
+  const recommended = routes[0];
+  const milestones = [
+    ["Release order & alokasi lot FEFO", "13 Agu · 09:00", "Divisi Supply Chain"],
+    ["Pickup Gudang Surabaya", "13 Agu · 18:00", "Kanwil Jatim / Transporter"],
+    ["Gate-in & muat Tanjung Perak", "14 Agu · 10:00", "Operator Pelabuhan"],
+    ["Berangkat menuju Makassar", "14 Agu · 20:00", "Operator Kapal"],
+    ["Bongkar & keluar pelabuhan", "18 Agu · 08:00", "Kanwil Sulselbar"],
+    ["Put-away Gudang Panaikang", "18 Agu · 16:00", "Kepala Gudang"],
+  ];
+
+  function runSimulation() {
+    setRunning(true); setReportReady(false);
+    window.setTimeout(() => { setRunning(false); setSelectedRoute(routes[0].id); setLastRun("Baru saja"); onNotify("Simulasi Route & Mode selesai"); }, 850);
+  }
+
+  return (
+    <section className="route-mode-page" aria-label="Route and Mode Simulator">
+      <header className="route-mode-header"><div><span>DECISION INTELLIGENCE / SIMULASI WHAT-IF</span><h1>Route &amp; Mode Simulator</h1><p>Bandingkan koridor, moda, jadwal, kapasitas, dan biaya untuk memilih rencana distribusi pangan yang paling layak.</p></div><div className="route-mode-header-actions"><span><i /><Clock3 size={15} /> Simulasi terakhir: {lastRun}</span><button type="button" onClick={() => onNotify("Skenario Route & Mode disimpan")}><Save size={16} />Simpan Draf</button><button type="button" className="primary" onClick={() => { setReportReady(true); onNotify("Report Route & Mode berhasil dibuat"); }}><FileText size={16} />Buat Report</button></div></header>
+      <div className="route-mode-scope"><span><i />Mode simulasi</span><b>Model RMO v2.1</b><i /><b>Beras CBP</b><i /><b>Jatim → Sulselbar</b><i /><b>{volume.toLocaleString("id-ID")} ton</b></div>
+      <nav className="route-mode-tabs"><button type="button" onClick={() => document.getElementById("route-builder")?.scrollIntoView({ behavior: "smooth" })}>Skenario</button><button type="button" onClick={() => document.getElementById("route-options")?.scrollIntoView({ behavior: "smooth" })}>Alternatif Rute</button><button type="button" onClick={() => document.getElementById("route-plan")?.scrollIntoView({ behavior: "smooth" })}>Rencana Eksekusi</button><button type="button" onClick={() => document.getElementById("route-report")?.scrollIntoView({ behavior: "smooth" })}>Report &amp; Approval</button></nav>
+
+      <section className="route-mode-hero"><span><Route size={24} /></span><div><strong>Pilih rute yang menjaga layanan tanpa membebani biaya</strong><p>Simulasi mempertimbangkan slot kapal, armada, kapasitas pelabuhan dan gudang, <b>port/cargo stay</b>, safety stock, OTIF, risiko gangguan, serta biaya end-to-end.</p></div><div><strong>{recommended.otif.toFixed(1)}%</strong><span>OTIF rekomendasi</span></div><div><strong>Rp{recommended.cost.toFixed(1)} M</strong><span>estimasi biaya</span></div></section>
+
+      <section className="route-mode-card" id="route-builder"><header><div><span>LANGKAH 1</span><h2>Bangun Skenario Pergerakan</h2><p>Tetapkan kebutuhan distribusi, shock operasional, dan prioritas keputusan.</p></div><FlaskConical size={24} /></header><div className="route-mode-builder"><div className="route-mode-fields"><label><span>Asal</span><select defaultValue="Jawa Timur — GBB Surabaya"><option>Jawa Timur — GBB Surabaya</option><option>Jawa Tengah — Randugarut</option><option>DKI Banten — Sunter Timur</option></select></label><label><span>Tujuan</span><select defaultValue="Sulselbar — Panaikang"><option>Sulselbar — Panaikang</option><option>NTB — Dasan Cermen</option><option>Papua — Jayapura</option></select></label><label><span>Volume kirim</span><div className="route-mode-input"><input type="number" min="1000" step="500" value={volume} onChange={(event) => setVolume(Number(event.target.value))} /><b>ton</b></div></label><label><span>Batas tiba</span><input type="date" defaultValue="2026-08-19" /></label></div><div className="route-mode-sliders"><label><span><b>Kenaikan tarif / BBM</b><strong>+{fuelShock}%</strong></span><input type="range" min="0" max="35" value={fuelShock} onChange={(event) => setFuelShock(Number(event.target.value))} /></label><label><span><b>Gangguan pelayaran</b><strong>{seaDelay} hari</strong></span><input type="range" min="0" max="8" value={seaDelay} onChange={(event) => setSeaDelay(Number(event.target.value))} /></label><label><span><b>Penurunan kapasitas moda</b><strong>-{capacityLoss}%</strong></span><input type="range" min="0" max="50" value={capacityLoss} onChange={(event) => setCapacityLoss(Number(event.target.value))} /></label></div><div className="route-mode-objectives"><span>Tujuan optimasi</span>{([{ id: "balanced", label: "Seimbang", copy: "Biaya, waktu & risiko" }, { id: "speed", label: "Paling Cepat", copy: "Prioritaskan service" }, { id: "cost", label: "Biaya Terendah", copy: "Efisiensi anggaran" }] as const).map((item) => <button type="button" key={item.id} className={objective === item.id ? "selected" : ""} onClick={() => setObjective(item.id)}><b>{item.label}</b><small>{item.copy}</small></button>)}</div><div className="route-mode-guardrails"><h3><ShieldCheck size={17} />Guardrail wajib</h3>{["OTIF minimum 95%", "Safety stock tujuan tidak boleh terlanggar", "Kapasitas moda dan slot terverifikasi", "FEFO untuk lot yang dikirim", "Port & cargo stay maksimal 36 jam", "Approval untuk deviasi biaya >10%"].map((item) => <label key={item}><input type="checkbox" defaultChecked /><span>{item}</span></label>)}</div></div><button type="button" className="route-mode-run" onClick={runSimulation} disabled={running}><Play size={17} />{running ? "Menghitung alternatif koridor…" : "Jalankan Simulasi"}</button></section>
+
+      <section className="route-mode-card" id="route-options"><header><div><span>LANGKAH 2</span><h2>Bandingkan Alternatif Rute &amp; Moda</h2><p>Skor dinamis berdasarkan tujuan optimasi dan kondisi skenario.</p></div><span className="route-mode-confidence">Confidence 89%</span></header><div className="route-option-grid">{routes.map((route, index) => { const Icon = route.icon; const feasible = route.availableCapacity >= volume; return <button type="button" key={route.id} className={selectedRoute === route.id ? "selected" : ""} onClick={() => setSelectedRoute(route.id)}><header><span><Icon size={20} /></span><div><small>ALTERNATIF {index + 1}</small><strong>{route.name}</strong></div>{index === 0 && <b>Direkomendasikan</b>}</header><p>{route.path}</p><div className="route-option-score"><strong>{route.score}</strong><span>Decision score</span></div><dl><div><dt>Biaya</dt><dd>Rp{route.cost.toFixed(1)} M</dd></div><div><dt>Lead time</dt><dd>{route.lead.toFixed(1)} hari</dd></div><div><dt>OTIF</dt><dd className={route.otif >= 95 ? "good" : "risk"}>{route.otif.toFixed(1)}%</dd></div><div><dt>Emisi</dt><dd>{route.emission} kg/t</dd></div><div><dt>Kapasitas siap</dt><dd className={feasible ? "good" : "risk"}>{route.availableCapacity.toLocaleString("id-ID")} t</dd></div><div><dt>Risk score</dt><dd>{route.risk}/100</dd></div></dl><span className={feasible && route.otif >= 95 ? "feasible" : "warning"}>{feasible && route.otif >= 95 ? "Layak dieksekusi" : "Perlu mitigasi"}</span></button>; })}</div><div className="route-mode-network"><header><div><span>KORIDOR TERPILIH</span><h3>{selected.name}</h3><p>{selected.path}</p></div><span>ETA 18 Agustus 2026 · 16:00 WIB</span></header><div className="route-line"><div><span><Warehouse size={19} /></span><b>GBB Surabaya</b><small>12.000 t siap muat</small></div><i /><div><span><Truck size={19} /></span><b>Drayage</b><small>32 truk terjadwal</small></div><i /><div><span><Ship size={19} /></span><b>Tanjung Perak</b><small>Slot 14 Agu · 20:00</small></div><i /><div><span><Ship size={19} /></span><b>Makassar</b><small>Port stay 18 jam</small></div><i /><div><span><Warehouse size={19} /></span><b>Panaikang</b><small>Ruang 14.800 t</small></div></div></div></section>
+
+      <section className="route-mode-card" id="route-plan"><header><div><span>LANGKAH 3</span><h2>Rencana Eksekusi &amp; Readiness</h2><p>Pastikan seluruh dependency siap sebelum rencana diajukan.</p></div><Gauge size={24} /></header><div className="route-readiness"><article><span><Truck size={20} /></span><div><b>Armada darat</b><strong>32 / 34 siap</strong><small>2 unit cadangan belum tervalidasi</small></div><em className="watch">Perlu cek</em></article><article><span><Ship size={20} /></span><div><b>Slot kapal</b><strong>Terkonfirmasi</strong><small>Cut-off dokumen 13 Agu · 17:00</small></div><em>Siap</em></article><article><span><Warehouse size={20} /></span><div><b>Gudang tujuan</b><strong>14.800 ton tersedia</strong><small>Put-away lane dan tenaga bongkar siap</small></div><em>Siap</em></article><article><span><FileText size={20} /></span><div><b>Dokumen &amp; SLA</b><strong>8 / 9 lengkap</strong><small>Surat jalan batch 3 belum final</small></div><em className="watch">Perlu aksi</em></article></div><div className="route-milestones"><div className="route-milestone-head"><span>Tahap</span><span>Jadwal</span><span>PIC</span><span>Status</span></div>{milestones.map((item, index) => <article key={item[0]}><span><b>{index + 1}</b><strong>{item[0]}</strong></span><span>{item[1]}</span><span>{item[2]}</span><em className={index < 2 ? "ready" : "planned"}>{index < 2 ? "Siap" : "Terjadwal"}</em></article>)}</div><div className="route-exception"><AlertTriangle size={19} /><div><strong>Trigger re-optimization otomatis</strong><p>Hitung ulang jika keterlambatan &gt;12 jam, kapasitas turun &gt;10%, cuaca pelabuhan memburuk, biaya berubah &gt;5%, atau safety stock tujuan berubah.</p></div><button type="button" onClick={() => onNotify("Aturan exception Route & Mode dibuka")}>Atur Trigger <ChevronRight size={15} /></button></div></section>
+
+      <section className={`route-mode-report ${reportReady ? "ready" : ""}`} id="route-report"><header><div><span>LANGKAH 4</span><h2>Rekomendasi &amp; Paket Keputusan</h2><p>Ringkasan terukur untuk review operasional dan persetujuan.</p></div><span>{reportReady ? "Report siap" : "Pratinjau dinamis"}</span></header><div className="route-report-grid"><section><div><span>REKOMENDASI UTAMA</span><h3>Gunakan {recommended.name} melalui koridor Tanjung Perak–Makassar</h3><p>Alternatif ini memperoleh decision score <b>{recommended.score}/100</b>, menjaga OTIF di <b>{recommended.otif.toFixed(1)}%</b>, dan membutuhkan biaya <b>Rp{recommended.cost.toFixed(1)} miliar</b>. Booking slot kapal serta konfirmasi armada cadangan harus selesai sebelum cut-off.</p></div><dl><div><dt>Volume</dt><dd>{volume.toLocaleString("id-ID")} ton</dd></div><div><dt>Lead time</dt><dd>{recommended.lead.toFixed(1)} hari</dd></div><div><dt>ETA</dt><dd>18 Agu · 16:00</dd></div><div><dt>Risk residual</dt><dd>{recommended.risk}/100</dd></div></dl><h4>Tindakan hari ini</h4><ol><li>Konfirmasi booking kapal dan SLA bongkar muat.</li><li>Validasi dua armada cadangan serta dokumen batch 3.</li><li>Lock alokasi lot FEFO dan ruang gudang tujuan.</li></ol></section><aside><span>PAKET APPROVAL</span><h3>Siap untuk review</h3>{["Asumsi & parameter skenario", "Perbandingan biaya–waktu–risiko", "Kapasitas moda & gudang", "Jadwal dan dependency", "Exception & contingency plan", "Jejak model dan pengguna"].map((item) => <p key={item}><CheckCircle2 size={15} />{item}</p>)}<button type="button" className="download" onClick={() => onNotify("Report Route & Mode siap diunduh")}><Download size={16} />Unduh Report PDF</button><button type="button" onClick={() => onNotify("Paket dikirim ke Approval Center")}><Send size={16} />Kirim untuk Approval</button></aside></div></section>
+      <footer className="route-mode-disclaimer"><AlertTriangle size={16} /><span><strong>Mode simulasi—bukan instruksi pengiriman.</strong> Validasi menggunakan data aktual WMS, TMS/Simlog, jadwal dan kapasitas operator, kondisi pelabuhan, tarif, cuaca, safety stock, serta kebijakan BULOG sebelum eksekusi.</span></footer>
+    </section>
+  );
+}
+
 function WarehouseDetailPage({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
   const [search, setSearch] = useState("");
   const [expandedKanwil, setExpandedKanwil] = useState<string[]>(["01001"]);
@@ -1687,6 +1751,7 @@ export default function HomePage() {
   const [riceOptimizerOpen, setRiceOptimizerOpen] = useState(false);
   const [shortageSimulatorOpen, setShortageSimulatorOpen] = useState(false);
   const [seasonalDemandOpen, setSeasonalDemandOpen] = useState(false);
+  const [routeModeOpen, setRouteModeOpen] = useState(false);
   const [agingDisposalOpen, setAgingDisposalOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
@@ -1771,6 +1836,7 @@ export default function HomePage() {
     setRiceOptimizerOpen(false);
     setShortageSimulatorOpen(false);
     setSeasonalDemandOpen(false);
+    setRouteModeOpen(false);
     setAgingDisposalOpen(false);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
@@ -1795,6 +1861,11 @@ export default function HomePage() {
     if (label === "Seasonal Demand Surge") {
       setSeasonalDemandOpen(true);
       showToast("Seasonal Demand Surge aktif");
+      return;
+    }
+    if (label === "Route & Mode") {
+      setRouteModeOpen(true);
+      showToast("Route & Mode Simulator aktif");
       return;
     }
     if (label === "Aging & Risiko Disposal") {
@@ -2369,6 +2440,11 @@ export default function HomePage() {
         {seasonalDemandOpen && (
           <div className={sidebarCollapsed ? "seasonal-view-host sidebar-collapsed" : "seasonal-view-host"}>
             <SeasonalDemandSurgePage onNotify={showToast} />
+          </div>
+        )}
+        {routeModeOpen && (
+          <div className={sidebarCollapsed ? "route-mode-view-host sidebar-collapsed" : "route-mode-view-host"}>
+            <RouteModeSimulatorPage onNotify={showToast} />
           </div>
         )}
         {agingDisposalOpen && (
