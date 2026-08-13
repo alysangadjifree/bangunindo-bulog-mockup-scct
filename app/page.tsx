@@ -3,6 +3,7 @@
 import {
   Activity,
   AlertTriangle,
+  ArrowRight,
   ArrowLeft,
   BarChart3,
   BellRing,
@@ -11,12 +12,14 @@ import {
   BrainCircuit,
   BriefcaseBusiness,
   Check,
+  CheckCircle2,
   ChartNoAxesCombined,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   CircleHelp,
+  CircleDollarSign,
   Clock3,
   CircleUserRound,
   Database,
@@ -24,18 +27,24 @@ import {
   FlaskConical,
   ExternalLink,
   Filter,
+  Gauge,
   Home,
   Layers3,
   ListFilter,
   LogOut,
   Maximize,
+  MapPinned,
   MessageCircle,
   Minus,
   MoreVertical,
   PackageSearch,
   Plus,
+  Play,
   RotateCw,
+  Save,
+  Send,
   Share2,
+  Ship,
   Route,
   Settings,
   ShieldCheck,
@@ -751,6 +760,241 @@ function NationalOverviewPage({ onNotify }: { onNotify: (message: string) => voi
   );
 }
 
+function RiceOutflowOptimizerPage({ onNotify }: { onNotify: (message: string) => void }) {
+  const [objective, setObjective] = useState<"balanced" | "risk" | "cost">("balanced");
+  const [horizon, setHorizon] = useState("180 hari");
+  const [targetVolume, setTargetVolume] = useState("5.000.000");
+  const [selectedRoute, setSelectedRoute] = useState("Jawa Timur → Papua");
+  const [running, setRunning] = useState(false);
+  const [approvalState, setApprovalState] = useState("Draf simulasi");
+  const [lastSimulation, setLastSimulation] = useState("13 Agustus 2026, 08:42 WIB");
+
+  const scenarios = {
+    balanced: {
+      name: "Seimbang",
+      description: "Menekan risiko mutu tanpa melampaui pagar biaya dan kapasitas penerima.",
+      daily: "27.800",
+      logistics: "Rp2,35 T",
+      avoidedLoss: "Rp910 M",
+      completion: "96,4%",
+      riskReduction: 78,
+      costIndex: 72,
+      service: 96,
+    },
+    risk: {
+      name: "Risiko Mutu Minimum",
+      description: "Mendahulukan lot kritis dan rute tercepat meski biaya lebih tinggi.",
+      daily: "31.500",
+      logistics: "Rp2,78 T",
+      avoidedLoss: "Rp1,08 T",
+      completion: "98,1%",
+      riskReduction: 92,
+      costIndex: 58,
+      service: 98,
+    },
+    cost: {
+      name: "Biaya Minimum",
+      description: "Memaksimalkan konsolidasi moda dan utilisasi muatan.",
+      daily: "24.100",
+      logistics: "Rp1,96 T",
+      avoidedLoss: "Rp730 M",
+      completion: "89,7%",
+      riskReduction: 64,
+      costIndex: 89,
+      service: 90,
+    },
+  };
+
+  const routes = [
+    { route: "Jawa Timur → Papua", origin: "Surabaya", destination: "Jayapura", volume: "320.000", mode: "Kapal + truk", depart: "14–22 Agu", risk: 92, loss: "Rp176 M", status: "Siap diajukan" },
+    { route: "Sulselbar → NTT", origin: "Makassar", destination: "Kupang", volume: "185.000", mode: "Kapal", depart: "15–25 Agu", risk: 87, loss: "Rp94 M", status: "Slot dikonfirmasi" },
+    { route: "Lampung → DKI/Banten", origin: "Bandar Lampung", destination: "Tangerang", volume: "250.000", mode: "Truk + kereta", depart: "14–20 Agu", risk: 81, loss: "Rp121 M", status: "Perlu validasi" },
+    { route: "Sumut → Aceh", origin: "Medan", destination: "Lhokseumawe", volume: "96.000", mode: "Truk", depart: "16–28 Agu", risk: 76, loss: "Rp47 M", status: "Siap dijadwalkan" },
+    { route: "Jawa Tengah → Kalbar", origin: "Semarang", destination: "Pontianak", volume: "210.000", mode: "Kapal + truk", depart: "18–31 Agu", risk: 73, loss: "Rp88 M", status: "Perlu kapasitas" },
+  ];
+
+  const activeScenario = scenarios[objective];
+  const activeRoute = routes.find((item) => item.route === selectedRoute) ?? routes[0];
+
+  function runSimulation() {
+    setRunning(true);
+    setApprovalState("Draf simulasi");
+    window.setTimeout(() => {
+      setRunning(false);
+      setLastSimulation("Baru saja");
+      onNotify(`Skenario ${activeScenario.name} selesai dihitung`);
+    }, 900);
+  }
+
+  function scrollToSection(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  return (
+    <section className="optimizer-page" aria-label="Rice Outflow Optimizer">
+      <header className="optimizer-header">
+        <div>
+          <span className="optimizer-breadcrumb">DECISION INTELLIGENCE / SIMULASI WHAT-IF</span>
+          <h1>Rice Outflow Optimizer</h1>
+          <p>Menentukan stok yang harus keluar, tenggat, tujuan, moda, dan kecepatan distribusi sebelum terjadi penurunan mutu.</p>
+        </div>
+        <div className="optimizer-header-actions">
+          <span className="optimizer-data-state"><i /><Clock3 size={15} /> Data simulasi diperbarui {lastSimulation}</span>
+          <button type="button" className="optimizer-secondary-button" onClick={() => onNotify("Skenario disimpan")}><Save size={16} />Simpan Skenario</button>
+          <button
+            type="button"
+            className="optimizer-primary-button"
+            onClick={() => {
+              setApprovalState("Menunggu persetujuan");
+              onNotify("Rekomendasi dikirim ke Approval Center");
+            }}
+          ><Send size={16} />Ajukan Persetujuan</button>
+        </div>
+      </header>
+
+      <div className="optimizer-status-row">
+        <span className={`optimizer-status-pill ${approvalState === "Menunggu persetujuan" ? "pending" : ""}`}><i />{approvalState}</span>
+        <span>Model: ROO v2.4</span><i />
+        <span>Cakupan: Nasional</span><i />
+        <span>Komoditas: Beras CBP</span><i />
+        <span>Horizon: {horizon}</span>
+      </div>
+
+      <nav className="optimizer-tabs" aria-label="Navigasi Rice Outflow Optimizer">
+        <button type="button" onClick={() => scrollToSection("optimizer-summary")}>Ringkasan</button>
+        <button type="button" onClick={() => scrollToSection("optimizer-scenario")}>Konfigurasi Skenario</button>
+        <button type="button" onClick={() => scrollToSection("optimizer-recommendation")}>Rekomendasi & Eksekusi</button>
+        <button type="button" onClick={() => scrollToSection("optimizer-data")}>Data & Audit</button>
+      </nav>
+
+      <section className="optimizer-alert" id="optimizer-summary">
+        <span><AlertTriangle size={22} /></span>
+        <div>
+          <strong>Keputusan diperlukan untuk ±5 juta ton stok beras</strong>
+          <p>Laju outflow aktual sekitar <b>1.200 ton/hari</b>, jauh di bawah target operasional <b>7.100 ton/hari</b>. Sebanyak <b>2,42 juta ton</b> telah berumur lebih dari 4 bulan dengan eksposur potensi rugi hingga <b>Rp1,2 triliun</b>.</p>
+        </div>
+        <button type="button" onClick={() => scrollToSection("optimizer-recommendation")}>Lihat prioritas <ArrowRight size={16} /></button>
+      </section>
+
+      <section className="optimizer-flow" aria-label="Alur closed-loop optimizer">
+        {[
+          ["01", "APA", "Deteksi Aging", "Identifikasi lot FEFO, mutu, dan stok berisiko.", Clock3],
+          ["02", "KAPAN", "Risk & Deadline", "Hitung jam mundur sebelum turun mutu.", ShieldCheck],
+          ["03", "KE MANA", "Rute & Moda", "Uji tujuan, kapasitas, biaya, dan SLA.", MapPinned],
+          ["04", "SEBERAPA CEPAT", "Jadwal Optimal", "Susun urutan keberangkatan dan volume harian.", Gauge],
+          ["05", "EKSEKUSI", "Approve & Monitor", "Human approval, dispatch, dan audit trail.", CheckCircle2],
+        ].map(([number, label, title, copy, Icon], index) => {
+          const StepIcon = Icon as ComponentType<{ size?: number }>;
+          return (
+            <article key={label as string}>
+              <div className="optimizer-step-top"><span>{number as string}</span><StepIcon size={21} /></div>
+              <small>{label as string}</small><strong>{title as string}</strong><p>{copy as string}</p>
+              {index < 4 && <ArrowRight size={17} className="optimizer-flow-arrow" />}
+            </article>
+          );
+        })}
+      </section>
+
+      <div className="optimizer-working-grid" id="optimizer-scenario">
+        <section className="optimizer-card optimizer-config-card">
+          <header><div><span>KONFIGURASI SKENARIO</span><h2>Asumsi & Pagar Operasional</h2></div><SlidersHorizontal size={23} /></header>
+          <div className="optimizer-fields">
+            <label><span>Target stok keluar (ton)</span><input value={targetVolume} onChange={(event) => setTargetVolume(event.target.value)} inputMode="numeric" /></label>
+            <label><span>Horizon eksekusi</span><select value={horizon} onChange={(event) => setHorizon(event.target.value)}><option>90 hari</option><option>180 hari</option><option>270 hari</option></select></label>
+            <label><span>Cakupan sumber</span><select defaultValue="Nasional"><option>Nasional</option><option>Sumatra</option><option>Jawa</option><option>Sulawesi</option><option>Maluku & Papua</option></select></label>
+            <label><span>Program tujuan</span><select defaultValue="Semua kanal"><option>Semua kanal</option><option>SPHP</option><option>Bantuan Pangan</option><option>Komersial</option></select></label>
+          </div>
+          <fieldset className="optimizer-objectives">
+            <legend>Tujuan optimasi</legend>
+            {(["balanced", "risk", "cost"] as const).map((key) => (
+              <button type="button" key={key} className={objective === key ? "active" : ""} onClick={() => setObjective(key)}>
+                <span>{key === "balanced" ? <SlidersHorizontal size={17} /> : key === "risk" ? <ShieldCheck size={17} /> : <CircleDollarSign size={17} />}</span>
+                <strong>{scenarios[key].name}</strong><small>{key === "balanced" ? "Biaya • mutu • layanan" : key === "risk" ? "Prioritas stok kritis" : "Konsolidasi termurah"}</small>
+              </button>
+            ))}
+          </fieldset>
+          <div className="optimizer-constraints">
+            <span><Check size={13} />FEFO wajib</span><span><Check size={13} />Min. safety stock terjaga</span><span><Check size={13} />Kapasitas gudang penerima ≤ 85%</span><span><Check size={13} />HPP/HET & SLA dipatuhi</span>
+          </div>
+          <button type="button" className="optimizer-run" onClick={runSimulation} disabled={running}><Play size={17} />{running ? "Menghitung 1.284 kombinasi…" : "Jalankan Simulasi"}</button>
+        </section>
+
+        <section className="optimizer-card optimizer-result-card">
+          <header><div><span>HASIL SKENARIO DIREKOMENDASIKAN</span><h2>{activeScenario.name}</h2></div><span className="optimizer-confidence">Confidence 91%</span></header>
+          <p className="optimizer-result-copy">{activeScenario.description}</p>
+          <div className="optimizer-result-kpis">
+            <article><span>Target outflow</span><strong>{targetVolume}</strong><small>ton / {horizon}</small></article>
+            <article><span>Kebutuhan harian</span><strong>{activeScenario.daily}</strong><small>ton per hari</small></article>
+            <article><span>Biaya logistik</span><strong>{activeScenario.logistics}</strong><small>estimasi simulasi</small></article>
+            <article><span>Kerugian dihindari</span><strong>{activeScenario.avoidedLoss}</strong><small>estimasi model</small></article>
+          </div>
+          <div className="optimizer-score-list">
+            {[["Reduksi risiko mutu", activeScenario.riskReduction], ["Efisiensi biaya", activeScenario.costIndex], ["Service level", activeScenario.service]].map(([label, value]) => (
+              <div key={label as string}><span>{label as string}</span><i><b style={{ width: `${value}%` }} /></i><strong>{value}%</strong></div>
+            ))}
+          </div>
+          <div className="optimizer-result-note"><Sparkles size={17} /><p><strong>Rekomendasi AI</strong> Jalankan gelombang pertama 851.000 ton pada 5 koridor prioritas. Slot kapal dan kapasitas penerima perlu dikunci maksimal 24 jam.</p></div>
+        </section>
+      </div>
+
+      <section className="optimizer-card optimizer-comparison-card">
+        <header><div><span>PERBANDINGAN SKENARIO</span><h2>Trade-off Keputusan</h2></div><button type="button" onClick={() => onNotify("Perbandingan skenario diekspor")}><Share2 size={15} />Bagikan</button></header>
+        <div className="optimizer-comparison-grid">
+          {(Object.keys(scenarios) as Array<keyof typeof scenarios>).map((key) => {
+            const item = scenarios[key];
+            return <button type="button" className={objective === key ? "selected" : ""} key={key} onClick={() => setObjective(key)}><span>{item.name}{objective === key && <b>Direkomendasikan</b>}</span><strong>{item.daily} <small>ton/hari</small></strong><div><em>Biaya {item.logistics}</em><em>Loss avoided {item.avoidedLoss}</em><em>Selesai {item.completion}</em></div></button>;
+          })}
+        </div>
+      </section>
+
+      <section className="optimizer-card optimizer-recommendation-card" id="optimizer-recommendation">
+        <header><div><span>REKOMENDASI & EKSEKUSI</span><h2>Gelombang 1 • Koridor Prioritas</h2></div><div className="optimizer-recommendation-summary"><strong>851.000 ton</strong><span>5 koridor • loss avoided Rp526 M</span></div></header>
+        <div className="optimizer-route-head"><span>Koridor</span><span>Volume</span><span>Moda</span><span>Jadwal keluar</span><span>Risk score</span><span>Status kesiapan</span></div>
+        <div className="optimizer-routes">
+          {routes.map((item, index) => (
+            <button type="button" key={item.route} className={selectedRoute === item.route ? "selected" : ""} onClick={() => setSelectedRoute(item.route)}>
+              <span className="optimizer-route-name"><b>{index + 1}</b><span><strong>{item.route}</strong><small>{item.origin} → {item.destination}</small></span></span>
+              <span><strong>{item.volume}</strong><small>ton</small></span>
+              <span><Ship size={15} />{item.mode}</span><span>{item.depart}</span>
+              <span className={`optimizer-risk ${item.risk >= 85 ? "critical" : "high"}`}><b>{item.risk}</b>/100</span>
+              <span className="optimizer-ready-state">{item.status}<ChevronRight size={15} /></span>
+            </button>
+          ))}
+        </div>
+        <div className="optimizer-route-detail">
+          <div><span>KORIDOR TERPILIH</span><h3>{activeRoute.route}</h3><p>Prioritas ditentukan dari aging lot, penurunan mutu, gap stok tujuan, kesiapan moda, biaya, dan SLA.</p></div>
+          <div><span>VOLUME</span><strong>{activeRoute.volume} ton</strong><small>{activeRoute.mode}</small></div>
+          <div><span>RISIKO AWAL</span><strong>{activeRoute.risk}/100</strong><small>Turun menjadi 28 setelah eksekusi</small></div>
+          <div><span>LOSS AVOIDED</span><strong>{activeRoute.loss}</strong><small>Estimasi model</small></div>
+          <button type="button" onClick={() => onNotify(`Rencana ${activeRoute.route} dibuka`)}>Buka Rencana <ArrowRight size={15} /></button>
+        </div>
+      </section>
+
+      <div className="optimizer-bottom-grid" id="optimizer-data">
+        <section className="optimizer-card optimizer-data-card">
+          <header><div><span>DATA READINESS</span><h2>Kesiapan Input Model</h2></div><Activity size={22} /></header>
+          <div className="optimizer-data-list">
+            {[["WMS", "Aging, kapasitas, okupansi", 99.2], ["Inventory", "Stok CBP & mutu per lot", 98.6], ["TMS / Simlog", "Moda, armada, rute, tarif", 96.1], ["IoT Gudang", "Suhu & kelembapan", 91.4], ["Data Eksternal", "Jarak, kapal, cuaca, harga", 95.8]].map(([name, copy, score]) => (
+              <div key={name as string}><span><strong>{name as string}</strong><small>{copy as string}</small></span><i><b style={{ width: `${score}%` }} /></i><strong>{score}%</strong><CheckCircle2 size={15} /></div>
+            ))}
+          </div>
+        </section>
+        <section className="optimizer-card optimizer-audit-card">
+          <header><div><span>GOVERNANCE & AUDIT</span><h2>Closed-loop dengan Human Approval</h2></div><ShieldCheck size={22} /></header>
+          <ol>
+            <li className="done"><i><Check size={13} /></i><span><strong>Input tervalidasi</strong><small>1.284 kombinasi rute dan moda lolos data quality.</small></span><time>08:40</time></li>
+            <li className="done"><i><Check size={13} /></i><span><strong>Model menghasilkan rekomendasi</strong><small>Guardrail safety stock, HPP/HET, SLA diterapkan.</small></span><time>08:42</time></li>
+            <li><i>3</i><span><strong>Review operasional</strong><small>Menunggu konfirmasi slot, armada, dan kapasitas penerima.</small></span><time>Pending</time></li>
+            <li><i>4</i><span><strong>Persetujuan & dispatch</strong><small>Otorisasi pejabat berwenang sebelum instruksi dikirim.</small></span><time>—</time></li>
+          </ol>
+        </section>
+      </div>
+
+      <footer className="optimizer-disclaimer"><AlertTriangle size={16} /><span><strong>Mode simulasi.</strong> Angka pada halaman ini adalah data contoh untuk perancangan UI/UX dan harus dihubungkan ke WMS, ERP, TMS/Simlog, IoT, serta aturan resmi BULOG sebelum digunakan untuk keputusan operasional.</span></footer>
+    </section>
+  );
+}
+
 function WarehouseDetailPage({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
   const [search, setSearch] = useState("");
   const [expandedKanwil, setExpandedKanwil] = useState<string[]>(["01001"]);
@@ -1051,6 +1295,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("Persediaan Beras");
   const [detailViewOpen, setDetailViewOpen] = useState(false);
   const [nationalOverviewOpen, setNationalOverviewOpen] = useState(false);
+  const [riceOptimizerOpen, setRiceOptimizerOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -1131,6 +1376,7 @@ export default function HomePage() {
     setActiveNav(label);
     setDetailViewOpen(false);
     setNationalOverviewOpen(false);
+    setRiceOptimizerOpen(false);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
       showToast("National Dashboard aktif");
@@ -1139,6 +1385,11 @@ export default function HomePage() {
     if (["National Overview", "Target vs Realisasi", "Regional Performance", "National Exceptions"].includes(label)) {
       setNationalOverviewOpen(true);
       showToast(`${label} aktif`);
+      return;
+    }
+    if (label === "Rice Outflow Optimizer") {
+      setRiceOptimizerOpen(true);
+      showToast("Rice Outflow Optimizer aktif");
       return;
     }
     if (label === "Ringkasan Persediaan" || label === "Persediaan") {
@@ -1260,6 +1511,7 @@ export default function HomePage() {
             onClick={() => {
               setDetailViewOpen(true);
               setNationalOverviewOpen(false);
+              setRiceOptimizerOpen(false);
               setFilterOpen(false);
             }}
           >
@@ -1689,6 +1941,11 @@ export default function HomePage() {
         {nationalOverviewOpen && (
           <div className={sidebarCollapsed ? "overview-view-host sidebar-collapsed" : "overview-view-host"}>
             <NationalOverviewPage onNotify={showToast} />
+          </div>
+        )}
+        {riceOptimizerOpen && (
+          <div className={sidebarCollapsed ? "optimizer-view-host sidebar-collapsed" : "optimizer-view-host"}>
+            <RiceOutflowOptimizerPage onNotify={showToast} />
           </div>
         )}
       </section>
