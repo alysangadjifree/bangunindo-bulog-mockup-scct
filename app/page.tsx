@@ -153,6 +153,7 @@ type ApprovalCenterMode = "pending" | "approved" | "rejected" | "delegations";
 type DecisionHistoryMode = "simulations" | "predictions" | "recommendations" | "approvals" | "audit";
 type ExecutiveReportMode = "snapshot" | "daily" | "weekly" | "monthly" | "builder" | "scheduled" | "history";
 type OrganizationLocationMode = "regions" | "kanwil" | "kancab" | "warehouses" | "distributionPoints";
+type ParameterMode = "targetKpi" | "alertThreshold" | "sla" | "calendar";
 
 const filterDefaults = {
   dashboardType: "Persediaan",
@@ -282,7 +283,7 @@ const sidebarSections: SidebarSection[] = [
       { label: "Produk & Komoditas", icon: Boxes, children: ["Komoditas", "Produk", "Satuan", "Klasifikasi Mutu"] },
       { label: "Program & Transaksi", icon: FileChartColumn, children: ["Program Penyaluran", "Jenis Transaksi", "Kanal Penjualan", "Sumber Pengadaan"] },
       { label: "Mitra", icon: UserRound, children: ["Pemasok", "Transporter", "Pelanggan", "Kelompok Tani"] },
-      { label: "Parameter", icon: SlidersHorizontal, children: ["Safety Stock", "Target KPI", "Threshold Alert", "SLA", "Kalender Operasional"] },
+      { label: "Parameter", icon: SlidersHorizontal, children: ["Target KPI", "Threshold Alert", "SLA", "Kalender Operasional"] },
     ],
   },
   {
@@ -316,6 +317,7 @@ const enabledNavigation = new Set([
   "Decision History", "Riwayat Simulasi", "Riwayat Prediksi", "Riwayat Rekomendasi", "Riwayat Persetujuan", "Decision Audit Trail",
   "Executive Report", "Executive Snapshot", "Laporan Harian", "Laporan Mingguan", "Laporan Bulanan", "Report Builder", "Laporan Terjadwal", "Riwayat Laporan",
   "Organisasi & Lokasi", "Wilayah", "Kanwil", "Kancab", "Gudang", "Titik Penyaluran",
+  "Parameter", "Target KPI", "Threshold Alert", "SLA", "Kalender Operasional",
   "Alert & Exception", "Alert Center", "My Cases", "SLA Monitoring", "Exception History", "Alert Rules",
   "User Management", "User", "Role", "Permission", "Organisasi Pengguna", "Status Pengguna",
   "Keuangan", "Pendapatan", "Biaya Supply Chain", "Piutang", "Budget vs Actual", "Simulasi Dampak Keuangan",
@@ -2731,6 +2733,68 @@ function RouteFlowDiagram({
   );
 }
 
+const parameterTabs:{mode:ParameterMode;label:string;icon:ComponentType<{size?:number}>}[]=[
+  {mode:"targetKpi",label:"Target KPI",icon:Target},{mode:"alertThreshold",label:"Threshold Alert",icon:BellRing},{mode:"sla",label:"SLA",icon:Clock3},{mode:"calendar",label:"Kalender Operasional",icon:CalendarDays},
+];
+const targetKpiRows=[
+  ["KPI-INV-001","Persediaan","Kecukupan stok CBP nasional","≥ 1,20","1,00–1,19","< 1,00","rasio","Harian","Divisi Supply Chain","Aktif"],
+  ["KPI-INV-004","Persediaan","Okupansi gudang operasional","≤ 85","86–90","> 90","%","Harian","Divisi Pergudangan","Aktif"],
+  ["KPI-PRC-002","Pengadaan","Realisasi terhadap trajectory","≥ 95","85–94","< 85","%","Harian","Divisi Pengadaan","Aktif"],
+  ["KPI-SLS-003","Penyaluran","Service level program pemerintah","≥ 97","92–96","< 92","%","Mingguan","Divisi Penyaluran","Aktif"],
+  ["KPI-DST-001","Distribusi","On Time In Full (OTIF)","≥ 95","90–94","< 90","%","Harian","Divisi Logistik","Aktif"],
+  ["KPI-FIN-006","Keuangan","Piutang jatuh tempo >30 hari","≤ 8","9–12","> 12","%","Bulanan","Divisi Keuangan","Aktif"],
+  ["KPI-QLT-002","Mutu","Lot memenuhi standar mutu","≥ 98","95–97","< 95","%","Harian","Divisi Quality Control","Aktif"],
+];
+const alertThresholdRows=[
+  ["ALT-INV-SS","Persediaan","Stok di bawah minimum","< 100% SS","< 85% SS","2 snapshot","Kanwil/Kancab","SCCT + Email","Aktif"],
+  ["ALT-WHS-OCC","Gudang","Okupansi melewati batas","≥ 86%","≥ 91%","4 jam","Gudang","SCCT + WhatsApp","Aktif"],
+  ["ALT-QLT-AGE","Mutu","Lot mendekati batas simpan","≥ 75% umur","≥ 90% umur","1 snapshot","Lot/Gudang","SCCT + Email","Aktif"],
+  ["ALT-PRC-GAP","Pengadaan","Gap realisasi trajectory","≤ 90%","≤ 80%","2 hari","Kanwil","SCCT + Email","Aktif"],
+  ["ALT-DST-OTIF","Distribusi","Prediksi OTIF rendah","< 92%","< 85%","1 trip","Shipment","SCCT + WhatsApp","Aktif"],
+  ["ALT-FIN-AR","Keuangan","Piutang melewati jatuh tempo","> 15 hari","> 30 hari","1 hari","Pelanggan","SCCT + Email","Draft"],
+];
+const slaParameterRows=[
+  ["SLA-CRIT-01","Critical","15 menit","30 menit","4 jam","50% · 80% · breach","24x7","Persediaan, Mutu, Distribusi","Aktif"],
+  ["SLA-HIGH-01","High","30 menit","1 jam","8 jam","60% · 85% · breach","24x7","Semua domain operasional","Aktif"],
+  ["SLA-MED-01","Medium","2 jam","4 jam","2 hari kerja","75% · breach","Kalender kantor","Semua domain","Aktif"],
+  ["SLA-LOW-01","Low","4 jam","1 hari kerja","5 hari kerja","80% · breach","Kalender kantor","Semua domain","Aktif"],
+  ["SLA-DATA-01","Data Quality","30 menit","2 jam","6 jam","50% · 80% · breach","24x7","Integrasi dan data","Aktif"],
+];
+const calendarEvents=[
+  ["17 Agu 2026","Hari Kemerdekaan RI","Libur Nasional","Nasional","Kapasitas kantor 0%; monitoring SCCT 24x7","Disahkan"],
+  ["18–21 Agu 2026","Recovery pascalibur","Operasional Khusus","Nasional","Prioritas inbound, SPHP, dan backlog pengiriman","Aktif"],
+  ["24–28 Agu 2026","Puncak panen II Jawa","Musim Pengadaan","Jawa","Tambah slot penerimaan +25%; QC dua shift","Aktif"],
+  ["01–15 Sep 2026","Stabilisasi pasokan Papua","Program Penyaluran","Papua–Maluku","Reserved capacity 18.500 ton","Terjadwal"],
+  ["25 Des 2026","Hari Raya Natal","Libur Nasional","Nasional","Moda laut diproteksi H-14; command center siaga","Disahkan"],
+  ["01 Jan 2027","Tahun Baru","Libur Nasional","Nasional","Freeze perubahan master 12 jam","Disahkan"],
+];
+
+function ParameterManagementPage({mode,onSwitch,onNotify}:{mode:ParameterMode;onSwitch:(mode:ParameterMode)=>void;onNotify:(message:string)=>void}){
+  const [query,setQuery]=useState("");
+  const [status,setStatus]=useState("Semua Status");
+  const [selected,setSelected]=useState<string[]|null>(null);
+  const [editOpen,setEditOpen]=useState(false);
+  const config={
+    targetKpi:{title:"Target KPI",subtitle:"Sasaran kinerja, zona peringatan, frekuensi evaluasi, dan pemilik KPI lintas rantai pasok.",rows:targetKpiRows,headers:["Kode","Domain","Indikator","Target","Warning","Critical","Unit","Evaluasi","Pemilik","Status"]},
+    alertThreshold:{title:"Threshold Alert",subtitle:"Ambang deteksi, persistensi sinyal, cakupan, dan kanal notifikasi untuk exception SCCT.",rows:alertThresholdRows,headers:["Kode","Domain","Sinyal","Warning","Critical","Persistensi","Cakupan","Kanal","Status"]},
+    sla:{title:"Service Level Agreement",subtitle:"Batas acknowledge, respons, resolusi, serta eskalasi berdasarkan severity dan kalender operasional.",rows:slaParameterRows,headers:["Kode","Severity","Acknowledge","Respons","Resolusi","Eskalasi","Kalender","Cakupan","Status"]},
+    calendar:{title:"Kalender Operasional",subtitle:"Hari kerja, hari libur, musim pengadaan, program penyaluran, dan kapasitas operasi nasional.",rows:calendarEvents,headers:["Tanggal","Agenda","Jenis","Cakupan","Dampak Operasional","Status"]},
+  }[mode];
+  const filtered=config.rows.filter(row=>row.join(" ").toLowerCase().includes(query.toLowerCase())&&(status==="Semua Status"||row.at(-1)===status));
+  const kpis=mode==="targetKpi"?[["KPI aktif","27","6 domain"],["On track","19","70,4%"],["Perlu perhatian","6","22,2%"],["Kritis","2","7,4%"]]:mode==="alertThreshold"?[["Rule aktif","18","5 domain"],["Critical rule","7","respons 24x7"],["Alert hari ini","12","3 critical"],["Signal noise","2,8%","target <5%"]]:mode==="sla"?[["Policy aktif","5","semua severity"],["Compliance","94,6%","target ≥95%"],["Open breach","4","3 critical"],["Median resolve","7,8 jam","30 hari"]]:[["Agenda aktif","24","tahun 2026"],["Hari kerja","245","nasional"],["Periode khusus","11","lintas wilayah"],["Kesiapan data","100%","sinkron nasional"]];
+  const relation=mode==="targetKpi"?"Target KPI menjadi baseline National Overview, Regional Performance, Executive Report, dan rekomendasi AI.":mode==="alertThreshold"?"Threshold menghasilkan alert, membuka case, memulai SLA, dan meneruskan exception ke jalur eskalasi.":mode==="sla"?"SLA memakai severity, kalender operasional, jam kerja wilayah, ownership, dan aturan eskalasi Alert Center.":"Kalender memengaruhi SLA, forecast, jadwal pengadaan, kapasitas gudang, rute distribusi, dan program penyaluran.";
+  return <main className="parameter-page">
+    <header className="parameter-header"><div><span>MASTER DATA / PARAMETER</span><h1>{config.title}</h1><p>{config.subtitle}</p></div><div className="parameter-fresh"><i/><span><small>Konfigurasi terakhir</small><strong>19 Agustus 2026 · 09:12 WIB</strong></span><em>Versi 4.2</em></div></header>
+    <nav className="parameter-tabs">{parameterTabs.map(tab=>{const Icon=tab.icon;return <button key={tab.mode} className={mode===tab.mode?"active":""} onClick={()=>onSwitch(tab.mode)}><Icon size={16}/>{tab.label}</button>})}</nav>
+    <section className="parameter-kpis">{kpis.map(([label,value,note],index)=><article key={label} className={index===2?"watch":index===3?"risk":""}><span>{label}</span><strong>{value}</strong><small>{note}</small></article>)}</section>
+    {mode==="calendar"&&<section className="parameter-calendar-strip"><div><CalendarDays size={20}/><span><small>PERIODE AKTIF</small><strong>Agustus 2026</strong></span></div><div className="calendar-days">{Array.from({length:14},(_,i)=>i+15).map(day=><span key={day} className={day===17?"holiday":day===19?"today":day>=24?"season":""}><small>{["Sab","Min","Sen","Sel","Rab","Kam","Jum"][(day-15)%7]}</small><b>{day}</b></span>)}</div><aside><i/><span><b>Command Center aktif</b><small>Monitoring exception tetap berjalan 24x7</small></span></aside></section>}
+    <section className="parameter-toolbar"><label><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={`Cari ${config.title.toLowerCase()}…`}/></label><select value={status} onChange={e=>setStatus(e.target.value)}><option>Semua Status</option><option>Aktif</option><option>Draft</option><option>Disahkan</option><option>Terjadwal</option></select><button onClick={()=>onNotify(`Riwayat perubahan ${config.title} dibuka`)}><Clock3 size={15}/>Riwayat Perubahan</button><button className="primary" onClick={()=>setEditOpen(true)}><Plus size={16}/>Tambah Parameter</button></section>
+    <section className="parameter-table-card"><header><div><span>CONFIGURATION REGISTER</span><h2>{mode==="calendar"?"Agenda dan dampak kapasitas":"Daftar parameter yang berlaku"}</h2></div><small>{filtered.length} konfigurasi · maker-checker aktif</small></header><div className={`parameter-table mode-${mode}`}><div className="parameter-table-head">{config.headers.map(h=><b key={h}>{h}</b>)}<b>Aksi</b></div>{filtered.map((row,index)=><button key={`${row[0]}-${index}`} onClick={()=>setSelected(row)}>{row.map((cell,i)=><span key={`${cell}-${i}`} className={(String(cell)==="Aktif"||String(cell)==="Disahkan")?"good":String(cell)==="Draft"?"watch":""}>{i===0?<strong>{cell}</strong>:cell}</span>)}<ChevronRight size={16}/></button>)}</div><footer><span>Menampilkan {filtered.length} dari {config.rows.length} konfigurasi</span><p><ShieldCheck size={14}/> Perubahan memerlukan maker-checker dan dicatat pada audit trail.</p></footer></section>
+    <section className="parameter-relationship"><Database size={19}/><div><strong>Relasi konfigurasi SCCT</strong><p>{relation}</p></div><button onClick={()=>onNotify("Peta relasi parameter dibuka")}>Lihat data lineage <ArrowRight size={14}/></button></section>
+    {(selected||editOpen)&&<div className="parameter-modal-backdrop" onMouseDown={e=>{if(e.currentTarget===e.target){setSelected(null);setEditOpen(false)}}}><section className="parameter-modal"><header><div><span>{editOpen?"PARAMETER BARU":`${selected?.[0]} · DETAIL KONFIGURASI`}</span><h2>{editOpen?`Tambah ${config.title}`:selected?.[2]??selected?.[1]}</h2><p>Versi efektif, governance, dampak sistem, dan riwayat persetujuan.</p></div><button onClick={()=>{setSelected(null);setEditOpen(false)}}><X size={19}/></button></header><div className="parameter-modal-grid"><section><h3>Nilai konfigurasi</h3>{config.headers.slice(0,-1).map((label,i)=><label key={label}><span>{label}</span>{editOpen?<input placeholder={`Masukkan ${label.toLowerCase()}`}/>:<strong>{selected?.[i]??"-"}</strong>}</label>)}</section><aside><h3>Governance & dampak</h3>{["Maker: Andini Rahma · Master Data","Checker: Kepala Divisi terkait","Efektif: 19 Agustus 2026","Sumber: SK/SE dan keputusan bisnis","Digunakan oleh 8 modul SCCT"].map(item=><p key={item}><CheckCircle2 size={14}/>{item}</p>)}<div><ShieldCheck size={18}/><span><b>Kontrol perubahan aktif</b><small>Versi sebelumnya tersedia untuk audit dan rollback.</small></span></div></aside></div><footer><button onClick={()=>{setSelected(null);setEditOpen(false)}}>Batal</button>{selected&&<button onClick={()=>onNotify("Audit trail parameter dibuka")}><Clock3 size={14}/>Audit Trail</button>}<button className="primary" onClick={()=>{onNotify(editOpen?"Draft parameter berhasil dibuat":"Parameter dibuka dalam mode edit");setSelected(null);setEditOpen(false)}}><Save size={15}/>{editOpen?"Simpan Draft":"Edit Parameter"}</button></footer></section></div>}
+  </main>;
+}
+
 export default function HomePage() {
   const [authStatus,setAuthStatus]=useState<DemoAuthStatus>("checking");
   const [legendOpen, setLegendOpen] = useState(true);
@@ -2767,6 +2831,7 @@ export default function HomePage() {
   const [decisionHistoryOpen, setDecisionHistoryOpen] = useState<DecisionHistoryMode | null>(null);
   const [executiveReportOpen, setExecutiveReportOpen] = useState<ExecutiveReportMode | null>(null);
   const [organizationLocationOpen, setOrganizationLocationOpen] = useState<OrganizationLocationMode | null>(null);
+  const [parameterOpen, setParameterOpen] = useState<ParameterMode | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -2878,6 +2943,7 @@ export default function HomePage() {
     setDecisionHistoryOpen(null);
     setExecutiveReportOpen(null);
     setOrganizationLocationOpen(null);
+    setParameterOpen(null);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
       showToast("National Dashboard aktif");
@@ -2970,6 +3036,12 @@ export default function HomePage() {
     const locationModes:Record<string,OrganizationLocationMode>={"Wilayah":"regions","Kanwil":"kanwil","Kancab":"kancab","Gudang":"warehouses","Titik Penyaluran":"distributionPoints"};
     if(parentLabel==="Organisasi & Lokasi"&&locationModes[label]){
       setOrganizationLocationOpen(locationModes[label]);
+      showToast(`${label} aktif`);
+      return;
+    }
+    const parameterModes:Record<string,ParameterMode>={"Target KPI":"targetKpi","Threshold Alert":"alertThreshold","SLA":"sla","Kalender Operasional":"calendar"};
+    if(parentLabel==="Parameter"&&parameterModes[label]){
+      setParameterOpen(parameterModes[label]);
       showToast(`${label} aktif`);
       return;
     }
@@ -3674,6 +3746,7 @@ export default function HomePage() {
         {decisionHistoryOpen&&<div className={sidebarCollapsed?"decision-history-host sidebar-collapsed":"decision-history-host"}><DecisionHistoryPage key={decisionHistoryOpen} mode={decisionHistoryOpen} onSwitch={(next)=>{setDecisionHistoryOpen(next);const labels:Record<DecisionHistoryMode,string>={simulations:"Riwayat Simulasi",predictions:"Riwayat Prediksi",recommendations:"Riwayat Rekomendasi",approvals:"Riwayat Persetujuan",audit:"Decision Audit Trail"};setActiveNav(labels[next]);setActiveNavParent("Decision History")}} onNotify={showToast}/></div>}
         {executiveReportOpen&&<div className={sidebarCollapsed?"executive-report-host sidebar-collapsed":"executive-report-host"}><ExecutiveReportPage key={executiveReportOpen} mode={executiveReportOpen} onSwitch={(next)=>{setExecutiveReportOpen(next);const labels:Record<ExecutiveReportMode,string>={snapshot:"Executive Snapshot",daily:"Laporan Harian",weekly:"Laporan Mingguan",monthly:"Laporan Bulanan",builder:"Report Builder",scheduled:"Laporan Terjadwal",history:"Riwayat Laporan"};setActiveNav(labels[next]);setActiveNavParent("Executive Report")}} onNotify={showToast}/></div>}
         {organizationLocationOpen&&<div className={sidebarCollapsed?"organization-location-host sidebar-collapsed":"organization-location-host"}><OrganizationLocationPage key={organizationLocationOpen} mode={organizationLocationOpen} onSwitch={(next)=>{setOrganizationLocationOpen(next);const labels:Record<OrganizationLocationMode,string>={regions:"Wilayah",kanwil:"Kanwil",kancab:"Kancab",warehouses:"Gudang",distributionPoints:"Titik Penyaluran"};setActiveNav(labels[next]);setActiveNavParent("Organisasi & Lokasi")}} onNotify={showToast}/></div>}
+        {parameterOpen&&<div className={sidebarCollapsed?"parameter-host sidebar-collapsed":"parameter-host"}><ParameterManagementPage key={parameterOpen} mode={parameterOpen} onSwitch={(next)=>{setParameterOpen(next);const labels:Record<ParameterMode,string>={targetKpi:"Target KPI",alertThreshold:"Threshold Alert",sla:"SLA",calendar:"Kalender Operasional"};setActiveNav(labels[next]);setActiveNavParent("Parameter")}} onNotify={showToast}/></div>}
       </section>
 
       {activeNav === "National Dashboard" && <aside
