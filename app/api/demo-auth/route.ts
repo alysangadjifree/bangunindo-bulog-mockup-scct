@@ -1,5 +1,6 @@
 const encoder = new TextEncoder();
 const COOKIE_NAME = "scct_demo_session";
+const CAPTCHA_ENABLED = false;
 
 function getEnv(name: string) {
   return process.env[name] ?? "";
@@ -53,6 +54,7 @@ function noStore(data: unknown, init?: ResponseInit) {
 export async function GET(request: Request) {
   const action = new URL(request.url).searchParams.get("action");
   if (action === "captcha") {
+    if (!CAPTCHA_ENABLED) return noStore({ enabled: false, message: "CAPTCHA dinonaktifkan sementara." });
     const first = crypto.getRandomValues(new Uint8Array(1))[0] % 8 + 2;
     const second = crypto.getRandomValues(new Uint8Array(1))[0] % 7 + 1;
     const expires = Date.now() + 5 * 60 * 1000;
@@ -89,9 +91,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const captchaPayload = fromBase64Url(body.challenge ?? "");
-    const [first, second, expires] = captchaPayload.split(":").map(Number);
-    const validCaptcha = Number.isFinite(first) && Number.isFinite(second) && expires > Date.now() && Number(body.captchaAnswer) === first + second && await verify(captchaPayload, body.signature ?? "");
+    let validCaptcha = true;
+    if (CAPTCHA_ENABLED) {
+      const captchaPayload = fromBase64Url(body.challenge ?? "");
+      const [first, second, expires] = captchaPayload.split(":").map(Number);
+      validCaptcha = Number.isFinite(first) && Number.isFinite(second) && expires > Date.now() && Number(body.captchaAnswer) === first + second && await verify(captchaPayload, body.signature ?? "");
+    }
     const validCredentials = username === getEnv("DEMO_ADMIN_USERNAME") && password === getEnv("DEMO_ADMIN_PASSWORD");
     if (!validCaptcha || !validCredentials) return noStore({ error: "Username, password, atau CAPTCHA tidak valid." }, { status: 401 });
 
