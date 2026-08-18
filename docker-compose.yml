@@ -1,0 +1,28 @@
+services:
+  scct-bulog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: scct-bulog-dashboard:latest
+    container_name: scct-bulog-dashboard
+    restart: unless-stopped
+    init: true
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      DEMO_ADMIN_USERNAME: "${DEMO_ADMIN_USERNAME:?Set DEMO_ADMIN_USERNAME}"
+      DEMO_ADMIN_PASSWORD: "${DEMO_ADMIN_PASSWORD:?Set DEMO_ADMIN_PASSWORD}"
+      DEMO_SESSION_SECRET: "${DEMO_SESSION_SECRET:?Set DEMO_SESSION_SECRET with at least 32 random characters}"
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
