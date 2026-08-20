@@ -2885,6 +2885,9 @@ export default function HomePage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [aiLayout, setAiLayout] = useState<AskAILayout>("floating");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [alertInfoOpen, setAlertInfoOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(4);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
   const [zoom, setZoom] = useState(5);
@@ -3175,10 +3178,53 @@ export default function HomePage() {
         </div>
         <div className="topbar-spacer" />
         <button type="button" className="ask-ai-button" onClick={() => setChatOpen(true)} aria-expanded={chatOpen}><Sparkles size={18}/><span>Ask AI</span></button>
+        <div className="header-center-wrap">
+          <button
+            type="button"
+            className={`header-icon-button${alertInfoOpen ? " active" : ""}`}
+            onClick={() => { setAlertInfoOpen((value) => !value); setNotificationOpen(false); setProfileOpen(false); }}
+            aria-label="Alert Information"
+            aria-expanded={alertInfoOpen}
+            title="Alert Information"
+          >
+            <AlertTriangle size={19}/><span className="header-badge critical">12</span>
+          </button>
+          {alertInfoOpen && (
+            <section className="header-popover alert-popover" aria-label="Alert Information">
+              <header><div><span>CONTROL TOWER</span><h2>Alert Information</h2></div><button type="button" onClick={() => { setAlertInfoOpen(false); selectSidebarItem("Alert Center", "Alert & Exception"); }}>Lihat semua</button></header>
+              <div className="header-popover-summary"><span><b>3</b><small>Critical</small></span><span><b>5</b><small>High</small></span><span><b>4</b><small>Medium</small></span></div>
+              <button type="button" className="header-feed-item" onClick={() => { setAlertInfoOpen(false); selectSidebarItem("Alert Center", "Alert & Exception"); }}><i className="critical"/><span><strong>Stok di bawah safety stock</strong><small>Kanwil Papua · defisit 6.240 ton</small><em>8 menit lalu</em></span><ChevronRight size={15}/></button>
+              <button type="button" className="header-feed-item" onClick={() => { setAlertInfoOpen(false); selectSidebarItem("Alert Center", "Alert & Exception"); }}><i className="critical"/><span><strong>Risiko penurunan mutu lot CBP</strong><small>Kanwil NTB · eksposur Rp497 juta</small><em>21 menit lalu</em></span><ChevronRight size={15}/></button>
+              <button type="button" className="header-feed-item" onClick={() => { setAlertInfoOpen(false); selectSidebarItem("Alert Center", "Alert & Exception"); }}><i className="high"/><span><strong>Pengiriman melewati ETA</strong><small>Tanjung Perak → Makassar · 19 jam</small><em>36 menit lalu</em></span><ChevronRight size={15}/></button>
+              <footer><span><i/>Data diperbarui 20 Agustus 2026 · 09:24 WIB</span></footer>
+            </section>
+          )}
+        </div>
+        <div className="header-center-wrap">
+          <button
+            type="button"
+            className={`header-icon-button${notificationOpen ? " active" : ""}`}
+            onClick={() => { setNotificationOpen((value) => !value); setAlertInfoOpen(false); setProfileOpen(false); }}
+            aria-label={`Notifications, ${unreadNotifications} belum dibaca`}
+            aria-expanded={notificationOpen}
+            title="Notifications"
+          >
+            <BellRing size={19}/>{unreadNotifications > 0 && <span className="header-badge">{unreadNotifications}</span>}
+          </button>
+          {notificationOpen && (
+            <section className="header-popover notification-popover" aria-label="Notifications">
+              <header><div><span>INBOX</span><h2>Notifications</h2></div><button type="button" onClick={() => setUnreadNotifications(0)}>Tandai dibaca</button></header>
+              <button type="button" className="header-feed-item unread" onClick={() => { setUnreadNotifications((value) => Math.max(0, value - 1)); showToast("Approval dibuka"); }}><span className="feed-icon approval"><CheckCircle2 size={16}/></span><span><strong>Persetujuan baru menunggu Anda</strong><small>Redistribusi 8.500 ton ke Kanwil Papua</small><em>5 menit lalu · Approval Center</em></span><ChevronRight size={15}/></button>
+              <button type="button" className="header-feed-item unread" onClick={() => { setUnreadNotifications((value) => Math.max(0, value - 1)); showToast("Laporan harian dibuka"); }}><span className="feed-icon report"><FileText size={16}/></span><span><strong>Laporan harian telah tersedia</strong><small>Executive Snapshot · periode 19 Agustus</small><em>42 menit lalu · Executive Report</em></span><ChevronRight size={15}/></button>
+              <button type="button" className="header-feed-item unread" onClick={() => { setUnreadNotifications((value) => Math.max(0, value - 1)); showToast("Sinkronisasi data diperiksa"); }}><span className="feed-icon system"><Database size={16}/></span><span><strong>Sinkronisasi ERP selesai</strong><small>5,25 juta ton stok berhasil direkonsiliasi</small><em>1 jam lalu · Data Integration</em></span><ChevronRight size={15}/></button>
+              <button type="button" className="header-feed-item" onClick={() => showToast("Rekomendasi AI dibuka")}><span className="feed-icon ai"><Sparkles size={16}/></span><span><strong>Rekomendasi AI diperbarui</strong><small>4 prioritas tindakan nasional tersedia</small><em>Kemarin · AI Decision Center</em></span><ChevronRight size={15}/></button>
+            </section>
+          )}
+        </div>
         <div className="profile-wrap">
           <button
             className="profile-button"
-            onClick={() => setProfileOpen((value) => !value)}
+            onClick={() => { setProfileOpen((value) => !value); setAlertInfoOpen(false); setNotificationOpen(false); }}
             aria-expanded={profileOpen}
           >
             <span className="avatar"><UserRound size={20} /></span>
@@ -3187,9 +3233,12 @@ export default function HomePage() {
           </button>
           {profileOpen && (
             <div className="profile-menu">
-              <strong>Super Administrator</strong>
-              <span>superadmin@bulog.co.id</span>
-              <button onClick={() => { setProfileOpen(false); selectSidebarItem("Profile"); }}>Lihat profil</button>
+              <div className="profile-menu__identity"><span className="avatar"><UserRound size={20}/></span><span><strong>Super Administrator</strong><small>superadmin@bulog.co.id</small></span></div>
+              <div className="profile-menu__meta"><span>Perum BULOG · Kantor Pusat</span><em>Aktif</em></div>
+              <nav aria-label="Menu akun">
+                <button onClick={() => { setProfileOpen(false); selectSidebarItem("Profile"); }}><CircleUserRound size={17}/><span><strong>My Profile</strong><small>Informasi akun &amp; keamanan</small></span><ChevronRight size={15}/></button>
+                <button className="logout" onClick={() => void logoutDemo()}><LogOut size={17}/><span><strong>Logout</strong><small>Keluar dari sesi SCCT</small></span></button>
+              </nav>
             </div>
           )}
         </div>
