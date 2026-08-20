@@ -3227,6 +3227,7 @@ export default function HomePage() {
           </span>
           <span>bulog</span>
         </div>
+        <div className="mockup-label" aria-label="Mockup SCCT Phase I dan II"><span>MOCKUP</span><strong>SCCT PHASE I &amp; II</strong></div>
         <div className="topbar-spacer" />
         <button type="button" className="ask-ai-button" onClick={() => setChatOpen(true)} aria-expanded={chatOpen}><Sparkles size={18}/><span>Ask AI</span></button>
         <div className="header-center-wrap">
