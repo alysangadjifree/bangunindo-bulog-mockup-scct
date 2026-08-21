@@ -153,6 +153,7 @@ type ApprovalCenterMode = "pending" | "approved" | "rejected" | "delegations";
 type DecisionHistoryMode = "simulations" | "predictions" | "recommendations" | "approvals" | "audit";
 type ExecutiveReportMode = "snapshot" | "daily" | "weekly" | "monthly" | "builder" | "scheduled" | "history";
 type ForecastReportMode = "demandSupply" | "inventory" | "accuracy";
+type OptimizationMode = "safetyStock" | "allocation" | "procurement" | "routeMode" | "redistribution";
 type OrganizationLocationMode = "regions" | "kanwil" | "kancab" | "warehouses" | "distributionPoints";
 type ParameterMode = "targetKpi" | "alertThreshold" | "sla" | "calendar";
 type PartnerMode = "suppliers" | "transporters" | "customers" | "farmerGroups";
@@ -319,6 +320,7 @@ const enabledNavigation = new Set([
   "Decision History", "Riwayat Simulasi", "Riwayat Prediksi", "Riwayat Rekomendasi", "Riwayat Persetujuan", "Decision Audit Trail",
   "Executive Report", "Executive Snapshot", "Laporan Harian", "Laporan Mingguan", "Laporan Bulanan", "Report Builder", "Laporan Terjadwal", "Riwayat Laporan",
   "Forecast Report", "Demand & Supply Forecast", "Inventory Forecast", "Forecast Accuracy",
+  "Optimasi & Rekomendasi", "Optimasi Safety Stock", "Optimasi Alokasi Stok", "Optimasi Pengadaan", "Optimasi Rute & Moda", "Rekomendasi Redistribusi",
   "Organisasi & Lokasi", "Wilayah", "Kanwil", "Kancab", "Gudang", "Titik Penyaluran",
   "Parameter", "Target KPI", "Threshold Alert", "SLA", "Kalender Operasional",
   "Mitra", "Pemasok", "Transporter", "Pelanggan", "Kelompok Tani",
@@ -2500,6 +2502,54 @@ const reportHistory=[
   {id:"RPT-260731-019",name:"CBP Aging & Quality Exposure",type:"Khusus",period:"Juli 2026",owner:"Divisi Persediaan",generated:"31 Jul · 15:40",recipients:"SCM & QA · 9",format:"PDF",status:"Diarsipkan"},
 ];
 
+const optimizationRecommendations={
+  safetyStock:[
+    {id:"SS-260821-01",priority:"Critical",scope:"Kanwil Papua",signal:"Coverage 24 hari · variabilitas demand 18%",recommendation:"Naikkan safety stock 8.500 ton",impact:"Service level 88,1% → 96,2%",cost:"Rp12,8 M",owner:"Divisi Persediaan"},
+    {id:"SS-260821-02",priority:"High",scope:"Kanwil Maluku",signal:"Lead time laut 12–18 hari",recommendation:"Tambah buffer 4.200 ton",impact:"Cegah shortage 11 hari",cost:"Rp6,1 M",owner:"Divisi Persediaan"},
+    {id:"SS-260821-03",priority:"High",scope:"Kanwil NTT",signal:"Demand error 14,8% · cuaca laut",recommendation:"Naikkan reorder point 6.100 ton",impact:"Fill rate +7,4 pp",cost:"Rp8,7 M",owner:"Kanwil NTT"},
+    {id:"SS-260821-04",priority:"Medium",scope:"Kanwil Jawa Timur",signal:"Coverage 71 hari · surplus",recommendation:"Turunkan buffer 15.000 ton",impact:"Free capacity 4,5%",cost:"−Rp2,4 M",owner:"Kanwil Jatim"},
+  ],
+  allocation:[
+    {id:"ALC-260821-01",priority:"Critical",scope:"Jawa Timur → Papua",signal:"Surplus sumber 126.400 ton",recommendation:"Alokasikan 8.500 ton beras medium",impact:"Coverage Papua +17 hari",cost:"Rp12,8 M",owner:"Divisi Supply Chain"},
+    {id:"ALC-260821-02",priority:"High",scope:"Sulselbar → Maluku",signal:"Stok layak salur 74.600 ton",recommendation:"Alokasikan 4.200 ton CBP",impact:"Coverage Maluku +14 hari",cost:"Rp5,6 M",owner:"Divisi Supply Chain"},
+    {id:"ALC-260821-03",priority:"High",scope:"Jawa Tengah → NTT",signal:"Lot FEFO 31.800 ton",recommendation:"Alokasikan 6.100 ton via Surabaya",impact:"Aging exposure −Rp71 M",cost:"Rp8,2 M",owner:"Divisi Persediaan"},
+    {id:"ALC-260821-04",priority:"Medium",scope:"Sumsel → Riau",signal:"Gap Riau 3.600 ton",recommendation:"Alokasikan 3.800 ton",impact:"Service level +4,1 pp",cost:"Rp2,1 M",owner:"Kanwil Sumsel"},
+  ],
+  procurement:[
+    {id:"PRC-260821-01",priority:"High",scope:"Jawa Barat",signal:"Potensi panen + kapasitas mitra 128 rb ton",recommendation:"Tambah kontrak 82.000 ton setara beras",impact:"Target nasional +2,05 pp",cost:"Sesuai HPP aktif",owner:"Divisi Pengadaan"},
+    {id:"PRC-260821-02",priority:"High",scope:"Sulselbar",signal:"Acceptance mutu 94,1%",recommendation:"Aktifkan 17 mitra untuk 64.000 ton",impact:"Utilisasi dryer +11%",cost:"Rp416 Miliar",owner:"Kanwil Sulselbar"},
+    {id:"PRC-260821-03",priority:"Medium",scope:"Sumatera Selatan",signal:"Gap target wilayah 38.500 ton",recommendation:"Jemput gabah 41.000 ton",impact:"Lindungi HPP petani",cost:"Rp266,5 Miliar",owner:"Kanwil Sumsel"},
+    {id:"PRC-260821-04",priority:"Medium",scope:"NTB",signal:"Kadar air rata-rata 24,2%",recommendation:"Serap 28.000 ton dengan slot dryer",impact:"Loss mutu −0,6%",cost:"Rp182 Miliar",owner:"Kanwil NTB"},
+  ],
+  routeMode:[
+    {id:"RTE-260821-01",priority:"Critical",scope:"Surabaya → Jayapura",signal:"8.500 ton · SLA 14 hari",recommendation:"Kapal utama + feeder darat",impact:"ETA 12,8 hari · OTIF 94%",cost:"Rp1.506 ribu/ton",owner:"Divisi Distribusi"},
+    {id:"RTE-260821-02",priority:"High",scope:"Makassar → Ambon",signal:"4.200 ton · cuaca monitor",recommendation:"Kapal reguler + buffer 2 hari",impact:"ETA 8,4 hari · OTIF 92%",cost:"Rp1.338 ribu/ton",owner:"Divisi Distribusi"},
+    {id:"RTE-260821-03",priority:"High",scope:"Semarang → Kupang",signal:"6.100 ton · slot terbatas",recommendation:"Truk–kapal via Surabaya",impact:"ETA 7,6 hari · hemat 9%",cost:"Rp1.214 ribu/ton",owner:"Divisi Distribusi"},
+    {id:"RTE-260821-04",priority:"Medium",scope:"Palembang → Pekanbaru",signal:"3.800 ton",recommendation:"Truk multi-drop tervalidasi",impact:"ETA 2,1 hari · OTIF 97%",cost:"Rp586 ribu/ton",owner:"Kanwil Sumsel"},
+  ],
+  redistribution:[
+    {id:"RED-260821-01",priority:"Critical",scope:"Papua",signal:"Shortage risk 6.240 ton",recommendation:"Jatim → Papua 8.500 ton",impact:"Cegah stockout 9 kab/kota",cost:"Rp12,8 M",owner:"Direktur Supply Chain"},
+    {id:"RED-260821-02",priority:"Critical",scope:"Maluku",signal:"Coverage 26 hari",recommendation:"Sulselbar → Maluku 4.200 ton",impact:"Coverage menjadi 40 hari",cost:"Rp5,6 M",owner:"Kadiv Persediaan"},
+    {id:"RED-260821-03",priority:"High",scope:"NTT",signal:"Demand surge +12%",recommendation:"Jateng → NTT 6.100 ton",impact:"Fill rate menjadi 95,1%",cost:"Rp8,2 M",owner:"Kadiv Distribusi"},
+    {id:"RED-260821-04",priority:"Medium",scope:"Riau",signal:"Gap 3.600 ton",recommendation:"Sumsel → Riau 3.800 ton",impact:"Coverage +8 hari",cost:"Rp2,1 M",owner:"Pemwil Sumsel"},
+  ],
+} as const;
+
+function OptimizationWorkspacePage({mode,onSwitch,onNotify}:{mode:OptimizationMode;onSwitch:(mode:OptimizationMode)=>void;onNotify:(message:string)=>void}){
+  const [serviceLevel,setServiceLevel]=useState(95);const [costWeight,setCostWeight]=useState(35);const [horizon,setHorizon]=useState(30);const [running,setRunning]=useState(false);const [selected,setSelected]=useState<(typeof optimizationRecommendations)[OptimizationMode][number]>(optimizationRecommendations[mode][0]);
+  const tabs:[OptimizationMode,string][]=[["safetyStock","Optimasi Safety Stock"],["allocation","Optimasi Alokasi Stok"],["procurement","Optimasi Pengadaan"],["routeMode","Optimasi Rute & Moda"],["redistribution","Rekomendasi Redistribusi"]];
+  const meta:Record<OptimizationMode,{title:string;subtitle:string;objective:string}>={safetyStock:{title:"Optimasi Safety Stock",subtitle:"Hitung buffer dinamis per wilayah berdasarkan demand variability, lead time, service level, dan risiko gangguan.",objective:"Minimalkan shortage + carrying cost"},allocation:{title:"Optimasi Alokasi Stok",subtitle:"Tempatkan stok nasional ke wilayah yang paling membutuhkan tanpa melanggar safety stock, mutu, kapasitas, dan penugasan.",objective:"Maksimalkan service level nasional"},procurement:{title:"Optimasi Pengadaan",subtitle:"Optimalkan target serap domestik per wilayah, mitra, periode panen, mutu, kapasitas dryer, dan kebutuhan CBP.",objective:"Tutup gap target dengan mutu terjaga"},routeMode:{title:"Optimasi Rute & Moda",subtitle:"Pilih kombinasi rute dan moda dengan trade-off biaya, ETA, kapasitas, OTIF, cuaca, dan kebutuhan wilayah kepulauan.",objective:"Minimalkan biaya + keterlambatan"},redistribution:{title:"Rekomendasi Redistribusi",subtitle:"Prioritaskan perpindahan stok dari wilayah surplus ke wilayah berisiko dengan bukti, dampak, owner, dan jalur approval.",objective:"Cegah shortage dan risiko aging"}};
+  const rows=optimizationRecommendations[mode];
+  const kpis:Record<OptimizationMode,[string,string,string,string][]>={safetyStock:[["Stok dikelola","5,24 jt ton","cut-off SCCT","good"],["Buffer direkomendasikan","1,42 jt ton","+3,8% vs current","watch"],["Wilayah perlu naik","6 Kanwil","Papua prioritas","risk"],["Carrying cost avoided","Rp18,6 M","proyeksi 90 hari","good"],["Projected service","96,1%","target ≥95%","good"]],allocation:[["Volume dialokasikan","22.600 ton","4 koridor","watch"],["Wilayah penerima","4 wilayah","1 kritis","risk"],["Stok sumber tersisa","≥112% SS","guardrail aman","good"],["Loss avoided","Rp168 M","aging + shortage","good"],["Projected fill rate","95,4%","+6,8 pp","good"]],procurement:[["Realisasi DN","3,44 jt ton","86,21% target","good"],["Gap target","560 rb ton","target 4 jt ton","watch"],["Optimized next wave","215 rb ton","4 wilayah","good"],["Mitra siap","84","lulus validasi","good"],["Acceptance mutu","94,6%","target ≥93%","good"]],routeMode:[["Koridor dianalisis","128","darat + laut","good"],["Volume prioritas","22.600 ton","4 koridor","watch"],["Cost reduction","8,7%","vs baseline","good"],["Projected OTIF","94,5%","target ≥95%","watch"],["Risiko cuaca","2 koridor","monitor BMKG","risk"]],redistribution:[["Rekomendasi aktif","4","2 critical","risk"],["Volume total","22.600 ton","antar-Kanwil","watch"],["Shortage avoided","14.040 ton","coverage dipulihkan","good"],["Biaya estimasi","Rp28,7 M","subject to quote","watch"],["Menunggu approval","3","Rp26,6 M","risk"]]};
+  const run=()=>{setRunning(true);window.setTimeout(()=>{setRunning(false);onNotify(`${meta[mode].title} selesai dihitung dengan guardrail aktif`)},900)};
+  return <main className="optimization-page"><header className="optimization-header"><div><span>DECISION INTELLIGENCE / OPTIMASI &amp; REKOMENDASI</span><h1>{meta[mode].title}</h1><p>{meta[mode].subtitle}</p></div><div><span><i/><small>Data operasional</small><strong>21 Agustus 2026 · 08:30 WIB</strong></span><button onClick={()=>onNotify("Hasil optimasi diekspor")}><Download size={15}/>Ekspor</button><button className="primary" onClick={run} disabled={running}><Play size={15}/>{running?"Mengoptimalkan…":"Jalankan Optimasi"}</button></div></header><nav className="optimization-tabs">{tabs.map(([id,label])=><button key={id} className={mode===id?"active":""} onClick={()=>onSwitch(id)}>{label}</button>)}</nav>
+  <section className="optimization-context"><div><span>OBJECTIVE FUNCTION</span><strong>{meta[mode].objective}</strong><small>Model OPT-2026.08 · confidence 91%</small></div><label><span>Horizon</span><select value={horizon} onChange={e=>setHorizon(Number(e.target.value))}><option value={14}>14 hari</option><option value={30}>30 hari</option><option value={60}>60 hari</option><option value={90}>90 hari</option></select></label><label><span>Target service level <b>{serviceLevel}%</b></span><input type="range" min="90" max="99" value={serviceLevel} onChange={e=>setServiceLevel(Number(e.target.value))}/></label><label><span>Bobot efisiensi biaya <b>{costWeight}%</b></span><input type="range" min="10" max="70" value={costWeight} onChange={e=>setCostWeight(Number(e.target.value))}/></label></section>
+  <section className="optimization-kpis">{kpis[mode].map(([label,value,note,tone])=><article key={label}><span>{label}</span><strong>{value}</strong><small>{note}</small><em className={tone}>{tone==="good"?"Terkendali":tone==="risk"?"Perlu tindakan":"Monitor"}</em></article>)}</section>
+  <div className="optimization-main"><section className="optimization-card optimization-priorities"><header><div><span>OPTIMIZED PLAN</span><h2>Rekomendasi prioritas</h2></div><small>{rows.length} rekomendasi · horizon {horizon} hari</small></header><div className="optimization-head"><span>ID / severity</span><span>Cakupan & sinyal</span><span>Rekomendasi</span><span>Dampak</span><span>Biaya</span><span>Owner</span><span/></div>{rows.map(item=><button key={item.id} className={selected.id===item.id?"selected":""} onClick={()=>setSelected(item)}><span><strong>{item.id}</strong><em className={item.priority.toLowerCase()}>{item.priority}</em></span><span><strong>{item.scope}</strong><small>{item.signal}</small></span><span>{item.recommendation}</span><b>{item.impact}</b><span>{item.cost}</span><span>{item.owner}</span><ChevronRight size={15}/></button>)}</section><aside className="optimization-card optimization-detail"><header><div><span>DECISION BRIEF</span><h2>{selected.scope}</h2><p>{selected.id}</p></div><em className={selected.priority.toLowerCase()}>{selected.priority}</em></header><dl><div><dt>Signal</dt><dd>{selected.signal}</dd></div><div><dt>Rekomendasi</dt><dd>{selected.recommendation}</dd></div><div><dt>Dampak terukur</dt><dd>{selected.impact}</dd></div><div><dt>Estimasi biaya</dt><dd>{selected.cost}</dd></div><div><dt>Decision owner</dt><dd>{selected.owner}</dd></div></dl><h3>Guardrail tervalidasi</h3>{["Safety stock wilayah sumber","Kapasitas gudang penerima","Mutu dan FEFO per lot","HPP/HET dan penugasan aktif","Kapasitas rute, moda, dan SLA","RBAC serta maker-checker"].map(x=><p key={x}><CheckCircle2 size={13}/>{x}</p>)}<footer><button onClick={()=>onNotify(`${selected.id} dibuka di Scenario Workspace`)}>Uji skenario</button><button className="primary" onClick={()=>onNotify(`${selected.id} dikirim ke Approval Center`)}><Send size={14}/>Ajukan approval</button></footer></aside></div>
+  <div className="optimization-lower"><section className="optimization-card tradeoff-chart"><header><div><span>TRADE-OFF</span><h2>Perbandingan strategi</h2></div><Scale size={18}/></header>{[["Service maksimum",98,64,82],["Seimbang",95,82,91],["Biaya minimum",91,96,76]].map(([name,service,cost,score])=><article key={name as string}><strong>{name}</strong><span><small>Service {service}%</small><i><b style={{width:`${service}%`}}/></i></span><span><small>Efisiensi {cost}%</small><i><b style={{width:`${cost}%`}}/></i></span><em>{score}<small>score</small></em></article>)}</section><section className="optimization-card evidence-panel"><header><div><span>DATA READINESS</span><h2>Sumber dan kualitas input</h2></div><Database size={18}/></header>{[["WMS / stok per lot","99,4%","08:24 WIB"],["ERP pengadaan & penyaluran","98,8%","08:18 WIB"],["TMS / Simlog & tarif","96,2%","08:11 WIB"],["BPS / kalender panen","93,6%","20 Agu"],["Bapanas / SPHP & harga","97,1%","20 Agu"]].map(([name,score,time])=><article key={name}><span><strong>{name}</strong><small>Freshness {time}</small></span><i><b style={{width:score}}/></i><em>{score}</em></article>)}</section></div>
+  <footer className="optimization-note"><ShieldCheck size={16}/><span><b>Human-in-the-loop wajib.</b> Stok 5,24 juta ton dan pengadaan domestik 3,44 juta ton memakai baseline resmi 23 Juli 2026; rekomendasi, biaya, confidence, dan dampak di halaman ini adalah simulasi demonstratif yang wajib diverifikasi sebelum eksekusi.</span><button onClick={()=>onNotify("Audit trail optimasi dibuka")}>Audit trail</button></footer></main>
+}
+
 const forecastRegions=[
   {region:"Jawa",demand:1260,supply:1415,gap:155,coverage:63,risk:"Surplus",confidence:94},
   {region:"Sumatera",demand:615,supply:572,gap:-43,coverage:46,risk:"Monitor",confidence:91},
@@ -2908,6 +2958,7 @@ export default function HomePage() {
   const [distributionWorkspaceOpen, setDistributionWorkspaceOpen] = useState<DistributionWorkspaceKind | null>(null);
   const [salesWorkspaceOpen, setSalesWorkspaceOpen] = useState<SalesWorkspaceKind | null>(null);
   const [aiDecisionOpen, setAIDecisionOpen] = useState<AIDecisionMode | null>(null);
+  const [optimizationOpen, setOptimizationOpen] = useState<OptimizationMode | null>(null);
   const [approvalCenterOpen, setApprovalCenterOpen] = useState<ApprovalCenterMode | null>(null);
   const [decisionHistoryOpen, setDecisionHistoryOpen] = useState<DecisionHistoryMode | null>(null);
   const [executiveReportOpen, setExecutiveReportOpen] = useState<ExecutiveReportMode | null>(null);
@@ -3025,6 +3076,7 @@ export default function HomePage() {
     setDistributionWorkspaceOpen(null);
     setSalesWorkspaceOpen(null);
     setAIDecisionOpen(null);
+    setOptimizationOpen(null);
     setApprovalCenterOpen(null);
     setDecisionHistoryOpen(null);
     setExecutiveReportOpen(null);
@@ -3100,6 +3152,12 @@ export default function HomePage() {
     const aiDecisionModes:Record<string,AIDecisionMode>={"Executive AI Insights":"insights","Risiko & Peluang":"risks","Root Cause Analysis":"rootCause","Prioritas Tindakan":"actions","Recommendation Center":"recommendations"};
     if(parentLabel==="AI Decision Center"&&aiDecisionModes[label]){
       setAIDecisionOpen(aiDecisionModes[label]);
+      showToast(`${label} aktif`);
+      return;
+    }
+    const optimizationModes:Record<string,OptimizationMode>={"Optimasi Safety Stock":"safetyStock","Optimasi Alokasi Stok":"allocation","Optimasi Pengadaan":"procurement","Optimasi Rute & Moda":"routeMode","Rekomendasi Redistribusi":"redistribution"};
+    if(parentLabel==="Optimasi & Rekomendasi"&&optimizationModes[label]){
+      setOptimizationOpen(optimizationModes[label]);
       showToast(`${label} aktif`);
       return;
     }
@@ -3889,6 +3947,7 @@ export default function HomePage() {
         {distributionWorkspaceOpen&&<div className={sidebarCollapsed?"distribution-host sidebar-collapsed":"distribution-host"}><DistributionWorkspacePage key={distributionWorkspaceOpen} mode={distributionWorkspaceOpen} onSwitch={(next)=>{setDistributionWorkspaceOpen(next);const labels:Record<DistributionWorkspaceKind,string>={summary:"Ringkasan Distribusi",shipments:"Monitoring Pengiriman",routes:"Kinerja Rute",otif:"Kinerja OTIF",exceptions:"Exception Distribusi",simulation:"Simulasi Distribusi"};setActiveNav(labels[next])}} onNotify={showToast}/></div>}
         {salesWorkspaceOpen&&<div className={sidebarCollapsed?"sales-host sidebar-collapsed":"sales-host"}><SalesDistributionPage key={salesWorkspaceOpen} mode={salesWorkspaceOpen} onSwitch={(next)=>{setSalesWorkspaceOpen(next);const labels:Record<SalesWorkspaceKind,string>={summary:"Ringkasan Penjualan & Penyaluran",commercial:"Penjualan Komersial",programs:"Penyaluran Program",regional:"Kinerja Wilayah",fulfillment:"Order Fulfillment",simulation:"Simulasi Penyaluran"};setActiveNav(labels[next]);setActiveNavParent("Penjualan & Penyaluran")}} onNotify={showToast}/></div>}
         {aiDecisionOpen&&<div className={sidebarCollapsed?"ai-decision-host sidebar-collapsed":"ai-decision-host"}><AIDecisionCenterPage key={aiDecisionOpen} mode={aiDecisionOpen} onSwitch={(next)=>{setAIDecisionOpen(next);const labels:Record<AIDecisionMode,string>={insights:"Executive AI Insights",risks:"Risiko & Peluang",rootCause:"Root Cause Analysis",actions:"Prioritas Tindakan",recommendations:"Recommendation Center"};setActiveNav(labels[next]);setActiveNavParent("AI Decision Center")}} onNotify={showToast}/></div>}
+        {optimizationOpen&&<div className={sidebarCollapsed?"optimization-host sidebar-collapsed":"optimization-host"}><OptimizationWorkspacePage key={optimizationOpen} mode={optimizationOpen} onSwitch={(next)=>{setOptimizationOpen(next);const labels:Record<OptimizationMode,string>={safetyStock:"Optimasi Safety Stock",allocation:"Optimasi Alokasi Stok",procurement:"Optimasi Pengadaan",routeMode:"Optimasi Rute & Moda",redistribution:"Rekomendasi Redistribusi"};setActiveNav(labels[next]);setActiveNavParent("Optimasi & Rekomendasi")}} onNotify={showToast}/></div>}
         {approvalCenterOpen&&<div className={sidebarCollapsed?"approval-center-host sidebar-collapsed":"approval-center-host"}><ApprovalCenterPage key={approvalCenterOpen} mode={approvalCenterOpen} onSwitch={(next)=>{setApprovalCenterOpen(next);const labels:Record<ApprovalCenterMode,string>={pending:"Menunggu Persetujuan",approved:"Disetujui",rejected:"Ditolak",delegations:"Delegasi Persetujuan"};setActiveNav(labels[next]);setActiveNavParent("Approval Center")}} onNotify={showToast}/></div>}
         {decisionHistoryOpen&&<div className={sidebarCollapsed?"decision-history-host sidebar-collapsed":"decision-history-host"}><DecisionHistoryPage key={decisionHistoryOpen} mode={decisionHistoryOpen} onSwitch={(next)=>{setDecisionHistoryOpen(next);const labels:Record<DecisionHistoryMode,string>={simulations:"Riwayat Simulasi",predictions:"Riwayat Prediksi",recommendations:"Riwayat Rekomendasi",approvals:"Riwayat Persetujuan",audit:"Decision Audit Trail"};setActiveNav(labels[next]);setActiveNavParent("Decision History")}} onNotify={showToast}/></div>}
         {executiveReportOpen&&<div className={sidebarCollapsed?"executive-report-host sidebar-collapsed":"executive-report-host"}><ExecutiveReportPage key={executiveReportOpen} mode={executiveReportOpen} onSwitch={(next)=>{setExecutiveReportOpen(next);const labels:Record<ExecutiveReportMode,string>={snapshot:"Executive Snapshot",daily:"Laporan Harian",weekly:"Laporan Mingguan",monthly:"Laporan Bulanan",builder:"Report Builder",scheduled:"Laporan Terjadwal",history:"Riwayat Laporan"};setActiveNav(labels[next]);setActiveNavParent("Executive Report")}} onNotify={showToast}/></div>}
