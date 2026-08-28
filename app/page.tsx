@@ -1,5 +1,7 @@
 "use client";
 
+import "./alert-config.css";
+
 import {
   Activity,
   AlertTriangle,
@@ -157,6 +159,7 @@ type OptimizationMode = "safetyStock" | "allocation" | "procurement" | "routeMod
 type OrganizationLocationMode = "regions" | "kanwil" | "kancab" | "warehouses" | "distributionPoints";
 type ParameterMode = "targetKpi" | "alertThreshold" | "sla" | "calendar";
 type PartnerMode = "suppliers" | "transporters" | "customers" | "farmerGroups";
+type AlertConfigurationMode = "rules" | "severity" | "notifications" | "escalations" | "slaRules";
 
 const filterDefaults = {
   dashboardType: "Persediaan",
@@ -295,7 +298,6 @@ const sidebarSections: SidebarSection[] = [
       { label: "User Management", icon: CircleUserRound, children: ["User", "Role", "Permission", "Organisasi Pengguna", "Status Pengguna"] },
       { label: "Dashboard Management", icon: BarChart3, children: ["Dashboard", "Widget", "Menu", "Saved View", "Executive Layout"] },
       { label: "Alert Configuration", icon: BellRing, children: ["Alert Rules", "Severity", "Notification Rules", "Escalation Rules", "SLA Rules"] },
-      { label: "AI Configuration", icon: BrainCircuit, children: ["Model Configuration", "AI Prompt Template", "Recommendation Rules", "Confidence Threshold", "Orchestration Policy"] },
       { label: "System", icon: Settings, children: ["General Setting", "Notification", "Audit Trail", "Application Logs", "System Information"] },
     ],
   },
@@ -325,6 +327,7 @@ const enabledNavigation = new Set([
   "Parameter", "Target KPI", "Threshold Alert", "SLA", "Kalender Operasional",
   "Mitra", "Pemasok", "Transporter", "Pelanggan", "Kelompok Tani",
   "Alert & Exception", "Alert Center", "My Cases", "SLA Monitoring", "Exception History", "Alert Rules",
+  "Alert Configuration", "Severity", "Notification Rules", "Escalation Rules", "SLA Rules",
   "User Management", "User", "Role", "Permission", "Organisasi Pengguna", "Status Pengguna",
   "Keuangan", "Pendapatan", "Biaya Supply Chain", "Piutang", "Budget vs Actual", "Simulasi Dampak Keuangan",
   "Distribusi", "Ringkasan Distribusi", "Monitoring Pengiriman", "Kinerja Rute", "Kinerja OTIF", "Exception Distribusi", "Simulasi Distribusi",
@@ -2918,6 +2921,65 @@ const partnerData:Record<PartnerMode,PartnerRecord[]>={
   ],
 };
 
+type AlertRuleConfig = {id:string;name:string;domain:string;condition:string;scope:string;severity:string;frequency:string;owner:string;triggers:number;active:boolean};
+const alertRuleConfigs:AlertRuleConfig[]=[
+  {id:"AR-INV-001",name:"Stok di bawah safety stock",domain:"Persediaan",condition:"Days of supply < 14 hari atau stok < safety stock unit",scope:"34 Kanwil · Beras CBP",severity:"Critical",frequency:"Setiap 30 menit",owner:"Divisi Persediaan",triggers:18,active:true},
+  {id:"AR-WHS-004",name:"Okupansi gudang melebihi batas",domain:"Pergudangan",condition:"Okupansi efektif > 95% selama 2 pembacaan",scope:"1.195 gudang",severity:"High",frequency:"Setiap 1 jam",owner:"Divisi Pergudangan",triggers:9,active:true},
+  {id:"AR-QLT-007",name:"Lot berisiko turun mutu",domain:"Mutu & Aging",condition:"QI < 75 atau RH > 80% dan umur > 4 bulan",scope:"Beras CBP per lot",severity:"Critical",frequency:"Event + harian",owner:"Divisi QA",triggers:6,active:true},
+  {id:"AR-DST-012",name:"OTIF pengiriman di bawah target",domain:"Distribusi",condition:"ETA melewati SLA atau OTIF koridor < 95%",scope:"Seluruh shipment aktif",severity:"High",frequency:"Real-time",owner:"Divisi Logistik",triggers:14,active:true},
+  {id:"AR-PRC-016",name:"Realisasi pengadaan tertinggal",domain:"Pengadaan",condition:"Realisasi kumulatif < 90% trajectory bulanan",scope:"Kanwil & komoditas",severity:"High",frequency:"Harian 06:00",owner:"Divisi Pengadaan",triggers:11,active:true},
+  {id:"AR-SPH-021",name:"Penyaluran SPHP di bawah target",domain:"Penyaluran",condition:"Realisasi harian < 85% target selama 2 hari",scope:"Kanwil · kab/kota",severity:"Medium",frequency:"Harian 18:30",owner:"Divisi Penyaluran",triggers:7,active:false},
+];
+
+const severityConfig=[
+  {level:"Critical",color:"#c53f32",criteria:"Ketahanan stok, mutu, layanan publik, keselamatan, atau eksposur ≥ Rp10 M",ack:"15 menit",resolve:"4 jam",escalate:"30 menit",recipients:"Direktur terkait + Command Center",active:3},
+  {level:"High",color:"#e9782d",criteria:"Risiko operasional besar, deviasi KPI ≥15%, eksposur Rp1–10 M",ack:"30 menit",resolve:"8 jam",escalate:"1 jam",recipients:"Kepala Divisi + Kanwil",active:5},
+  {level:"Medium",color:"#e0a517",criteria:"Deviasi KPI 5–15% atau gangguan terlokalisasi",ack:"2 jam",resolve:"24 jam",escalate:"4 jam",recipients:"Owner domain + Kancab",active:8},
+  {level:"Low",color:"#2f9b70",criteria:"Early warning tanpa dampak layanan langsung",ack:"8 jam",resolve:"3 hari",escalate:"1 hari",recipients:"Owner operasional",active:2},
+  {level:"Informational",color:"#64809b",criteria:"Perubahan status dan informasi sistem",ack:"Tidak wajib",resolve:"Tidak wajib",escalate:"Tidak ada",recipients:"Subscriber",active:0},
+];
+
+const notificationConfigs=[
+  {id:"NTF-001",name:"Critical national broadcast",event:"Alert Critical dibuat / severity naik",audience:"Direktur terkait, Command Center, owner Kanwil",channels:"In-app · Email · WhatsApp · SMS",window:"24/7 · bypass quiet hours",delivery:"99,4%",retry:"3x / 10 menit",active:true},
+  {id:"NTF-004",name:"SLA breach warning",event:"SLA tersisa 25% atau terlewati",audience:"PIC, atasan langsung, escalation owner",channels:"In-app · Email · WhatsApp",window:"24/7",delivery:"98,7%",retry:"3x / 15 menit",active:true},
+  {id:"NTF-008",name:"Daily operational digest",event:"Rekap alert aktif dan closed",audience:"Direksi, Kadiv, Pimpinan Wilayah",channels:"Email · Microsoft Teams",window:"Setiap hari 07:00 WIB",delivery:"99,8%",retry:"2x / 30 menit",active:true},
+  {id:"NTF-011",name:"Case assignment",event:"PIC ditugaskan atau diganti",audience:"PIC, delegasi, supervisor",channels:"In-app · Email",window:"Jam operasional",delivery:"99,9%",retry:"2x / 10 menit",active:true},
+];
+
+const escalationConfigs=[
+  {id:"ESC-CR-01",name:"Critical supply continuity",trigger:"Critical belum diakui 15 menit",steps:["PIC/Kancab · 0m","Pimpinan Kanwil · 15m","Kadiv terkait · 30m","Direktur Supply Chain · 60m"],scope:"Persediaan, mutu, distribusi",open:3,active:true},
+  {id:"ESC-HI-02",name:"High operational breach",trigger:"High tanpa action plan 60 menit",steps:["Owner domain · 0m","Manager/Kanwil · 60m","Kadiv terkait · 4j"],scope:"Semua domain operasional",open:4,active:true},
+  {id:"ESC-FIN-05",name:"Financial exposure",trigger:"Eksposur ≥ Rp5 M atau deviasi biaya ≥10%",steps:["PIC Keuangan · 0m","Kadiv Keuangan · 30m","Direktur Keuangan · 2j"],scope:"Keuangan & pengadaan",open:1,active:true},
+  {id:"ESC-DQ-08",name:"Data integrity incident",trigger:"Freshness > 4 jam atau mismatch stok material",steps:["Data steward · 0m","Integration lead · 2j","Chief Data Officer · 6j"],scope:"WMS, ERP, TMS, IoT",open:2,active:true},
+];
+
+const slaConfigs=[
+  {id:"SLA-001",name:"Critical persediaan nasional",scope:"Persediaan · nasional",severity:"Critical",ack:"15 menit",response:"30 menit",resolve:"4 jam",calendar:"24/7",compliance:"88,4%"},
+  {id:"SLA-004",name:"High distribusi & OTIF",scope:"Distribusi · shipment aktif",severity:"High",ack:"30 menit",response:"1 jam",resolve:"8 jam",calendar:"24/7",compliance:"93,7%"},
+  {id:"SLA-007",name:"Pengadaan regional",scope:"Pengadaan · Kanwil",severity:"High",ack:"1 jam",response:"2 jam",resolve:"1 hari",calendar:"Hari kerja + musim panen",compliance:"95,2%"},
+  {id:"SLA-011",name:"Data quality & integrasi",scope:"Platform data",severity:"Medium",ack:"2 jam",response:"4 jam",resolve:"12 jam",calendar:"24/7",compliance:"97,1%"},
+  {id:"SLA-014",name:"Exception keuangan",scope:"Keuangan",severity:"High",ack:"1 jam",response:"2 jam",resolve:"2 hari",calendar:"Hari kerja",compliance:"96,4%"},
+];
+
+function AlertConfigurationPage({mode,onSwitch,onNotify}:{mode:AlertConfigurationMode;onSwitch:(mode:AlertConfigurationMode)=>void;onNotify:(message:string)=>void}){
+  const [query,setQuery]=useState("");
+  const [domain,setDomain]=useState("Semua Domain");
+  const [enabled,setEnabled]=useState<Record<string,boolean>>({});
+  const title={rules:"Alert Rules",severity:"Severity",notifications:"Notification Rules",escalations:"Escalation Rules",slaRules:"SLA Rules"}[mode];
+  const subtitle={rules:"Definisikan kondisi, threshold, ruang lingkup, dan evaluasi rule yang membentuk alert SCCT.",severity:"Standarkan tingkat dampak, target respons, dan penerima keputusan untuk seluruh domain.",notifications:"Atur routing, kanal, template, quiet hours, retry, dan bukti pengiriman notifikasi.",escalations:"Bangun rantai eskalasi otomatis berbasis severity, dampak, kepemilikan, dan batas waktu.",slaRules:"Tetapkan acknowledgement, response, resolution, kalender, serta pause policy tiap exception."}[mode];
+  const tabs:[AlertConfigurationMode,string][]=[["rules","Alert Rules"],["severity","Severity"],["notifications","Notification Rules"],["escalations","Escalation Rules"],["slaRules","SLA Rules"]];
+  const toggle=(id:string,current:boolean)=>{setEnabled(old=>({...old,[id]:!(old[id]??current)}));onNotify(`Status ${id} diperbarui sebagai draf`)};
+  const q=query.toLowerCase();
+  const domains=["Semua Domain","Persediaan","Pergudangan","Mutu & Aging","Distribusi","Pengadaan","Penyaluran","Keuangan"];
+  return <main className="alert-config-page"><header className="alert-config-header"><div><span>ADMINISTRATION / ALERT CONFIGURATION</span><h1>{title}</h1><p>{subtitle}</p></div><div className="alert-config-fresh"><i/><span><small>Konfigurasi aktif</small><strong>v2.8 · 28 Agustus 2026, 10:15 WIB</strong></span><em>Maker–checker</em></div></header><nav className="alert-config-tabs">{tabs.map(([key,label])=><button key={key} className={mode===key?"active":""} onClick={()=>onSwitch(key)}>{label}</button>)}</nav><section className="alert-config-governance"><ShieldCheck size={19}/><div><strong>Perubahan terkontrol</strong><p>Setiap perubahan disimpan sebagai draf, diuji terhadap data 30 hari, ditinjau oleh owner domain, lalu dipublikasikan dengan audit trail.</p></div><button onClick={()=>onNotify("Riwayat versi konfigurasi dibuka")}><Clock3 size={15}/>Riwayat versi</button><button className="primary" onClick={()=>onNotify(`Draf ${title} dikirim untuk approval`)}><Send size={15}/>Ajukan publikasi</button></section><section className="alert-config-kpis">{(mode==="rules"?[["Rule aktif","31","6 domain"],["Trigger 30 hari","65","-8% vs bulan lalu"],["Noise ratio","4,2%","target <5%"],["Draft menunggu review","3","maker-checker"]]:mode==="severity"?[["Level aktif","5","nasional"],["Critical aktif","3","butuh tindakan"],["Auto classification","92,6%","akurasi"],["Override 30 hari","7","diaudit"]]:mode==="notifications"?[["Routing aktif","18","5 kanal"],["Delivery rate","99,2%","30 hari"],["Median delivery","18 dtk","critical"],["Gagal terkirim","14","retry aktif"]]:mode==="escalations"?[["Policy aktif","12","lintas domain"],["Sedang eskalasi","10","3 critical"],["Median takeover","24 mnt","target <30"],["Tanpa owner","0","terkendali"]]:[["SLA policy aktif","14","24/7 & kerja"],["Compliance","93,8%","30 hari"],["Breach aktif","2","wajib eskalasi"],["Median resolusi","6,2 jam","-11% MoM"]]).map(([label,value,note],i)=><article key={label} className={i===2?"good":i===3?"watch":""}><span>{label}</span><strong>{value}</strong><small>{note}</small></article>)}</section><section className="alert-config-toolbar"><label><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={`Cari ${title.toLowerCase()}…`}/></label>{mode==="rules"&&<select value={domain} onChange={e=>setDomain(e.target.value)}>{domains.map(x=><option key={x}>{x}</option>)}</select>}<button onClick={()=>onNotify(`Konfigurasi ${title} diekspor`)}><Download size={15}/>Ekspor</button><button className="primary" onClick={()=>onNotify(`Form ${title} baru dibuka`)}><Plus size={16}/>Buat {mode==="severity"?"Level":"Konfigurasi"}</button></section>
+  {mode==="rules"&&<section className="alert-config-card"><header><div><span>RULE REGISTER</span><h2>Rule deteksi dan pembentukan alert</h2></div><small>{alertRuleConfigs.filter(x=>(domain==="Semua Domain"||x.domain===domain)&&`${x.id} ${x.name} ${x.domain}`.toLowerCase().includes(q)).length} rule ditampilkan</small></header><div className="alert-config-table rules"><div className="head"><b>Rule / Domain</b><b>Kondisi</b><b>Scope</b><b>Severity</b><b>Evaluasi</b><b>Trigger 30h</b><b>Status</b><b/></div>{alertRuleConfigs.filter(x=>(domain==="Semua Domain"||x.domain===domain)&&`${x.id} ${x.name} ${x.domain}`.toLowerCase().includes(q)).map(x=>{const on=enabled[x.id]??x.active;return <div className="row" key={x.id}><span><strong>{x.name}</strong><small>{x.id} · {x.domain}</small></span><span>{x.condition}</span><span>{x.scope}<small>{x.owner}</small></span><em className={`sev ${x.severity.toLowerCase()}`}>{x.severity}</em><span>{x.frequency}</span><b>{x.triggers}</b><button className={`toggle ${on?"on":""}`} onClick={()=>toggle(x.id,x.active)} aria-label={`Ubah status ${x.id}`}><i/></button><button onClick={()=>onNotify(`Rule ${x.id} dibuka untuk edit`)}><Settings size={15}/></button></div>})}</div><footer className="alert-config-note"><FlaskConical size={18}/><span><b>Pre-publish test wajib.</b> Jalankan rule pada replay data 30 hari; publikasi ditolak bila false positive &gt;5%, event tanpa owner, atau konflik dengan threshold aktif.</span><button onClick={()=>onNotify("Rule test suite dijalankan")}>Jalankan test suite</button></footer></section>}
+  {mode==="severity"&&<section className="alert-config-card"><header><div><span>SEVERITY MATRIX</span><h2>Klasifikasi dampak dan target penanganan</h2></div><button onClick={()=>onNotify("Simulator severity dibuka")}><FlaskConical size={15}/>Uji klasifikasi</button></header><div className="severity-config-grid">{severityConfig.filter(x=>`${x.level} ${x.criteria}`.toLowerCase().includes(q)).map(x=><article key={x.level} style={{"--severity-color":x.color} as CSSProperties}><header><i/><strong>{x.level}</strong><em>{x.active} alert aktif</em></header><p>{x.criteria}</p><dl><div><dt>Acknowledge</dt><dd>{x.ack}</dd></div><div><dt>Resolve</dt><dd>{x.resolve}</dd></div><div><dt>Auto-escalate</dt><dd>{x.escalate}</dd></div><div><dt>Penerima</dt><dd>{x.recipients}</dd></div></dl><button onClick={()=>onNotify(`Severity ${x.level} dibuka untuk edit`)}>Edit guardrail <ChevronRight size={14}/></button></article>)}</div><footer className="alert-config-note"><AlertTriangle size={18}/><span><b>Guardrail:</b> severity yang diturunkan manual wajib memiliki alasan, approver, dan evidence. Critical tidak dapat dinonaktifkan pada domain stok, mutu, keselamatan, dan layanan publik.</span></footer></section>}
+  {mode==="notifications"&&<section className="alert-config-card"><header><div><span>NOTIFICATION ROUTING</span><h2>Aturan pengiriman dan bukti delivery</h2></div><button onClick={()=>onNotify("Test notification dikirim ke akun Anda")}><Send size={15}/>Kirim test</button></header><div className="alert-config-table notifications"><div className="head"><b>Routing</b><b>Trigger</b><b>Audience</b><b>Kanal</b><b>Window</b><b>Delivery</b><b>Retry</b><b>Status</b><b/></div>{notificationConfigs.filter(x=>`${x.id} ${x.name} ${x.event} ${x.audience}`.toLowerCase().includes(q)).map(x=>{const on=enabled[x.id]??x.active;return <div className="row" key={x.id}><span><strong>{x.name}</strong><small>{x.id}</small></span><span>{x.event}</span><span>{x.audience}</span><span>{x.channels}</span><span>{x.window}</span><b className="good-text">{x.delivery}</b><span>{x.retry}</span><button className={`toggle ${on?"on":""}`} onClick={()=>toggle(x.id,x.active)}><i/></button><button onClick={()=>onNotify(`Routing ${x.id} dibuka`)}><Settings size={15}/></button></div>})}</div><footer className="alert-config-note"><BellRing size={18}/><span><b>Fallback channel aktif.</b> Bila WhatsApp/SMS gagal, event critical tetap dikirim melalui in-app dan email serta dicatat sebagai delivery incident.</span><button onClick={()=>onNotify("Dashboard delivery dibuka")}>Lihat delivery log</button></footer></section>}
+  {mode==="escalations"&&<section className="alert-config-card"><header><div><span>ESCALATION POLICY</span><h2>Rantai kepemilikan dan eskalasi keputusan</h2></div><button onClick={()=>onNotify("Dry-run eskalasi dimulai")}><Play size={15}/>Dry run</button></header><div className="escalation-config-list">{escalationConfigs.filter(x=>`${x.id} ${x.name} ${x.scope}`.toLowerCase().includes(q)).map(x=>{const on=enabled[x.id]??x.active;return <article key={x.id}><header><span><strong>{x.name}</strong><small>{x.id} · {x.scope}</small></span><em>{x.open} aktif</em><button className={`toggle ${on?"on":""}`} onClick={()=>toggle(x.id,x.active)}><i/></button><button onClick={()=>onNotify(`Policy ${x.id} dibuka`)}><Settings size={15}/></button></header><p><b>Trigger:</b> {x.trigger}</p><div className="escalation-steps">{x.steps.map((step,i)=><span key={step}><b>{i+1}</b><small>{step}</small>{i<x.steps.length-1&&<ArrowRight size={15}/>}</span>)}</div></article>})}</div><footer className="alert-config-note"><Users size={18}/><span><b>Resolver dinamis.</b> Sistem memilih pejabat aktif berdasarkan organisasi pengguna, jadwal delegasi, wilayah, role, dan matriks kewenangan.</span><button onClick={()=>onNotify("Matriks resolver dibuka")}>Validasi resolver</button></footer></section>}
+  {mode==="slaRules"&&<section className="alert-config-card"><header><div><span>SLA POLICY</span><h2>Target layanan per severity dan domain</h2></div><button onClick={()=>onNotify("Kalkulator SLA dibuka")}><Clock3 size={15}/>Kalkulator SLA</button></header><div className="alert-config-table sla"><div className="head"><b>Policy / Scope</b><b>Severity</b><b>Acknowledge</b><b>Response</b><b>Resolve</b><b>Kalender</b><b>Compliance</b><b/></div>{slaConfigs.filter(x=>`${x.id} ${x.name} ${x.scope}`.toLowerCase().includes(q)).map(x=><div className="row" key={x.id}><span><strong>{x.name}</strong><small>{x.id} · {x.scope}</small></span><em className={`sev ${x.severity.toLowerCase()}`}>{x.severity}</em><b>{x.ack}</b><b>{x.response}</b><b>{x.resolve}</b><span>{x.calendar}</span><b className={Number(x.compliance.replace(",",".").replace("%",""))>=95?"good-text":"watch-text"}>{x.compliance}</b><button onClick={()=>onNotify(`SLA ${x.id} dibuka untuk edit`)}><Settings size={15}/></button></div>)}</div><div className="sla-policy-footer"><section><h3>Pause policy</h3><p>SLA hanya dapat dijeda ketika menunggu data/persetujuan eksternal yang sah. Timer, alasan, approver, dan durasi tetap tercatat.</p></section><section><h3>Kalender operasional</h3><p>Critical dan shipment aktif berjalan 24/7. Musim panen, hari besar, dan operasi SPHP dapat mengaktifkan kalender khusus.</p></section><section><h3>Pengukuran</h3><p>Acknowledge, first response, mitigation, resolution, reopen, dan breach dihitung terpisah untuk audit kinerja.</p></section></div></section>}
+  <footer className="alert-config-disclaimer"><ShieldCheck size={16}/><span><b>Konfigurasi demonstrasi SCCT.</b> Nilai harus diselaraskan dengan kebijakan, struktur kewenangan, kanal resmi, kalender operasional, serta sumber WMS/ERP/TMS/Simotandi sebelum produksi.</span></footer></main>;
+}
+
 function PartnerManagementPage({mode,onSwitch,onNotify}:{mode:PartnerMode;onSwitch:(mode:PartnerMode)=>void;onNotify:(message:string)=>void}){
   const [query,setQuery]=useState("");const [region,setRegion]=useState("Semua Wilayah");const [selected,setSelected]=useState<PartnerRecord|null>(partnerData[mode][0]);const [modalOpen,setModalOpen]=useState(false);
   const config={suppliers:{title:"Pemasok",subtitle:"Kelola Mitra Kerja Pengadaan, penggilingan, koperasi, kontrak pasokan, mutu, dan kinerja penerimaan.",icon:BriefcaseBusiness,kpis:[["Mitra aktif","1.842","87% tervalidasi"],["Volume YTD","2,61 jt ton","91,6% domestik"],["Acceptance mutu","94,8%","target ≥95%"],["Open commitment","386 rb ton","30 hari"]]},transporters:{title:"Transporter",subtitle:"Kontrol penyedia moda darat, laut, dan udara, kontrak koridor, armada, tracking, OTIF, serta klaim angkutan.",icon:Truck,kpis:[["Transporter aktif","146","34 Kanwil"],["Shipment YTD","38.420","multi-moda"],["OTIF nasional","93,6%","target ≥95%"],["Klaim terbuka","27","Rp4,8 miliar"]]},customers:{title:"Pelanggan",subtitle:"Kelola RPK, ritel modern, pemerintah, BUMN, distributor, dan pelanggan komersial beserta order, kredit, serta kepatuhan harga.",icon:UserRound,kpis:[["Pelanggan aktif","4.286","seluruh kanal"],["Revenue YTD","Rp18,74 T","91,8% target"],["Fill rate","94,6%","target ≥97%"],["Piutang at risk","Rp326 M",">30 hari"]]},farmerGroups:{title:"Kelompok Tani",subtitle:"Hubungkan Poktan/Gapoktan, petani anggota, lahan, kalender panen, pembinaan, mutu, dan realisasi serapan.",icon:Users,kpis:[["Poktan/Gapoktan","2.318","terdaftar"],["Petani anggota","186.420","terpetakan"],["Luas binaan","412 rb ha","nasional"],["Serapan YTD","684 rb ton","24% domestik"]]}}[mode];
@@ -2966,6 +3028,7 @@ export default function HomePage() {
   const [organizationLocationOpen, setOrganizationLocationOpen] = useState<OrganizationLocationMode | null>(null);
   const [parameterOpen, setParameterOpen] = useState<ParameterMode | null>(null);
   const [partnerOpen, setPartnerOpen] = useState<PartnerMode | null>(null);
+  const [alertConfigurationOpen, setAlertConfigurationOpen] = useState<AlertConfigurationMode | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [openFilterDropdown, setOpenFilterDropdown] = useState<FilterDropdownId | null>(null);
   const [dashboardType, setDashboardType] = useState(filterDefaults.dashboardType);
@@ -3084,6 +3147,7 @@ export default function HomePage() {
     setOrganizationLocationOpen(null);
     setParameterOpen(null);
     setPartnerOpen(null);
+    setAlertConfigurationOpen(null);
     if (label === "National Dashboard") {
       setActiveTab("Persediaan Beras");
       showToast("National Dashboard aktif");
@@ -3124,7 +3188,7 @@ export default function HomePage() {
       showToast("Route & Mode Simulator aktif");
       return;
     }
-    if (["Alert Center", "My Cases", "SLA Monitoring", "Exception History", "Alert Rules"].includes(label)) {
+    if (parentLabel === "Alert & Exception" && ["Alert Center", "My Cases", "SLA Monitoring", "Exception History", "Alert Rules"].includes(label)) {
       const alertModes: Record<string,AlertWorkspaceMode> = {"Alert Center":"alerts","My Cases":"cases","SLA Monitoring":"sla","Exception History":"history","Alert Rules":"rules"};
       setAlertWorkspaceMode(alertModes[label]);
       showToast(`${label} aktif`);
@@ -3200,6 +3264,12 @@ export default function HomePage() {
     const partnerModes:Record<string,PartnerMode>={"Pemasok":"suppliers","Transporter":"transporters","Pelanggan":"customers","Kelompok Tani":"farmerGroups"};
     if(parentLabel==="Mitra"&&partnerModes[label]){
       setPartnerOpen(partnerModes[label]);
+      showToast(`${label} aktif`);
+      return;
+    }
+    const alertConfigurationModes:Record<string,AlertConfigurationMode>={"Alert Rules":"rules","Severity":"severity","Notification Rules":"notifications","Escalation Rules":"escalations","SLA Rules":"slaRules"};
+    if(parentLabel==="Alert Configuration"&&alertConfigurationModes[label]){
+      setAlertConfigurationOpen(alertConfigurationModes[label]);
       showToast(`${label} aktif`);
       return;
     }
@@ -3955,6 +4025,7 @@ export default function HomePage() {
         {organizationLocationOpen&&<div className={sidebarCollapsed?"organization-location-host sidebar-collapsed":"organization-location-host"}><OrganizationLocationPage key={organizationLocationOpen} mode={organizationLocationOpen} onSwitch={(next)=>{setOrganizationLocationOpen(next);const labels:Record<OrganizationLocationMode,string>={regions:"Wilayah",kanwil:"Kanwil",kancab:"Kancab",warehouses:"Gudang",distributionPoints:"Titik Penyaluran"};setActiveNav(labels[next]);setActiveNavParent("Organisasi & Lokasi")}} onNotify={showToast}/></div>}
         {parameterOpen&&<div className={sidebarCollapsed?"parameter-host sidebar-collapsed":"parameter-host"}><ParameterManagementPage key={parameterOpen} mode={parameterOpen} onSwitch={(next)=>{setParameterOpen(next);const labels:Record<ParameterMode,string>={targetKpi:"Target KPI",alertThreshold:"Threshold Alert",sla:"SLA",calendar:"Kalender Operasional"};setActiveNav(labels[next]);setActiveNavParent("Parameter")}} onNotify={showToast}/></div>}
         {partnerOpen&&<div className={sidebarCollapsed?"partner-host sidebar-collapsed":"partner-host"}><PartnerManagementPage key={partnerOpen} mode={partnerOpen} onSwitch={(next)=>{setPartnerOpen(next);const labels:Record<PartnerMode,string>={suppliers:"Pemasok",transporters:"Transporter",customers:"Pelanggan",farmerGroups:"Kelompok Tani"};setActiveNav(labels[next]);setActiveNavParent("Mitra")}} onNotify={showToast}/></div>}
+        {alertConfigurationOpen&&<div className={sidebarCollapsed?"alert-config-host sidebar-collapsed":"alert-config-host"}><AlertConfigurationPage key={alertConfigurationOpen} mode={alertConfigurationOpen} onSwitch={(next)=>{setAlertConfigurationOpen(next);const labels:Record<AlertConfigurationMode,string>={rules:"Alert Rules",severity:"Severity",notifications:"Notification Rules",escalations:"Escalation Rules",slaRules:"SLA Rules"};setActiveNav(labels[next]);setActiveNavParent("Alert Configuration")}} onNotify={showToast}/></div>}
       </section>
 
       {activeNav === "National Dashboard" && <aside
