@@ -403,6 +403,298 @@ textarea:focus-visible {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .42);
 }
 
+/* Data tables — optimized for control-room readability. */
+:where(
+  .quality-head, .mutation-head, .sales-program-head, .exception-head,
+  .cost-head, .receivable-head, .accuracy-head, .forecast-region-head,
+  .seasonal-region-head, .proc-region-head, .source-head, .regional-gap-head,
+  .regional-ranking-head, .route-performance-head, .shipment-head,
+  .sales-order-head, .sales-ranking-head, .sphp-table-head, .sim-region-head,
+  .transfer-table-head, .report-domain-table-head, .report-exception-head,
+  .report-history-head, .optimizer-route-head, .org-list-head,
+  .partner-list-head, .permission-head, .user-table-head, .parameter-table-head,
+  .alert-table-head, .approval-table-head, .history-table-head,
+  .dm-table-head, .dm-registry-head, .dm-menu-head, .dm-view-head
+) {
+  min-height: 44px;
+  align-items: center;
+  color: #526d85 !important;
+  background: linear-gradient(180deg, #edf4f9 0%, #e6eff6 100%) !important;
+  border-bottom: 1px solid #cfdeea;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  letter-spacing: .035em !important;
+  line-height: 1.3;
+}
+
+:where(
+  .quality-table > article, .mutation-table > article,
+  .sales-program-table > article, .exception-table > article,
+  .cost-table > article, .receivable-table > article,
+  .budget-program-table > article, .accuracy-table > article,
+  .forecast-region-table > article, .seasonal-region-table > button,
+  .procurement-region-table > button, .source-table > button,
+  .route-performance > article, .shipment-list > button,
+  .status-user-table > article, .user-table-body > article,
+  .parameter-table > button, .alert-table > article,
+  .transfer-list > article, .history-row,
+  .dm-table > button, .dm-registry-row, .dm-menu-row, .dm-view-row
+) {
+  min-height: 64px !important;
+  padding-top: 13px !important;
+  padding-bottom: 13px !important;
+  color: #263f57 !important;
+  border-bottom-color: #e0e9f0 !important;
+  font-size: 14px !important;
+  line-height: 1.42 !important;
+}
+
+:where(
+  .quality-table > article, .mutation-table > article,
+  .sales-program-table > article, .exception-table > article,
+  .cost-table > article, .receivable-table > article,
+  .budget-program-table > article, .accuracy-table > article,
+  .forecast-region-table > article, .seasonal-region-table > button,
+  .procurement-region-table > button, .source-table > button,
+  .route-performance > article, .shipment-list > button,
+  .status-user-table > article, .user-table-body > article,
+  .parameter-table > button, .alert-table > article,
+  .transfer-list > article, .history-row,
+  .dm-table > button, .dm-registry-row, .dm-menu-row, .dm-view-row
+) :where(strong, b) {
+  font-size: 14px !important;
+  font-weight: 650;
+}
+
+:where(
+  .quality-table > article, .mutation-table > article,
+  .sales-program-table > article, .exception-table > article,
+  .cost-table > article, .receivable-table > article,
+  .budget-program-table > article, .accuracy-table > article,
+  .forecast-region-table > article, .seasonal-region-table > button,
+  .procurement-region-table > button, .source-table > button,
+  .route-performance > article, .shipment-list > button,
+  .status-user-table > article, .user-table-body > article,
+  .parameter-table > button, .alert-table > article,
+  .transfer-list > article, .history-row,
+  .dm-table > button, .dm-registry-row, .dm-menu-row, .dm-view-row
+) small {
+  color: #6b8195 !important;
+  font-size: 12px !important;
+  line-height: 1.38;
+}
+
+:where(
+  .quality-table > article, .mutation-table > article,
+  .sales-program-table > article, .exception-table > article,
+  .cost-table > article, .receivable-table > article,
+  .budget-program-table > article, .accuracy-table > article,
+  .forecast-region-table > article, .seasonal-region-table > button,
+  .procurement-region-table > button, .source-table > button,
+  .route-performance > article, .shipment-list > button,
+  .status-user-table > article, .user-table-body > article,
+  .parameter-table > button, .alert-table > article,
+  .transfer-list > article, .history-row,
+  .dm-table > button, .dm-registry-row, .dm-menu-row, .dm-view-row
+) :where(em, button) {
+  font-size: 12px !important;
+}
+
+:where(
+  .quality-table > article, .mutation-table > article,
+  .sales-program-table > article, .exception-table > article,
+  .cost-table > article, .receivable-table > article,
+  .budget-program-table > article, .accuracy-table > article,
+  .forecast-region-table > article, .seasonal-region-table > button,
+  .procurement-region-table > button, .source-table > button,
+  .route-performance > article, .shipment-list > button,
+  .status-user-table > article, .user-table-body > article,
+  .parameter-table > button, .alert-table > article,
+  .transfer-list > article, .history-row,
+  .dm-table > button, .dm-registry-row, .dm-menu-row, .dm-view-row
+):nth-child(even) {
+  background: #fbfdff;
+}
+
+:where(
+  .quality-table > article, .mutation-table > article,
+  .sales-program-table > article, .exception-table > article,
+  .cost-table > article, .receivable-table > article,
+  .budget-program-table > article, .accuracy-table > article,
+  .forecast-region-table > article, .seasonal-region-table > button,
+  .procurement-region-table > button, .source-table > button,
+  .route-performance > article, .shipment-list > button,
+  .status-user-table > article, .user-table-body > article,
+  .parameter-table > button, .alert-table > article,
+  .transfer-list > article, .history-row,
+  .dm-table > button, .dm-registry-row, .dm-menu-row, .dm-view-row
+):hover {
+  background: #eef6fc !important;
+  box-shadow: inset 3px 0 #2c73b3;
+}
+
+/* Charts — contemporary plot surfaces, clearer legends, and richer data marks. */
+:where(
+  .balance-chart-card, .demand-supply-chart, .accuracy-trend,
+  .domain-trend-card, .chart-category-panel, .tradeoff-chart,
+  .funding-composition, .receivable-aging, .cost-to-serve
+) {
+  position: relative;
+  background:
+    linear-gradient(rgba(40, 103, 163, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(40, 103, 163, .045) 1px, transparent 1px),
+    linear-gradient(180deg, #fff 0%, #fbfdff 100%) !important;
+  background-size: 36px 36px, 36px 36px, auto !important;
+  border-color: #d2e0eb !important;
+  border-radius: 17px !important;
+  box-shadow: 0 12px 28px rgba(22, 57, 88, .075) !important;
+  overflow: hidden;
+}
+
+:where(
+  .overview-domain-bars, .balance-bars, .safety-chart,
+  .aging-bucket-chart, .distribution-volume-chart, .forecast-bars,
+  .domain-bars, .funding-composition > div, .receivable-aging > div,
+  .cost-to-serve, .trajectory-bars, .proc-trend-chart
+) article,
+.overview-domain-bars > div,
+.balance-bars > button {
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+:where(.overview-domain-bars > div, .balance-bars > button, .safety-chart article,
+  .aging-bucket-chart article, .distribution-volume-chart article,
+  .forecast-bars article, .funding-composition article,
+  .receivable-aging article, .cost-to-serve article):hover {
+  background-color: rgba(232, 243, 251, .72);
+}
+
+:where(
+  .overview-domain-bars > div > i,
+  .safety-chart article > span > i,
+  .aging-bucket-chart article > i,
+  .distribution-volume-chart article > i,
+  .mode-mix article > i,
+  .receivable-aging article > i,
+  .cost-to-serve article > i,
+  .aging-outlook article > i,
+  .inventory-region-outlook article > div i,
+  .overview-kpi-grid article > i
+) {
+  min-height: 9px;
+  background: #e5edf4 !important;
+  border: 1px solid rgba(177, 198, 215, .42);
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 2px rgba(19, 53, 82, .08);
+  overflow: hidden;
+}
+
+:where(
+  .overview-domain-bars > div > i > b,
+  .safety-chart article > span > i > b,
+  .distribution-volume-chart article > i > em,
+  .mode-mix article > i > em,
+  .cost-to-serve article > i > b,
+  .inventory-region-outlook article > div i > b,
+  .overview-kpi-grid article > i > b
+) {
+  background: linear-gradient(90deg, #164f86 0%, #2f7eba 62%, #62a8d4 100%) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 12px rgba(47, 126, 186, .24);
+}
+
+.overview-domain-bars > div {
+  grid-template-columns: 116px 1fr 28px;
+  min-height: 34px;
+  padding-inline: 7px;
+  border-radius: 8px;
+  color: #526d85;
+  font-size: 13px;
+}
+
+.overview-domain-bars > div > strong { color: #173f67; font-size: 14px; }
+
+.balance-axis {
+  color: #617a91;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.balance-bars { gap: 7px; }
+.balance-bars > button { min-height: 42px; padding: 7px 9px; border-radius: 9px; font-size: 12px; }
+.balance-bars > button > div { height: 14px; border-radius: 999px; overflow: hidden; }
+.balance-bars > button > div b { border-radius: 999px; }
+.balance-bars b.shortage { background: linear-gradient(90deg, #e58a72, #c54236); }
+.balance-bars b.surplus { background: linear-gradient(90deg, #2f8f6b, #62b68f); }
+.balance-bars > button > strong { font-size: 12px; }
+
+.domain-bars {
+  padding: 24px 18px 14px !important;
+  background:
+    repeating-linear-gradient(to top, rgba(45, 101, 151, .07) 0 1px, transparent 1px 48px);
+  border-radius: 12px;
+}
+
+.domain-bars > div > span {
+  border-radius: 10px 10px 4px 4px;
+  background: rgba(226, 236, 244, .62) !important;
+  overflow: hidden;
+}
+
+.domain-bars > div > span > i {
+  background: linear-gradient(180deg, #5aa3d2 0%, #286aa5 64%, #174b7d 100%) !important;
+  border-radius: 9px 9px 3px 3px !important;
+  box-shadow: 0 8px 14px rgba(36, 103, 163, .18);
+}
+
+.domain-bars small { color: #607991 !important; font-size: 11px !important; font-weight: 600; }
+
+.forecast-bars article { min-height: 56px; padding-block: 12px; }
+.forecast-bars article i b,
+.forecast-bars article i em { height: 9px; box-shadow: 0 4px 10px rgba(28, 91, 143, .10); }
+.forecast-bars article i b { background: linear-gradient(90deg, #1c568d, #4d99c9); }
+.forecast-bars article i em { background: linear-gradient(90deg, #24845f, #69b795); }
+.forecast-bars article > span,
+.forecast-bars article > strong { font-size: 12px; }
+.forecast-bars article small { font-size: 11px; }
+
+.accuracy-trend > div { padding: 34px 22px 16px; }
+.accuracy-trend > div b {
+  border-radius: 9px 9px 3px 3px;
+  background: linear-gradient(180deg, #61a8d3 0%, #276aa7 100%);
+  box-shadow: 0 8px 14px rgba(39, 106, 167, .17);
+}
+.accuracy-trend > div em { border-top: 2px dashed #e3a41d; }
+.accuracy-trend > div small,
+.accuracy-trend > div strong { font-size: 11px; }
+
+.funding-composition article > span :where(i, b, em) {
+  height: 8px;
+  box-shadow: 0 3px 8px rgba(22, 57, 88, .10);
+}
+.funding-composition article > span i { background: linear-gradient(90deg, #174f86, #4b98c9); }
+.funding-composition article > span b { background: linear-gradient(90deg, #b72a65, #e4528a); }
+.funding-composition article > span em { background: linear-gradient(90deg, #087667, #45aa91); }
+.funding-composition article > strong { font-size: 12px; }
+.funding-composition article > small,
+.funding-composition > footer { font-size: 11px; }
+
+.chart-legend,
+:where(.demand-supply-chart, .accuracy-trend, .funding-composition) > footer {
+  min-height: 42px;
+  gap: 15px;
+  color: #5d768d;
+  background: rgba(246, 250, 253, .92) !important;
+  border-top: 1px solid #dce7ef;
+  font-size: 11px !important;
+}
+
+.chart-legend span,
+:where(.demand-supply-chart, .accuracy-trend, .funding-composition) > footer span {
+  font-size: 11px !important;
+  font-weight: 600;
+}
+
 @media (max-width: 1100px) {
   .workspace { padding-inline: 22px; }
   .report-panel__body { padding-inline: 24px; }
