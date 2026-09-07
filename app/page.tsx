@@ -2,6 +2,7 @@
 
 import "./alert-config.css";
 import "./dashboard-management.css";
+import "./ui-refresh.css";
 
 import {
   Activity,
