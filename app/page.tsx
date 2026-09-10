@@ -2,6 +2,7 @@
 
 import "./alert-config.css";
 import "./dashboard-management.css";
+import "./national-dashboard.css";
 import "./ui-refresh.css";
 
 import {
@@ -73,7 +74,7 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
-import type { CSSProperties, ComponentType } from "react";
+import type { CSSProperties, ComponentType, RefObject } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Region = {
@@ -3048,6 +3049,187 @@ function DashboardManagementPage({mode,onSwitch,onNotify}:{mode:DashboardManagem
   </main>;
 }
 
+function NationalCommandDashboard({
+  selectedRegion,
+  onSelectRegion,
+  level,
+  onLevelChange,
+  dashboardType,
+  refreshing,
+  refreshCount,
+  zoom,
+  onZoomChange,
+  onRefresh,
+  onFullscreen,
+  onOpenFilter,
+  onNotify,
+  mapRef,
+}: {
+  selectedRegion: string;
+  onSelectRegion: (region: string) => void;
+  level: string;
+  onLevelChange: (level: string) => void;
+  dashboardType: string;
+  refreshing: boolean;
+  refreshCount: number;
+  zoom: number;
+  onZoomChange: (zoom: number) => void;
+  onRefresh: () => void;
+  onFullscreen: () => void;
+  onOpenFilter: () => void;
+  onNotify: (message: string) => void;
+  mapRef: RefObject<HTMLDivElement | null>;
+}) {
+  const [query, setQuery] = useState("");
+  const [legendOpen, setLegendOpen] = useState(true);
+  const selected = regions.find((region) => region.name === selectedRegion);
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleRegions = regions.filter((region) => region.name.replace("\n", " ").toLowerCase().includes(normalizedQuery));
+  const statusCounts = regions.reduce((counts, region) => {
+    if (region.percentage > 80) counts.critical += 1;
+    else if (region.percentage >= 50) counts.warning += 1;
+    else counts.safe += 1;
+    return counts;
+  }, { critical: 0, warning: 0, safe: 0 });
+  const ageDistribution = [
+    ["0–1 bulan", 12, "239.428,4 Ton"],
+    ["1–2 bulan", 17, "299.652,9 Ton"],
+    ["2–3 bulan", 20, "382.162,8 Ton"],
+    ["3–4 bulan", 18, "370.298,2 Ton"],
+    [">4 bulan", 33, "1.383.339,8 Ton"],
+  ] as const;
+
+  function toneFor(region: Region) {
+    return region.percentage > 80 ? "critical" : region.percentage >= 50 ? "warning" : "safe";
+  }
+
+  return (
+    <section className="national-command-page" aria-label="National Dashboard Persediaan">
+      <div className="national-command-toolbar">
+        <div className="national-command-title">
+          <span><Boxes size={18}/></span>
+          <div><small>NATIONAL CONTROL TOWER</small><strong>Dashboard {dashboardType}</strong></div>
+          <button type="button" onClick={() => onNotify("Pilihan dashboard nasional dibuka")}>{dashboardType} Beras<ChevronDown size={14}/></button>
+        </div>
+        <div className="national-level-switch" aria-label="Level wilayah">
+          {["Region", "Kanwil", "Kancab"].map((item) => (
+            <button type="button" key={item} className={level.toLowerCase() === item.toLowerCase() ? "active" : ""} onClick={() => onLevelChange(item)}>{item}</button>
+          ))}
+        </div>
+        <button type="button" className="national-scope-button" onClick={() => onSelectRegion("NASIONAL")}><i/><span>{selected ? selected.name.replace("\n", " ") : "Semua Wilayah"}</span><ChevronDown size={15}/></button>
+        <div className="national-command-kpis" aria-label="Indikator nasional">
+          <span><small>Volume stok</small><strong>5.252.664,64 <em>Ton</em></strong></span>
+          <span><small>Kapasitas gudang</small><strong>5.695.125 <em>Ton</em></strong></span>
+          <span><small>Keterpakaian</small><strong>92,23%</strong></span>
+          <span className="national-data-time"><i/><small>Data terbaru</small><strong>{refreshCount ? "Baru saja" : "11 Agu · 08:30 WIB"}</strong></span>
+        </div>
+        <button type="button" className="national-filter-button" onClick={onOpenFilter} aria-label="Buka filter dashboard"><Filter size={18}/><span>Filter</span></button>
+      </div>
+
+      <div className="national-command-workspace" ref={mapRef}>
+        <div className="national-map-canvas">
+          <iframe
+            key={`${refreshCount}-${zoom}`}
+            className="national-map-frame"
+            title="Peta nasional Indonesia"
+            src={`https://www.google.com/maps?q=Indonesia&z=${zoom}&output=embed&hl=id`}
+            loading="eager"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
+          <div className="national-map-overlay" aria-hidden="true"/>
+          <div className={`national-map-markers${refreshing ? " refreshing" : ""}`}>
+            {regions.map((region) => (
+              <button
+                type="button"
+                key={region.name}
+                style={{ left: region.left, top: region.top, "--region-color": markerColor(region.percentage) } as CSSProperties}
+                className={`${toneFor(region)}${selectedRegion === region.name ? " selected" : ""}`}
+                onClick={() => onSelectRegion(region.name)}
+                aria-label={`Pilih ${region.name.replace("\n", " ")}`}
+              >
+                <span>{region.percentage.toFixed(0)}%</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="national-map-actions">
+            <button type="button" onClick={() => onZoomChange(Math.min(zoom + 1, 8))} aria-label="Perbesar peta"><Plus size={17}/></button>
+            <button type="button" onClick={() => onZoomChange(Math.max(zoom - 1, 4))} aria-label="Perkecil peta"><Minus size={17}/></button>
+            <button type="button" onClick={onFullscreen} aria-label="Peta layar penuh"><Maximize size={17}/></button>
+          </div>
+
+          {selected && (
+            <article className="national-region-popover">
+              <header><span><MapPin size={17}/></span><div><small>DETAIL REGION</small><h2>{selected.name.replace("\n", " ")}</h2></div><em className={toneFor(selected)}>{toneFor(selected) === "critical" ? "Kritis" : toneFor(selected) === "warning" ? "Waspada" : "Aman"}</em></header>
+              <div className="national-region-main">
+                <strong>{selected.percentage.toFixed(2).replace(".", ",")}%</strong>
+                <span><small>Kapasitas gudang</small><b>{selected.capacity}</b></span>
+                <span><small>Volume stok</small><b>{selected.stock}</b></span>
+              </div>
+              <div className="national-region-flow">
+                <span><Truck size={15}/><small>Stok dalam perjalanan</small><b>8.445,83 Ton</b></span>
+                <span><TrendingUp size={15}/><small>Mutasi masuk</small><b>614.274,34 Ton</b></span>
+                <span><ArrowRight size={15}/><small>Mutasi keluar</small><b>706.880,13 Ton</b></span>
+              </div>
+              <section>
+                <h3><Clock3 size={15}/>Distribusi umur simpan</h3>
+                {ageDistribution.map(([label, value, volume], index) => <div key={label}><span><small>{label}</small><b>{volume}</b></span><i><b className={index === 4 ? "risk" : ""} style={{width:`${value * 2.7}%`}}/></i></div>)}
+              </section>
+              <footer><span><small>Umur maksimum</small><strong>59,2 bulan</strong></span><span><small>Umur minimum</small><strong>1,0 hari</strong></span><button type="button" onClick={() => onNotify(`Analitik ${selected.name.replace("\n", " ")} dibuka`)}>Buka analitik<ExternalLink size={14}/></button></footer>
+            </article>
+          )}
+
+          <aside className={`national-map-legend${legendOpen ? "" : " collapsed"}`}>
+            <button type="button" onClick={() => setLegendOpen((value) => !value)}><span>Status distribusi</span>{legendOpen ? <ChevronDown size={16}/> : <ChevronUp size={16}/>}</button>
+            {legendOpen && <><div>Persentase keterisian (%)<ChevronDown size={14}/></div><span><i className="critical"/>&gt; 80% <small>Kritis</small></span><span><i className="warning"/>50–80% <small>Waspada</small></span><span><i className="safe"/>&lt; 50% <small>Aman</small></span></>}
+          </aside>
+
+          <button type="button" className="national-analytics-button" onClick={() => onNotify("Analytics Dashboard dibuka")}><BarChart3 size={17}/>Analytics Dashboard<ChevronDown size={15}/></button>
+        </div>
+
+        <aside className="national-region-panel">
+          <header>
+            <div className="national-home-pill"><Home size={16}/>Nasional</div>
+            <div className="national-region-summary">
+              <span><strong>{regions.length}</strong><small>Total region</small></span>
+              <div className="national-status-donut" style={{"--critical": `${statusCounts.critical / regions.length * 360}deg`, "--warning": `${(statusCounts.critical + statusCounts.warning) / regions.length * 360}deg`} as CSSProperties}><i/></div>
+              <div><h2>Distribusi Status</h2><span><i className="warning"/>{statusCounts.warning} Waspada</span><span><i className="critical"/>{statusCounts.critical} Kritis</span><span><i className="safe"/>{statusCounts.safe} Aman</span></div>
+            </div>
+            <button type="button" className="national-explore" onClick={() => onNotify("Eksplorasi analitik nasional dibuka")}><BarChart3 size={16}/>Explore Analytics</button>
+          </header>
+          <label className="national-region-search"><Search size={18}/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari region..."/></label>
+          <div className="national-region-table-head"><span aria-hidden="true"/><span>Nama region</span><span>Stok</span><span>Kapasitas</span><span>%</span><span aria-hidden="true"/></div>
+          <div className="national-region-list">
+            {visibleRegions.map((region) => {
+              const active = selectedRegion === region.name;
+              const tone = toneFor(region);
+              return <div key={region.name} className={active ? "active" : ""}>
+                <button type="button" onClick={() => onSelectRegion(active ? "NASIONAL" : region.name)}>
+                  {active ? <ChevronUp size={15}/> : <ChevronDown size={15}/>}
+                  <span><i className={tone}/>{region.name.replace("\n", " ")}</span>
+                  <b>{region.stock.replace(" Ton", "")}</b>
+                  <b>{region.capacity.replace(" Ton", "")}</b>
+                  <em className={tone}>{region.percentage.toFixed(2).replace(".", ",")}%</em>
+                  <span className="national-row-actions"><MapPin size={14}/><ChevronRight size={14}/></span>
+                </button>
+                {active && <section><span><small>Volume stock</small><strong>{region.stock}</strong></span><span><small>Kapasitas gudang</small><strong>{region.capacity}</strong></span><span><small>Status operasional</small><strong className={tone}>{tone === "critical" ? "Critical" : tone === "warning" ? "Watch" : "Aman"}</strong></span><button type="button" onClick={() => onNotify(`Detail wilayah ${region.name.replace("\n", " ")} dibuka`)}>Detail wilayah<ChevronRight size={14}/></button></section>}
+              </div>;
+            })}
+            {visibleRegions.length === 0 && <div className="national-region-empty"><Search size={22}/><strong>Region tidak ditemukan</strong><small>Coba gunakan kata kunci lain.</small></div>}
+          </div>
+        </aside>
+      </div>
+
+      <footer className="national-command-ticker">
+        <span><AlertTriangle size={15}/>Critical watch</span>
+        {regions.filter((region) => region.percentage > 80).map((region) => <button type="button" key={region.name} onClick={() => onSelectRegion(region.name)}><i/>{region.name.replace("\n", " ")} <strong>{region.stock}</strong></button>)}
+        <button type="button" className="national-refresh" onClick={onRefresh} disabled={refreshing}><RotateCw className={refreshing ? "spin" : ""} size={15}/>{refreshing ? "Memperbarui…" : "Perbarui data"}</button>
+      </footer>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const [authStatus,setAuthStatus]=useState<DemoAuthStatus>("checking");
   const [legendOpen, setLegendOpen] = useState(true);
@@ -3424,6 +3606,12 @@ export default function HomePage() {
           <span>bulog</span>
         </div>
         <div className="mockup-label" aria-label="Mockup SCCT Phase I dan II"><span>MOCKUP</span><strong>SCCT PHASE I &amp; II</strong></div>
+        <nav className="topbar-primary-nav" aria-label="Menu utama cepat">
+          <button type="button" className={activeNav === "Target vs Realisasi" ? "active" : ""} onClick={() => selectSidebarItem("Target vs Realisasi")}><Target size={15}/>Target vs Realisasi</button>
+          <button type="button" className={activeNav === "Regional Performance" ? "active" : ""} onClick={() => selectSidebarItem("Regional Performance")}><ChartNoAxesCombined size={15}/>Regional Performance</button>
+          <button type="button" className={activeNavParent === "Executive Report" ? "active" : ""} onClick={() => selectSidebarItem("Executive Snapshot", "Executive Report")}><FileChartColumn size={15}/>Executive Report</button>
+          <button type="button" className={activeNavParent === "Optimasi & Rekomendasi" ? "active" : ""} onClick={() => selectSidebarItem("Optimasi Safety Stock", "Optimasi & Rekomendasi")}><Sparkles size={15}/>Optimasi &amp; Rekomendasi</button>
+        </nav>
         <div className="topbar-spacer" />
         <button type="button" className="ask-ai-button" onClick={() => setChatOpen(true)} aria-expanded={chatOpen}><Sparkles size={18}/><span>Ask AI</span></button>
         <div className="header-center-wrap">
@@ -4095,6 +4283,24 @@ export default function HomePage() {
         {partnerOpen&&<div className={sidebarCollapsed?"partner-host sidebar-collapsed":"partner-host"}><PartnerManagementPage key={partnerOpen} mode={partnerOpen} onSwitch={(next)=>{setPartnerOpen(next);const labels:Record<PartnerMode,string>={suppliers:"Pemasok",transporters:"Transporter",customers:"Pelanggan",farmerGroups:"Kelompok Tani"};setActiveNav(labels[next]);setActiveNavParent("Mitra")}} onNotify={showToast}/></div>}
         {alertConfigurationOpen&&<div className={sidebarCollapsed?"alert-config-host sidebar-collapsed":"alert-config-host"}><AlertConfigurationPage key={alertConfigurationOpen} mode={alertConfigurationOpen} onSwitch={(next)=>{setAlertConfigurationOpen(next);const labels:Record<AlertConfigurationMode,string>={rules:"Alert Rules",severity:"Severity",notifications:"Notification Rules",escalations:"Escalation Rules",slaRules:"SLA Rules"};setActiveNav(labels[next]);setActiveNavParent("Alert Configuration")}} onNotify={showToast}/></div>}
         {dashboardManagementOpen&&<div className={sidebarCollapsed?"dashboard-management-host sidebar-collapsed":"dashboard-management-host"}><DashboardManagementPage key={dashboardManagementOpen} mode={dashboardManagementOpen} onSwitch={(next)=>{setDashboardManagementOpen(next);const labels:Record<DashboardManagementMode,string>={dashboards:"Dashboard",widgets:"Widget",menus:"Menu",savedViews:"Saved View",executiveLayout:"Executive Layout"};setActiveNav(labels[next]);setActiveNavParent("Dashboard Management")}} onNotify={showToast}/></div>}
+        {activeNav === "National Dashboard" && (
+          <NationalCommandDashboard
+            selectedRegion={selectedRegion}
+            onSelectRegion={setSelectedRegion}
+            level={level}
+            onLevelChange={setLevel}
+            dashboardType={appliedDashboardType}
+            refreshing={refreshing}
+            refreshCount={refreshCount}
+            zoom={zoom}
+            onZoomChange={setZoom}
+            onRefresh={refreshData}
+            onFullscreen={() => void toggleFullscreen()}
+            onOpenFilter={() => setFilterOpen(true)}
+            onNotify={showToast}
+            mapRef={mapRef}
+          />
+        )}
       </section>
 
       {activeNav === "National Dashboard" && <aside
