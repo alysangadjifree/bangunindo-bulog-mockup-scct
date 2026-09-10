@@ -3330,11 +3330,6 @@ export default function HomePage() {
     }
   }
 
-  function toggleFilterPanel() {
-    setFilterOpen((value) => !value);
-    setOpenFilterDropdown(null);
-  }
-
   function applyFilter() {
     setAppliedDashboardType(dashboardType);
     setAppliedChartSize(chartSize);
@@ -3781,14 +3776,6 @@ export default function HomePage() {
             Detail Wilayah
           </button>
         </div>
-
-        {activeNav === "National Dashboard" && <button
-          className={`filter-handle${filterOpen ? " active" : ""}`}
-          aria-label="Buka filter"
-          onClick={toggleFilterPanel}
-        >
-          <Filter size={23} />
-        </button>}
 
         <section className="map-card" aria-label="Peta persediaan nasional">
           <div className="map-stage" ref={mapRef}>
