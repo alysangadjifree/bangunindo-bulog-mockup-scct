@@ -725,86 +725,86 @@ textarea:focus-visible {
 /* Readability pass: Optimasi Safety Stock and every Approval Center table. */
 .optimization-page.mode-safetyStock .optimization-head {
   padding-block: 12px;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.35;
 }
 
 .optimization-page.mode-safetyStock .optimization-priorities > button {
-  min-height: 76px;
-  padding-block: 14px;
-  font-size: 13.5px;
+  min-height: 70px;
+  padding-block: 12px;
+  font-size: 12.5px;
   line-height: 1.45;
 }
 
 .optimization-page.mode-safetyStock .optimization-priorities > button strong,
 .optimization-page.mode-safetyStock .optimization-priorities > button > b {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
 .optimization-page.mode-safetyStock .optimization-priorities > button small {
   margin-top: 4px;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.4;
 }
 
 .optimization-page.mode-safetyStock .optimization-priorities em {
   margin-top: 5px;
   padding: 5px 8px;
-  font-size: 11.5px;
+  font-size: 10.5px;
   line-height: 1.2;
 }
 
 .optimization-page.mode-safetyStock .tradeoff-chart article,
 .optimization-page.mode-safetyStock .evidence-panel article {
-  min-height: 58px;
-  padding-block: 12px;
+  min-height: 54px;
+  padding-block: 11px;
 }
 
 .optimization-page.mode-safetyStock .tradeoff-chart article > strong,
 .optimization-page.mode-safetyStock .evidence-panel article strong {
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .optimization-page.mode-safetyStock .tradeoff-chart article small,
 .optimization-page.mode-safetyStock .evidence-panel article small,
 .optimization-page.mode-safetyStock .evidence-panel article > em {
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.35;
 }
 
 .approval-center-host .approval-table-head,
 .approval-center-host .delegation-head {
   padding-block: 12px;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.35;
 }
 
 .approval-center-host .approval-table-body > button,
 .approval-center-host .delegation-card > article {
-  min-height: 76px;
-  padding-block: 14px;
-  font-size: 13.5px;
+  min-height: 70px;
+  padding-block: 12px;
+  font-size: 12.5px;
   line-height: 1.45;
 }
 
 .approval-center-host .approval-table-body b,
 .approval-center-host .delegation-card article strong,
 .approval-center-host .delegation-card article > b {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
 .approval-center-host .approval-table-body small,
 .approval-center-host .delegation-card article small {
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.4;
 }
 
 .approval-center-host .approval-table-body em,
 .approval-center-host .delegation-card article em {
   padding: 5px 8px;
-  font-size: 11.5px;
+  font-size: 10.5px;
   line-height: 1.2;
 }
 
@@ -812,6 +812,6 @@ textarea:focus-visible {
   .optimization-page.mode-safetyStock .optimization-head,
   .approval-center-host .approval-table-head,
   .approval-center-host .delegation-head {
-    font-size: 11.5px;
+    font-size: 11px;
   }
 }
