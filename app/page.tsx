@@ -4291,9 +4291,10 @@ export default function HomePage() {
       </section>
 
       {activeNav === "National Dashboard" && <aside
-        className={`filter-drawer${filterOpen ? " open" : ""}`}
+        className={`filter-drawer national-filter-dialog${filterOpen ? " open" : ""}`}
         aria-hidden={!filterOpen}
         aria-label="Filter dashboard"
+        inert={!filterOpen}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
             if (openFilterDropdown) setOpenFilterDropdown(null);
@@ -4302,13 +4303,17 @@ export default function HomePage() {
         }}
       >
         <div className="filter-title">
-          <strong>Filter</strong>
-          <button onClick={() => { setFilterOpen(false); setOpenFilterDropdown(null); }} aria-label="Tutup filter"><X size={30} /></button>
+          <div>
+            <span><Filter size={14} /> National Dashboard</span>
+            <strong>Filter tampilan</strong>
+            <small>Atur data dan cakupan peta yang ditampilkan.</small>
+          </div>
+          <button onClick={() => { setFilterOpen(false); setOpenFilterDropdown(null); }} aria-label="Tutup filter"><X size={20} /></button>
         </div>
         <div className="filter-body">
           <FilterSelect
             id="dashboard"
-            label="Dashboard Type"
+            label="Jenis Dashboard"
             value={dashboardType}
             options={["Persediaan", "Pengadaan", "Penjualan", "Keuangan", "Eksekutif"]}
             open={openFilterDropdown === "dashboard"}
@@ -4317,7 +4322,7 @@ export default function HomePage() {
           />
           <FilterSelect
             id="map-level"
-            label="Map Level"
+            label="Level Peta"
             value={mapLevel}
             options={["Region", "Kanwil", "Kancab", "Gudang"]}
             open={openFilterDropdown === "map-level"}
@@ -4326,7 +4331,7 @@ export default function HomePage() {
           />
           <FilterSelect
             id="chart-size"
-            label="Chart Size"
+            label="Ukuran Grafik"
             value={chartSize}
             options={["Select Chart Size", "Small", "Medium", "Large"]}
             open={openFilterDropdown === "chart-size"}
@@ -4335,18 +4340,18 @@ export default function HomePage() {
           />
           <div className="filter-date-row">
             <label className="filter-field filter-field--date">
-              <span className="filter-label">Start Date</span>
+              <span className="filter-label">Tanggal Mulai</span>
               <input type="date" value={startDate} max={endDate} onChange={(event) => setStartDate(event.target.value)} />
             </label>
             <label className="filter-field filter-field--date">
-              <span className="filter-label">End Date</span>
+              <span className="filter-label">Tanggal Selesai</span>
               <input type="date" value={endDate} min={startDate} onChange={(event) => setEndDate(event.target.value)} />
             </label>
           </div>
         </div>
         <div className="filter-actions">
-          <button className="apply-filter" onClick={applyFilter}>Apply Filter</button>
-          <button className="reset-filter" onClick={resetFilter}>Reset Filter</button>
+          <button className="reset-filter" onClick={resetFilter}>Reset</button>
+          <button className="apply-filter" onClick={applyFilter}><Check size={16} /> Terapkan Filter</button>
         </div>
       </aside>}
 
