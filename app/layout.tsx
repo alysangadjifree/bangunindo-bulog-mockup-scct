@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
-import { Instrument_Sans } from "next/font/google";
+import { Instrument_Sans, Inter } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id">
-      <body className={instrumentSans.variable}>{children}</body>
+      <body className={`${instrumentSans.variable} ${inter.variable}`}>{children}</body>
     </html>
   );
 }

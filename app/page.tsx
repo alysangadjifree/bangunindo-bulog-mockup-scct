@@ -4,6 +4,7 @@ import "./alert-config.css";
 import "./dashboard-management.css";
 import "./national-dashboard.css";
 import "./ui-refresh.css";
+import "./typography.css";
 
 import {
   Activity,
