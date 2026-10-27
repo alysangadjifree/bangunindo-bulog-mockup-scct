@@ -29906,3 +29906,390 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Decision Intelligence readability pass
+   Aligns every simulation, optimization, approval, and history workspace with
+   the legibility scale used by AI Decision Center while preserving density. */
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  ) {
+  font-size: 12px;
+}
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  :is(p, li) {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  :is(button, select, input) {
+  font-size: 11.5px;
+}
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  label,
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  legend {
+  font-size: 11px;
+  line-height: 1.35;
+}
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  :is(dt, .optimizer-step-top > span) {
+  font-size: 10.5px;
+}
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  dd {
+  font-size: 12px;
+  line-height: 1.45;
+}
+:is(
+    .optimizer-view-host,
+    .shortage-view-host,
+    .seasonal-view-host,
+    .route-mode-view-host,
+    .aging-view-host,
+    .sphp-view-host
+  )
+  :is(
+    .optimizer-page,
+    .shortage-page,
+    .seasonal-page,
+    .route-mode-page,
+    .aging-page,
+    .sphp-page
+  )
+  em {
+  font-size: 10.5px;
+}
+
+/* Simulation tables and dense result rows */
+.optimizer-view-host :is(.optimizer-flow article, .optimizer-routes > button, .optimizer-data-list > div) strong,
+.shortage-view-host :is(.shortage-table-head, .shortage-table-body, .recommendation-engine) strong,
+.seasonal-view-host :is(.seasonal-region-head, .seasonal-region-table, .seasonal-waves) strong,
+.route-mode-view-host :is(.route-option-grid, .route-readiness, .route-milestones) strong,
+.aging-view-host :is(.aging-lot-head, .aging-lot-table, .aging-actions-list) strong,
+.sphp-view-host :is(.sphp-table-head, .sphp-table-body, .sphp-impact-grid) strong {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.optimizer-view-host :is(.optimizer-route-head, .optimizer-comparison-grid > button > span),
+.shortage-view-host :is(.shortage-table-head, .recommendation-head),
+.seasonal-view-host :is(.seasonal-region-head, .seasonal-wave-head),
+.route-mode-view-host .route-milestone-head,
+.aging-view-host :is(.aging-lot-head, .aging-action-head),
+.sphp-view-host .sphp-table-head {
+  font-size: 11px;
+  line-height: 1.35;
+}
+.optimizer-view-host :is(.optimizer-routes > button, .optimizer-data-list > div),
+.shortage-view-host :is(.shortage-region-row, .recommendation-engine article),
+.seasonal-view-host :is(.seasonal-region-row, .seasonal-waves article),
+.route-mode-view-host .route-milestones article,
+.aging-view-host :is(.aging-lot-row, .aging-actions-list article),
+.sphp-view-host .sphp-table-body > article {
+  min-height: 54px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+/* Optimization & Recommendations */
+.optimization-host .optimization-header > div:first-child > span,
+.optimization-host .optimization-card > header span,
+.optimization-host .optimization-context > div > span {
+  font-size: 11px;
+}
+.optimization-host .optimization-header p {
+  font-size: 14px;
+}
+.optimization-host .optimization-header > div:last-child small,
+.optimization-host .optimization-context > div small,
+.optimization-host .optimization-card > header > small,
+.optimization-host .optimization-detail header p,
+.optimization-host .optimization-priorities > button small,
+.optimization-host :is(.tradeoff-chart, .evidence-panel) article small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.optimization-host .optimization-header > div:last-child strong,
+.optimization-host .optimization-context > div strong {
+  font-size: 12px;
+}
+.optimization-host :is(.optimization-header, .optimization-detail footer, .optimization-note) button,
+.optimization-host .optimization-tabs button,
+.optimization-host .optimization-context select {
+  font-size: 11.5px;
+}
+.optimization-host .optimization-context label > span,
+.optimization-host .optimization-kpis span {
+  font-size: 10.5px;
+}
+.optimization-host .optimization-kpis strong {
+  font-size: 25px;
+}
+.optimization-host .optimization-kpis small,
+.optimization-host .optimization-kpis em {
+  font-size: 10.5px;
+}
+.optimization-host .optimization-card h2 {
+  font-size: 19px;
+}
+.optimization-host .optimization-head {
+  min-height: 42px;
+  font-size: 11px;
+}
+.optimization-host .optimization-priorities > button {
+  min-height: 58px;
+  padding-block: 13px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.optimization-host .optimization-priorities > button :is(strong, b) {
+  font-size: 12px;
+}
+.optimization-host .optimization-priorities :is(em),
+.optimization-host .optimization-detail header > em {
+  font-size: 10.5px;
+}
+.optimization-host .optimization-detail dt {
+  font-size: 10.5px;
+}
+.optimization-host .optimization-detail dd,
+.optimization-host .optimization-detail > p {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.optimization-host .optimization-detail h3 {
+  font-size: 13px;
+}
+.optimization-host :is(.tradeoff-chart, .evidence-panel) article {
+  min-height: 54px;
+}
+.optimization-host :is(.tradeoff-chart, .evidence-panel) article strong {
+  font-size: 11.5px;
+}
+.optimization-host .tradeoff-chart article > em {
+  font-size: 13px;
+}
+.optimization-host .evidence-panel article > em,
+.optimization-host .optimization-note {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Approval Center & Decision History */
+:is(.approval-center-host, .decision-history-host) .gov-header > div:first-child > span,
+:is(.approval-center-host, .decision-history-host) :is(.gov-table-card, .delegation-card, .history-table-card, .lineage-card) > header span {
+  font-size: 11px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-header p {
+  font-size: 14px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-data small,
+:is(.approval-center-host, .decision-history-host) .gov-data em {
+  font-size: 10.5px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-data strong {
+  font-size: 12px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-tabs button {
+  min-height: 43px;
+  font-size: 12px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-tabs button b {
+  font-size: 10.5px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-kpis span {
+  font-size: 10.5px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-kpis strong {
+  font-size: 25px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-kpis small {
+  font-size: 10.5px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-tools :is(input, select),
+:is(.approval-center-host, .decision-history-host) .gov-tools > button,
+:is(.approval-center-host, .decision-history-host) :is(.delegation-card, .lineage-card) > header button {
+  font-size: 11.5px;
+}
+:is(.approval-center-host, .decision-history-host) :is(.gov-table-card, .delegation-card, .history-table-card, .lineage-card, .gov-policy) h2 {
+  font-size: 19px;
+}
+:is(.approval-center-host, .decision-history-host) :is(.gov-table-card, .history-table-card) > header small,
+:is(.approval-center-host, .decision-history-host) :is(.approval-table-body, .delegation-card, .history-row) small,
+:is(.approval-center-host, .decision-history-host) .lineage-flow small,
+:is(.approval-center-host, .decision-history-host) .history-lineage-detail small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+:is(.approval-center-host, .decision-history-host) :is(.approval-table-head, .delegation-head, .history-table-head) {
+  min-height: 42px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+:is(.approval-center-host, .decision-history-host) :is(.approval-table-body > button, .delegation-card > article, .history-row) {
+  min-height: 58px;
+  padding-block: 13px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+:is(.approval-center-host, .decision-history-host) :is(.approval-table-body, .delegation-card, .history-row) b,
+:is(.approval-center-host, .decision-history-host) .delegation-card article strong,
+:is(.approval-center-host, .decision-history-host) .lineage-flow strong,
+:is(.approval-center-host, .decision-history-host) .history-lineage-detail b {
+  font-size: 12px;
+}
+:is(.approval-center-host, .decision-history-host) :is(.approval-table-body, .delegation-card, .history-row) em {
+  font-size: 10.5px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-policy > header span,
+:is(.approval-center-host, .decision-history-host) .gov-policy > div small {
+  font-size: 10.5px;
+}
+:is(.approval-center-host, .decision-history-host) .gov-policy > p,
+:is(.approval-center-host, .decision-history-host) .gov-policy > button,
+:is(.approval-center-host, .decision-history-host) .delegation-card > header p,
+:is(.approval-center-host, .decision-history-host) .gov-disclaimer,
+:is(.approval-center-host, .decision-history-host) .audit-banner p,
+:is(.approval-center-host, .decision-history-host) .audit-banner > span {
+  font-size: 11px;
+  line-height: 1.5;
+}
+:is(.approval-center-host, .decision-history-host) .approval-detail-modal > header span,
+:is(.approval-center-host, .decision-history-host) .history-detail-modal > header span {
+  font-size: 10.5px;
+}
+:is(.approval-center-host, .decision-history-host) .approval-detail-modal > header p,
+:is(.approval-center-host, .decision-history-host) .history-detail-modal > header p {
+  font-size: 11.5px;
+}
+
+@media (max-width: 760px) {
+  :is(.optimization-host, .approval-center-host, .decision-history-host) :is(.optimization-page, .governance-page) {
+    padding: 20px 16px 40px;
+  }
+  :is(.optimization-host, .approval-center-host, .decision-history-host) :is(.optimization-header h1, .gov-header h1) {
+    font-size: 30px;
+  }
+}
