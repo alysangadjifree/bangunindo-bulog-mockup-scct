@@ -29695,3 +29695,214 @@ button {
 .user-admin-page .user-form-section select {
   font-size: 11px;
 }
+
+/* AI Decision Center readability pass
+   Keeps dense decision tables legible without changing the established layout. */
+.ai-decision-host .ai-decision-header > div:first-child > span,
+.ai-decision-host .ai-card > header > div > span,
+.ai-decision-host .ai-narrative small {
+  font-size: 11px;
+}
+.ai-decision-host .ai-decision-header p {
+  font-size: 14px;
+}
+.ai-decision-host .ai-data-status small,
+.ai-decision-host .ai-data-status em {
+  font-size: 10.5px;
+}
+.ai-decision-host .ai-data-status strong {
+  font-size: 12px;
+}
+.ai-decision-host .ai-decision-tabs button {
+  min-height: 43px;
+  font-size: 12.5px;
+}
+.ai-decision-host .ai-decision-filters label > span {
+  font-size: 10.5px;
+}
+.ai-decision-host .ai-decision-filters select {
+  height: 41px;
+  font-size: 12.5px;
+}
+.ai-decision-host .ai-decision-filters > button,
+.ai-decision-host .ai-card header button,
+.ai-decision-host .ai-action-board > header > button {
+  min-height: 38px;
+  font-size: 12px;
+}
+.ai-decision-host .ai-decision-kpis span {
+  font-size: 11px;
+}
+.ai-decision-host .ai-decision-kpis strong {
+  font-size: 27px;
+}
+.ai-decision-host .ai-decision-kpis small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.ai-decision-host .ai-card h2 {
+  font-size: 19px;
+}
+.ai-decision-host .ai-card header p {
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.ai-decision-host .ai-card > header > em,
+.ai-decision-host .ai-root-grid header > em,
+.ai-decision-host .ai-recommend-detail header > em {
+  font-size: 10.5px;
+}
+.ai-decision-host .ai-narrative h2 {
+  font-size: 23px;
+}
+.ai-decision-host .ai-narrative p,
+.ai-decision-host .ai-narrative aside p {
+  font-size: 12.5px;
+}
+.ai-decision-host .ai-narrative aside > b {
+  font-size: 12px;
+}
+.ai-decision-host .ai-narrative aside button {
+  min-height: 38px;
+  font-size: 11.5px;
+}
+.ai-decision-host .ai-signal-row {
+  min-height: 58px;
+  padding-block: 13px;
+}
+.ai-decision-host .ai-signal-row strong,
+.ai-decision-host .ai-signal-row > b {
+  font-size: 12px;
+}
+.ai-decision-host .ai-signal-row small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.ai-decision-host .ai-card em.critical,
+.ai-decision-host .ai-card em.high,
+.ai-decision-host .ai-card em.medium,
+.ai-decision-host .ai-card em.opportunity,
+.ai-decision-host .ai-signal-row > em,
+.ai-decision-host .ai-risk-register article > em,
+.ai-decision-host .ai-action-board article em {
+  font-size: 10.5px;
+  line-height: 1.25;
+}
+.ai-decision-host .ai-today strong {
+  font-size: 12px;
+}
+.ai-decision-host .ai-today small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.ai-decision-host .ai-today > button > b {
+  font-size: 11px;
+}
+.ai-decision-host .ai-risk-head,
+.ai-decision-host .ai-action-head {
+  min-height: 42px;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.ai-decision-host .ai-risk-register > article,
+.ai-decision-host .ai-action-board > article {
+  min-height: 58px;
+  padding-block: 14px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.ai-decision-host .ai-risk-register > article :is(strong, b),
+.ai-decision-host .ai-action-board > article :is(strong, b) {
+  font-size: 12px;
+}
+.ai-decision-host .ai-risk-register > article small,
+.ai-decision-host .ai-action-board > article small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.ai-decision-host .ai-risk-register > article > button,
+.ai-decision-host .ai-action-board > article > button {
+  min-height: 34px;
+  font-size: 11.5px;
+}
+.ai-decision-host .ai-causal-chain > span > b {
+  font-size: 11px;
+}
+.ai-decision-host .ai-causal-chain small,
+.ai-decision-host .ai-driver-list small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.ai-decision-host .ai-causal-chain strong,
+.ai-decision-host .ai-driver-list strong {
+  font-size: 12px;
+  line-height: 1.45;
+}
+.ai-decision-host .ai-root-grid h3 {
+  font-size: 14px;
+}
+.ai-decision-host .ai-driver-list em {
+  font-size: 11.5px;
+}
+.ai-decision-host .ai-evidence > p {
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.ai-decision-host .ai-evidence > div strong {
+  font-size: 12.5px;
+}
+.ai-decision-host .ai-evidence > div small {
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+.ai-decision-host .ai-evidence > button {
+  min-height: 39px;
+  font-size: 11.5px;
+}
+.ai-decision-host .ai-recommend-list > button {
+  min-height: 60px;
+  padding-block: 13px;
+}
+.ai-decision-host .ai-recommend-list strong,
+.ai-decision-host .ai-recommend-list > button > b {
+  font-size: 12px;
+}
+.ai-decision-host .ai-recommend-list small,
+.ai-decision-host .ai-recommend-list > button > span:last-child {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.ai-decision-host .ai-recommend-detail dt {
+  font-size: 10.5px;
+}
+.ai-decision-host .ai-recommend-detail dd {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ai-decision-host .ai-confidence strong {
+  font-size: 12px;
+}
+.ai-decision-host .ai-confidence small {
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.ai-decision-host .ai-recommend-detail > footer button {
+  min-height: 39px;
+  font-size: 11.5px;
+}
+.ai-decision-host .ai-decision-disclaimer {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .ai-decision-host .ai-decision-page {
+    padding: 20px 16px 40px;
+  }
+  .ai-decision-host .ai-decision-header h1 {
+    font-size: 30px;
+  }
+  .ai-decision-host .ai-decision-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
