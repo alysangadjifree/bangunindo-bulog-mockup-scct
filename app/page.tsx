@@ -18609,12 +18609,13 @@ function LoginPage({ onAuthenticated }: { onAuthenticated: () => void }) {
     <main className="login-page">
       <section className="login-panel">
         <div className="login-brand">
-          <span className="brand-mark">
-            <i />
-            <i />
-            <i />
-          </span>
-          <strong>bulog</strong>
+          <img
+            className="bulog-logo"
+            src="/logo-bulog.png"
+            alt="BULOG"
+            width={3207}
+            height={957}
+          />
         </div>
         <div className="login-heading">
           <span>SUPPLY CHAIN CONTROL TOWER</span>
@@ -29970,11 +29971,13 @@ export default function HomePage() {
   if (authStatus === "checking")
     return (
       <main className="auth-checking">
-        <span className="brand-mark">
-          <i />
-          <i />
-          <i />
-        </span>
+        <img
+          className="bulog-logo"
+          src="/logo-bulog.png"
+          alt="BULOG"
+          width={3207}
+          height={957}
+        />
         <strong>SCCT BULOG</strong>
         <small>Memverifikasi sesi aman…</small>
       </main>
@@ -29986,12 +29989,13 @@ export default function HomePage() {
     <main className="app-shell">
       <header className="topbar">
         <div className="brand" aria-label="Bulog">
-          <span className="brand-mark" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          <span>bulog</span>
+          <img
+            className="bulog-logo"
+            src="/logo-bulog.png"
+            alt="BULOG"
+            width={3207}
+            height={957}
+          />
         </div>
         <div className="mockup-label" aria-label="Mockup SCCT Phase I dan II">
           <span>MOCKUP</span>

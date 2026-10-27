@@ -642,45 +642,14 @@ button {
 .brand {
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: #255790;
-  font-size: 37px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -2.2px;
+  flex: 0 0 auto;
 }
 
-.brand-mark {
-  position: relative;
+.brand .bulog-logo {
   display: block;
-  width: 24px;
-  height: 35px;
-}
-
-.brand-mark i {
-  position: absolute;
-  left: 1px;
-  width: 21px;
-  height: 7px;
-  display: block;
-  background: #235790;
-  border-radius: 100% 0 100% 0;
-  transform: rotate(-28deg);
-}
-
-.brand-mark i:nth-child(1) {
-  top: 5px;
-  width: 15px;
-  background: #f0a719;
-  transform: rotate(18deg);
-}
-
-.brand-mark i:nth-child(2) {
-  top: 15px;
-}
-.brand-mark i:nth-child(3) {
-  top: 25px;
-  width: 17px;
+  width: 140px;
+  height: auto;
+  object-fit: contain;
 }
 
 .mockup-label {
@@ -7592,7 +7561,10 @@ button {
     padding: 0 14px;
   }
   .brand {
-    font-size: 31px;
+    width: auto;
+  }
+  .brand .bulog-logo {
+    width: 124px;
   }
   .mockup-label strong {
     display: none;
@@ -7840,7 +7812,10 @@ button {
     gap: 8px;
   }
   .brand {
-    font-size: 28px;
+    width: auto;
+  }
+  .brand .bulog-logo {
+    width: 112px;
   }
   .mockup-label {
     display: none;
@@ -13195,9 +13170,11 @@ button {
   color: #1f4e86;
   font-family: "Instrument Sans", sans-serif;
 }
-.auth-checking .brand-mark {
-  transform: scale(1.25);
-  margin-bottom: 15px;
+.auth-checking .bulog-logo {
+  width: 176px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 18px;
 }
 .auth-checking strong {
   font-size: 14px;
@@ -13229,17 +13206,13 @@ button {
 .login-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
   margin-bottom: 55px;
-  color: #1e518a;
 }
-.login-brand .brand-mark {
-  width: 35px;
-  height: 35px;
-}
-.login-brand > strong {
-  font-size: 28px;
-  letter-spacing: -1.5px;
+.login-brand .bulog-logo {
+  display: block;
+  width: 168px;
+  height: auto;
+  object-fit: contain;
 }
 .login-heading > span {
   font-size: 9px;
