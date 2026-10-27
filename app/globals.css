@@ -30293,3 +30293,317 @@ button {
     font-size: 30px;
   }
 }
+
+/* Alert & Exception readability pass
+   Brings alert operations, cases, SLA, history, and rules onto the same
+   moderate information-density scale used across Decision Intelligence. */
+.alert-workspace-host .alert-workspace {
+  font-size: 12px;
+}
+.alert-workspace-host .alert-page-header > div:first-child > span {
+  font-size: 11px;
+}
+.alert-workspace-host .alert-page-header p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.alert-workspace-host .alert-live,
+.alert-workspace-host :is(.alert-page-header, .alert-filterbar, .alert-table-card > header, .alert-detail, .case-toolbar) button {
+  font-size: 11.5px;
+}
+.alert-workspace-host .alert-switch button {
+  min-height: 45px;
+  font-size: 12px;
+}
+.alert-workspace-host .alert-switch button b {
+  font-size: 10.5px;
+}
+.alert-workspace-host .alert-kpis small,
+.alert-workspace-host .alert-kpis em {
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+.alert-workspace-host .alert-kpis strong {
+  font-size: 25px;
+}
+.alert-workspace-host .alert-command > div:first-child > span {
+  font-size: 11px;
+}
+.alert-workspace-host .alert-command h2 {
+  font-size: 19px;
+}
+.alert-workspace-host .alert-command p {
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.alert-workspace-host .alert-command > div:nth-child(2) span {
+  font-size: 10.5px;
+}
+.alert-workspace-host .alert-command button {
+  font-size: 11.5px;
+}
+.alert-workspace-host :is(.alert-filterbar, .case-toolbar) input,
+.alert-workspace-host .alert-filterbar select {
+  font-size: 11.5px;
+}
+.alert-workspace-host .alert-table-card > header h2 {
+  font-size: 19px;
+}
+.alert-workspace-host .alert-table-card > header span {
+  font-size: 10.5px;
+}
+.alert-workspace-host .alert-table-head {
+  min-height: 42px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+.alert-workspace-host .alert-table > button {
+  min-height: 58px;
+  padding-block: 13px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .alert-table strong {
+  font-size: 12px;
+}
+.alert-workspace-host .alert-table small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host :is(.sev, .alert-table .status) {
+  font-size: 10.5px;
+  line-height: 1.25;
+}
+.alert-workspace-host .alert-detail > header > span,
+.alert-workspace-host .alert-detail > small,
+.alert-workspace-host .alert-detail-impact span {
+  font-size: 10.5px;
+}
+.alert-workspace-host .alert-detail h2 {
+  font-size: 19px;
+}
+.alert-workspace-host .alert-detail-impact strong {
+  font-size: 20px;
+}
+.alert-workspace-host .alert-detail-impact p,
+.alert-workspace-host .alert-detail ol {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.alert-workspace-host .alert-detail dt {
+  font-size: 10.5px;
+}
+.alert-workspace-host .alert-detail dd {
+  font-size: 12px;
+}
+.alert-workspace-host .alert-detail h3 {
+  font-size: 13px;
+}
+
+/* My Cases cards and Kanban */
+.alert-workspace-host .case-summary small,
+.alert-workspace-host .case-summary span {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .case-summary strong {
+  font-size: 25px;
+}
+.alert-workspace-host .case-toolbar button b,
+.alert-workspace-host .case-column > header b {
+  font-size: 10.5px;
+}
+.alert-workspace-host .case-column > header span {
+  font-size: 12px;
+}
+.alert-workspace-host .case-column article {
+  padding: 12px;
+}
+.alert-workspace-host .case-column article > header small,
+.alert-workspace-host .case-column article > p,
+.alert-workspace-host .case-impact small,
+.alert-workspace-host .case-column article > footer > span {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .case-column h3 {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .case-impact span {
+  font-size: 12px;
+}
+.alert-workspace-host .case-column dt {
+  font-size: 10.5px;
+}
+.alert-workspace-host .case-column dd {
+  font-size: 11px;
+}
+.alert-workspace-host .add-case,
+.alert-workspace-host .case-board-note {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* Case detail dialog */
+.alert-workspace-host .case-detail-modal > header > div > span,
+.alert-workspace-host .case-detail-section > header span,
+.alert-workspace-host .case-detail-modal > aside section > span {
+  font-size: 10.5px;
+}
+.alert-workspace-host .case-detail-modal > header p > b,
+.alert-workspace-host .case-detail-modal > header p > i,
+.alert-workspace-host .case-detail-modal > header small {
+  font-size: 10.5px;
+}
+.alert-workspace-host .case-detail-modal h2 {
+  font-size: 22px;
+}
+.alert-workspace-host .case-detail-impact-card small,
+.alert-workspace-host .case-action-list small,
+.alert-workspace-host .case-detail-timeline small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .case-detail-impact-card strong {
+  font-size: 21px;
+}
+.alert-workspace-host .case-detail-impact-card p,
+.alert-workspace-host .case-root-cause :is(p, ol) {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.alert-workspace-host .case-detail-section h3 {
+  font-size: 14px;
+}
+.alert-workspace-host .case-detail-section :is(button, header > button),
+.alert-workspace-host .case-detail-body > aside section > button,
+.alert-workspace-host .case-detail-modal > footer button {
+  font-size: 11.5px;
+}
+.alert-workspace-host .case-detail-section dt {
+  font-size: 10.5px;
+}
+.alert-workspace-host .case-detail-section dd,
+.alert-workspace-host .case-action-list strong,
+.alert-workspace-host .case-detail-timeline b {
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .case-detail-section > header > b,
+.alert-workspace-host .case-detail-timeline article > p {
+  font-size: 11px;
+}
+
+/* SLA, Exception History, and Alert Rules */
+.alert-workspace-host .gov-card > header h2 {
+  font-size: 19px;
+}
+.alert-workspace-host .gov-card > header p {
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.alert-workspace-host .gov-card > header button,
+.alert-workspace-host .rules-list article > div:last-child button,
+.alert-workspace-host .rule-health > button {
+  font-size: 11.5px;
+}
+.alert-workspace-host .sla-table > div {
+  min-height: 42px;
+  font-size: 11px;
+}
+.alert-workspace-host .sla-table > article {
+  min-height: 56px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .sla-table span {
+  font-size: 11.5px;
+}
+.alert-workspace-host .sla-breaches b,
+.alert-workspace-host .sla-breaches article > strong {
+  font-size: 12px;
+}
+.alert-workspace-host .sla-breaches :is(small, em) {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .escalation-lane article > span {
+  font-size: 11px;
+}
+.alert-workspace-host .escalation-lane article b {
+  font-size: 12px;
+}
+.alert-workspace-host .escalation-lane article :is(small, p) {
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.alert-workspace-host .history-card > header > span {
+  font-size: 10.5px;
+}
+.alert-workspace-host .history-table > div {
+  min-height: 42px;
+  font-size: 11px;
+}
+.alert-workspace-host .history-table > button {
+  min-height: 58px;
+  padding-block: 13px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .history-table strong {
+  font-size: 12px;
+}
+.alert-workspace-host .history-table small {
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .history-insight strong {
+  font-size: 12px;
+}
+.alert-workspace-host .history-insight p {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.alert-workspace-host .history-insight button {
+  font-size: 11.5px;
+}
+.alert-workspace-host .rules-list article > div:nth-child(2) > span small,
+.alert-workspace-host .rules-list p,
+.alert-workspace-host .rule-review span {
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.alert-workspace-host .rules-list h3 {
+  font-size: 13px;
+}
+.alert-workspace-host .rules-list dt {
+  font-size: 10.5px;
+}
+.alert-workspace-host .rules-list dd,
+.alert-workspace-host .rule-health > p,
+.alert-workspace-host .rule-review p {
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.alert-workspace-host .rule-score strong {
+  font-size: 27px;
+}
+.alert-workspace-host .rule-score span,
+.alert-workspace-host .rule-health > p em {
+  font-size: 10.5px;
+}
+
+@media (max-width: 760px) {
+  .alert-workspace-host .alert-page-header h1 {
+    font-size: 30px;
+  }
+  .alert-workspace-host .case-detail-backdrop {
+    padding: 12px;
+  }
+  .alert-workspace-host .case-detail-modal {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+    max-height: calc(100vh - 24px);
+  }
+}
