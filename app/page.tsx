@@ -1783,8 +1783,10 @@ function NationalOverviewPage({
 
 function RiceOutflowOptimizerPage({
   onNotify,
+  onOpenApproval,
 }: {
   onNotify: (message: string) => void;
+  onOpenApproval: () => void;
 }) {
   const [objective, setObjective] = useState<"balanced" | "risk" | "cost">(
     "balanced",
@@ -1946,6 +1948,7 @@ function RiceOutflowOptimizerPage({
             onClick={() => {
               setApprovalState("Menunggu persetujuan");
               onNotify("Rekomendasi dikirim ke Approval Center");
+              onOpenApproval();
             }}
           >
             <Send size={16} />
@@ -2477,8 +2480,10 @@ function RiceOutflowOptimizerPage({
 
 function ShortageSurplusSimulatorPage({
   onNotify,
+  onOpenApproval,
 }: {
   onNotify: (message: string) => void;
+  onOpenApproval: () => void;
 }) {
   const [scenarioName, setScenarioName] = useState("Tekanan Pasokan Q3");
   const [horizon, setHorizon] = useState("6 bulan");
@@ -3172,9 +3177,10 @@ function ShortageSurplusSimulatorPage({
           </div>
           <button
             type="button"
-            onClick={() =>
-              onNotify("Paket rekomendasi dikirim ke Approval Center")
-            }
+            onClick={() => {
+              onNotify("Paket rekomendasi dikirim ke Approval Center");
+              onOpenApproval();
+            }}
           >
             <Send size={15} />
             Ajukan Paket
@@ -3290,7 +3296,10 @@ function ShortageSurplusSimulatorPage({
             </button>
             <button
               type="button"
-              onClick={() => onNotify("Report dikirim ke Approval Center")}
+              onClick={() => {
+                onNotify("Report dikirim ke Approval Center");
+                onOpenApproval();
+              }}
             >
               <Send size={16} />
               Kirim untuk Persetujuan
@@ -3314,8 +3323,10 @@ function ShortageSurplusSimulatorPage({
 
 function SeasonalDemandSurgePage({
   onNotify,
+  onOpenApproval,
 }: {
   onNotify: (message: string) => void;
+  onOpenApproval: () => void;
 }) {
   const [eventType, setEventType] = useState("Ramadhan & Idulfitri 2027");
   const [uplift, setUplift] = useState(24);
@@ -3945,9 +3956,10 @@ function SeasonalDemandSurgePage({
           </div>
           <button
             type="button"
-            onClick={() =>
-              onNotify("Rencana pre-positioning dikirim ke Approval Center")
-            }
+            onClick={() => {
+              onNotify("Rencana pre-positioning dikirim ke Approval Center");
+              onOpenApproval();
+            }}
           >
             <Send size={15} />
             Ajukan Rencana
@@ -4038,7 +4050,10 @@ function SeasonalDemandSurgePage({
             </button>
             <button
               type="button"
-              onClick={() => onNotify("Report dikirim untuk persetujuan")}
+              onClick={() => {
+                onNotify("Report dikirim untuk persetujuan");
+                onOpenApproval();
+              }}
             >
               <Send size={16} />
               Kirim untuk Persetujuan
@@ -13601,8 +13616,10 @@ function SupplyDomainSummaryPage({
 
 function SPHPPriceImpactSimulatorPage({
   onNotify,
+  onOpenApproval,
 }: {
   onNotify: (message: string) => void;
+  onOpenApproval: () => void;
 }) {
   const [zone, setZone] = useState<"Zona 1" | "Zona 2" | "Zona 3">("Zona 1");
   const [volume, setVolume] = useState(320);
@@ -14121,7 +14138,10 @@ function SPHPPriceImpactSimulatorPage({
             </div>
             <button
               type="button"
-              onClick={() => onNotify("Skenario dikirim ke Approval Center")}
+              onClick={() => {
+                onNotify("Skenario dikirim ke Approval Center");
+                onOpenApproval();
+              }}
             >
               <Send size={15} />
               Ajukan untuk Review
@@ -14268,7 +14288,10 @@ function SPHPPriceImpactSimulatorPage({
             <button
               type="button"
               className="primary"
-              onClick={() => onNotify("Report SPHP dikirim ke Approval Center")}
+              onClick={() => {
+                onNotify("Report SPHP dikirim ke Approval Center");
+                onOpenApproval();
+              }}
             >
               <Send size={16} />
               Kirim untuk Persetujuan
@@ -14294,8 +14317,10 @@ function SPHPPriceImpactSimulatorPage({
 
 function AgingDisposalRiskPage({
   onNotify,
+  onOpenApproval,
 }: {
   onNotify: (message: string) => void;
+  onOpenApproval: () => void;
 }) {
   const [horizon, setHorizon] = useState(90);
   const [qualityStress, setQualityStress] = useState(15);
@@ -14932,9 +14957,10 @@ function AgingDisposalRiskPage({
           </div>
           <button
             type="button"
-            onClick={() =>
-              onNotify("Paket mitigasi dikirim ke Approval Center")
-            }
+            onClick={() => {
+              onNotify("Paket mitigasi dikirim ke Approval Center");
+              onOpenApproval();
+            }}
           >
             <Send size={15} />
             Ajukan Paket
@@ -15017,7 +15043,10 @@ function AgingDisposalRiskPage({
             </button>
             <button
               type="button"
-              onClick={() => onNotify("Report dikirim ke komite berwenang")}
+              onClick={() => {
+                onNotify("Report dikirim ke komite berwenang");
+                onOpenApproval();
+              }}
             >
               <Send size={16} />
               Kirim untuk Review
@@ -15040,8 +15069,10 @@ function AgingDisposalRiskPage({
 
 function RouteModeSimulatorPage({
   onNotify,
+  onOpenApproval,
 }: {
   onNotify: (message: string) => void;
+  onOpenApproval: () => void;
 }) {
   const [volume, setVolume] = useState(12000);
   const [fuelShock, setFuelShock] = useState(8);
@@ -15729,7 +15760,10 @@ function RouteModeSimulatorPage({
             </button>
             <button
               type="button"
-              onClick={() => onNotify("Paket dikirim ke Approval Center")}
+              onClick={() => {
+                onNotify("Paket dikirim ke Approval Center");
+                onOpenApproval();
+              }}
             >
               <Send size={16} />
               Kirim untuk Approval
@@ -31188,7 +31222,12 @@ export default function HomePage() {
                 : "optimizer-view-host"
             }
           >
-            <RiceOutflowOptimizerPage onNotify={showToast} />
+            <RiceOutflowOptimizerPage
+              onNotify={showToast}
+              onOpenApproval={() =>
+                selectSidebarItem("Menunggu Persetujuan", "Approval Center")
+              }
+            />
           </div>
         )}
         {shortageSimulatorOpen && (
@@ -31199,7 +31238,12 @@ export default function HomePage() {
                 : "shortage-view-host"
             }
           >
-            <ShortageSurplusSimulatorPage onNotify={showToast} />
+            <ShortageSurplusSimulatorPage
+              onNotify={showToast}
+              onOpenApproval={() =>
+                selectSidebarItem("Menunggu Persetujuan", "Approval Center")
+              }
+            />
           </div>
         )}
         {seasonalDemandOpen && (
@@ -31210,7 +31254,12 @@ export default function HomePage() {
                 : "seasonal-view-host"
             }
           >
-            <SeasonalDemandSurgePage onNotify={showToast} />
+            <SeasonalDemandSurgePage
+              onNotify={showToast}
+              onOpenApproval={() =>
+                selectSidebarItem("Menunggu Persetujuan", "Approval Center")
+              }
+            />
           </div>
         )}
         {routeModeOpen && (
@@ -31221,7 +31270,12 @@ export default function HomePage() {
                 : "route-mode-view-host"
             }
           >
-            <RouteModeSimulatorPage onNotify={showToast} />
+            <RouteModeSimulatorPage
+              onNotify={showToast}
+              onOpenApproval={() =>
+                selectSidebarItem("Menunggu Persetujuan", "Approval Center")
+              }
+            />
           </div>
         )}
         {alertWorkspaceMode && (
@@ -31287,7 +31341,12 @@ export default function HomePage() {
                 : "aging-view-host"
             }
           >
-            <AgingDisposalRiskPage onNotify={showToast} />
+            <AgingDisposalRiskPage
+              onNotify={showToast}
+              onOpenApproval={() =>
+                selectSidebarItem("Menunggu Persetujuan", "Approval Center")
+              }
+            />
           </div>
         )}
         {sphpPriceImpactOpen && (
@@ -31298,7 +31357,12 @@ export default function HomePage() {
                 : "sphp-view-host"
             }
           >
-            <SPHPPriceImpactSimulatorPage onNotify={showToast} />
+            <SPHPPriceImpactSimulatorPage
+              onNotify={showToast}
+              onOpenApproval={() =>
+                selectSidebarItem("Menunggu Persetujuan", "Approval Center")
+              }
+            />
           </div>
         )}
         {domainSummaryOpen && (
