@@ -1772,6 +1772,7 @@ function RiceOutflowOptimizerPage({
   const [targetVolume, setTargetVolume] = useState("5.000.000");
   const [selectedRoute, setSelectedRoute] = useState("Jawa Timur → Papua");
   const [running, setRunning] = useState(false);
+  const [simulationComplete, setSimulationComplete] = useState(false);
   const [approvalState, setApprovalState] = useState("Draf simulasi");
   const [lastSimulation, setLastSimulation] = useState(
     "13 Agustus 2026, 08:42 WIB",
@@ -1879,9 +1880,11 @@ function RiceOutflowOptimizerPage({
 
   function runSimulation() {
     setRunning(true);
+    setSimulationComplete(false);
     setApprovalState("Draf simulasi");
     window.setTimeout(() => {
       setRunning(false);
+      setSimulationComplete(true);
       setLastSimulation("Baru saja");
       onNotify(`Skenario ${activeScenario.name} selesai dihitung`);
     }, 900);
@@ -1922,14 +1925,20 @@ function RiceOutflowOptimizerPage({
           <button
             type="button"
             className="optimizer-primary-button"
+            disabled={!simulationComplete || running}
+            title={
+              simulationComplete
+                ? "Kirim hasil ke Approval Center"
+                : "Jalankan simulasi terlebih dahulu"
+            }
             onClick={() => {
               setApprovalState("Menunggu persetujuan");
-              onNotify("Rekomendasi dikirim ke Approval Center");
+              onNotify("Rencana simulasi dikirim ke Approval Center");
               onOpenApproval();
             }}
           >
             <Send size={16} />
-            Ajukan Persetujuan
+            Ajukan untuk Persetujuan
           </button>
         </div>
       </header>
@@ -2441,6 +2450,8 @@ function RiceOutflowOptimizerPage({
           </ol>
         </section>
       </div>
+
+      <SimulationApprovalFlow domain="optimasi keluaran beras" />
 
       <footer className="optimizer-disclaimer">
         <AlertTriangle size={16} />
@@ -3154,13 +3165,19 @@ function ShortageSurplusSimulatorPage({
           </div>
           <button
             type="button"
+            disabled={running || lastRun === "Belum dijalankan"}
+            title={
+              lastRun === "Belum dijalankan"
+                ? "Jalankan simulasi terlebih dahulu"
+                : "Kirim hasil ke Approval Center"
+            }
             onClick={() => {
-              onNotify("Paket rekomendasi dikirim ke Approval Center");
+              onNotify("Rencana shortage dan surplus dikirim ke Approval Center");
               onOpenApproval();
             }}
           >
             <Send size={15} />
-            Ajukan Paket
+            Ajukan untuk Persetujuan
           </button>
         </div>
       </section>
@@ -3273,17 +3290,25 @@ function ShortageSurplusSimulatorPage({
             </button>
             <button
               type="button"
+              disabled={!reportReady}
+              title={
+                reportReady
+                  ? "Kirim hasil ke Approval Center"
+                  : "Buat report rekomendasi terlebih dahulu"
+              }
               onClick={() => {
-                onNotify("Report dikirim ke Approval Center");
+                onNotify("Rencana shortage dan surplus dikirim ke Approval Center");
                 onOpenApproval();
               }}
             >
               <Send size={16} />
-              Kirim untuk Persetujuan
+              Ajukan untuk Persetujuan
             </button>
           </aside>
         </div>
       </section>
+
+      <SimulationApprovalFlow domain="shortage, surplus, dan redistribusi stok" />
 
       <footer className="shortage-disclaimer">
         <AlertTriangle size={16} />
@@ -3933,13 +3958,19 @@ function SeasonalDemandSurgePage({
           </div>
           <button
             type="button"
+            disabled={running || lastRun === "Belum dijalankan"}
+            title={
+              lastRun === "Belum dijalankan"
+                ? "Jalankan simulasi terlebih dahulu"
+                : "Kirim hasil ke Approval Center"
+            }
             onClick={() => {
-              onNotify("Rencana pre-positioning dikirim ke Approval Center");
+              onNotify("Rencana kebutuhan musiman dikirim ke Approval Center");
               onOpenApproval();
             }}
           >
             <Send size={15} />
-            Ajukan Rencana
+            Ajukan untuk Persetujuan
           </button>
         </div>
       </section>
@@ -4027,17 +4058,25 @@ function SeasonalDemandSurgePage({
             </button>
             <button
               type="button"
+              disabled={reportState !== "Report siap"}
+              title={
+                reportState === "Report siap"
+                  ? "Kirim hasil ke Approval Center"
+                  : "Buat report rekomendasi terlebih dahulu"
+              }
               onClick={() => {
-                onNotify("Report dikirim untuk persetujuan");
+                onNotify("Rencana kebutuhan musiman dikirim ke Approval Center");
                 onOpenApproval();
               }}
             >
               <Send size={16} />
-              Kirim untuk Persetujuan
+              Ajukan untuk Persetujuan
             </button>
           </aside>
         </div>
       </section>
+
+      <SimulationApprovalFlow domain="kebutuhan musiman dan pre-positioning stok" />
 
       <footer className="seasonal-disclaimer">
         <AlertTriangle size={16} />
@@ -5499,11 +5538,13 @@ function SimulationApprovalFlow({ domain }: { domain: string }) {
   return (
     <section className="inventory-approval-flow simulation-shared-flow">
       <header>
-        <span>ALUR AJUKAN RENCANA</span>
-        <h2>Dari simulasi ke keputusan yang dapat diaudit</h2>
+        <span>ALUR PERSETUJUAN RENCANA</span>
+        <h2>Dari hasil simulasi ke keputusan yang dapat dijalankan</h2>
         <p>
-          Rencana {domain} tidak langsung dieksekusi. Sistem mengunci snapshot,
-          menjalankan policy check, lalu membuat item pada Approval Center.
+          Hasil simulasi {domain} bukan instruksi operasional. Setelah hasil
+          ditinjau, pilih <b>Ajukan untuk Persetujuan</b>; sistem mengunci
+          snapshot, menjalankan policy check, lalu membuat item di Approval
+          Center.
         </p>
       </header>
       <div>
@@ -5525,8 +5566,8 @@ function SimulationApprovalFlow({ domain }: { domain: string }) {
           ],
           [
             "4",
-            "Keputusan",
-            "Disetujui membuat instruksi kerja; revisi/ditolak kembali ke pemilik rencana.",
+            "Keputusan & eksekusi",
+            "Jika disetujui, aksi Jalankan Rencana tersedia bagi petugas berwenang; revisi atau penolakan kembali ke pemilik rencana.",
           ],
           [
             "5",
@@ -14115,13 +14156,19 @@ function SPHPPriceImpactSimulatorPage({
             </div>
             <button
               type="button"
+              disabled={running || lastRun === "Belum dijalankan"}
+              title={
+                lastRun === "Belum dijalankan"
+                  ? "Jalankan simulasi terlebih dahulu"
+                  : "Kirim hasil ke Approval Center"
+              }
               onClick={() => {
-                onNotify("Skenario dikirim ke Approval Center");
+                onNotify("Rencana intervensi SPHP dikirim ke Approval Center");
                 onOpenApproval();
               }}
             >
               <Send size={15} />
-              Ajukan untuk Review
+              Ajukan untuk Persetujuan
             </button>
           </aside>
         </div>
@@ -14265,17 +14312,25 @@ function SPHPPriceImpactSimulatorPage({
             <button
               type="button"
               className="primary"
+              disabled={!reportReady}
+              title={
+                reportReady
+                  ? "Kirim hasil ke Approval Center"
+                  : "Buat report rekomendasi terlebih dahulu"
+              }
               onClick={() => {
-                onNotify("Report SPHP dikirim ke Approval Center");
+                onNotify("Rencana intervensi SPHP dikirim ke Approval Center");
                 onOpenApproval();
               }}
             >
               <Send size={16} />
-              Kirim untuk Persetujuan
+              Ajukan untuk Persetujuan
             </button>
           </aside>
         </div>
       </section>
+
+      <SimulationApprovalFlow domain="intervensi harga dan penyaluran SPHP" />
 
       <footer className="sphp-disclaimer">
         <AlertTriangle size={16} />
@@ -14934,13 +14989,19 @@ function AgingDisposalRiskPage({
           </div>
           <button
             type="button"
+            disabled={running || lastRun === "Belum dijalankan"}
+            title={
+              lastRun === "Belum dijalankan"
+                ? "Jalankan simulasi terlebih dahulu"
+                : "Kirim hasil ke Approval Center"
+            }
             onClick={() => {
-              onNotify("Paket mitigasi dikirim ke Approval Center");
+              onNotify("Rencana mitigasi aging dikirim ke Approval Center");
               onOpenApproval();
             }}
           >
             <Send size={15} />
-            Ajukan Paket
+            Ajukan untuk Persetujuan
           </button>
         </div>
       </section>
@@ -15020,17 +15081,25 @@ function AgingDisposalRiskPage({
             </button>
             <button
               type="button"
+              disabled={!reportReady}
+              title={
+                reportReady
+                  ? "Kirim hasil ke Approval Center"
+                  : "Buat report rekomendasi terlebih dahulu"
+              }
               onClick={() => {
-                onNotify("Report dikirim ke komite berwenang");
+                onNotify("Rencana mitigasi aging dikirim ke Approval Center");
                 onOpenApproval();
               }}
             >
               <Send size={16} />
-              Kirim untuk Review
+              Ajukan untuk Persetujuan
             </button>
           </aside>
         </div>
       </section>
+      <SimulationApprovalFlow domain="mitigasi aging dan risiko disposal" />
+
       <footer className="aging-disclaimer">
         <AlertTriangle size={16} />
         <span>
@@ -15737,17 +15806,25 @@ function RouteModeSimulatorPage({
             </button>
             <button
               type="button"
+              disabled={!reportReady}
+              title={
+                reportReady
+                  ? "Kirim hasil ke Approval Center"
+                  : "Buat report rekomendasi terlebih dahulu"
+              }
               onClick={() => {
-                onNotify("Paket dikirim ke Approval Center");
+                onNotify("Rencana rute dan moda dikirim ke Approval Center");
                 onOpenApproval();
               }}
             >
               <Send size={16} />
-              Kirim untuk Approval
+              Ajukan untuk Persetujuan
             </button>
           </aside>
         </div>
       </section>
+      <SimulationApprovalFlow domain="rute, moda, dan jadwal distribusi" />
+
       <footer className="route-mode-disclaimer">
         <AlertTriangle size={16} />
         <span>

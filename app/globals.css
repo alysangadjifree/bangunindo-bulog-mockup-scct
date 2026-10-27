@@ -29392,6 +29392,17 @@ button {
 .simulation-shared-flow {
   margin-top: 14px;
 }
+.optimizer-page button:disabled,
+.shortage-page button:disabled,
+.seasonal-page button:disabled,
+.sphp-page button:disabled,
+.aging-page button:disabled,
+.route-mode-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  filter: saturate(0.65);
+  box-shadow: none;
+}
 
 /* National dashboard provenance and calmer information density */
 .national-data-provenance {
