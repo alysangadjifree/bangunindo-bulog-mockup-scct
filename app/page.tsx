@@ -480,29 +480,6 @@ const sidebarSections: SidebarSection[] = [
           "Forecast Accuracy",
         ],
       },
-      {
-        label: "Data Quality",
-        icon: Database,
-        children: [
-          "Data Health Overview",
-          "Data Freshness",
-          "Completeness",
-          "Consistency",
-          "Data Issues",
-          "Riwayat Perbaikan",
-        ],
-      },
-      {
-        label: "Integration Monitoring",
-        icon: Activity,
-        children: [
-          "Integration Overview",
-          "Status Sumber Data",
-          "Sinkronisasi Data",
-          "Integration Logs",
-          "Failed Transactions",
-        ],
-      },
     ],
   },
   {
